@@ -1,0 +1,18 @@
+[package]
+name = "huelib"
+description = "Rust bindings for the Philips Hue API"
+version = "0.1.0"
+authors = ["yuqio <niklas.sauter@gmx.de>"]
+edition = "2018"
+repository = "https://github.com/yuqio/huelib-rs"
+readme = "README.md"
+license = "MIT"
+categories = ["api-bindings"]
+keywords = ["philips", "hue", "light"]
+
+[dependencies]
+ureq = { version = "0.12", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_repr = "0.1"
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }

@@ -4,6 +4,7 @@ description = "Rust bindings for the Philips Hue API"
 version = "0.1.0"
 authors = ["yuqio <niklas.sauter@gmx.de>"]
 edition = "2018"
+homepage = "https://github.com/yuqio/huelib-rs"
 repository = "https://github.com/yuqio/huelib-rs"
 readme = "README.md"
 license = "MIT"

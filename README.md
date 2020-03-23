@@ -1,5 +1,10 @@
 # huelib-rs
 
+[![Version](https://img.shields.io/crates/v/huelib.svg)](https://crates.io/crate/huelib)
+[![Docs](https://docs.rs/huelib/badge.svg)](https://docs.rs/huelib)
+[![License](https://img.shields.io/github/license/yuqio/huelib-rs.svg)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)
+[![Lines of code](https://tokei.rs/b1/github/yuqio/huelib-rs)]()
+
 <!-- cargo-sync-readme start -->
 
 Rust bindings for the [Philips Hue API].

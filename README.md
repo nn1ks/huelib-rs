@@ -1,5 +1,6 @@
 # huelib-rs
 
+[![Build](https://img.shields.io/github/workflow/status/yuqio/huelib-rs/Rust)](https://github.com/yuqio/huelib-rs/actions)
 [![Crate](https://img.shields.io/crates/v/huelib)](https://crates.io/crates/huelib)
 [![Docs](https://docs.rs/huelib/badge.svg)](https://docs.rs/huelib)
 [![License](https://img.shields.io/github/license/yuqio/huelib-rs)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)

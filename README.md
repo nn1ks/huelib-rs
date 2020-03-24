@@ -61,7 +61,7 @@ match bridge.set_light_state("1", &state_modifier) {
 - [x] Groups API
 - [x] Scenes API
 - [x] Configuration API
-- [ ] Capabilities API
+- [x] Capabilities API
 - [ ] Schedules API
 - [ ] Rules API
 - [ ] Resourcelinks API

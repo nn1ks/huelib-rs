@@ -48,6 +48,11 @@
 /// Module for managing bridges.
 pub mod bridge;
 
+/// Bindings to the [Capabilities API].
+///
+/// [Capabilities API]: https://developers.meethue.com/develop/hue-api/10-capabilities-api/
+pub mod capabilities;
+
 /// Bindings to the [Configuration API].
 ///
 /// [Configuration API]: https://developers.meethue.com/develop/hue-api/7-configuration-api
@@ -75,6 +80,7 @@ pub mod response;
 pub mod scene;
 
 pub use bridge::Bridge;
+pub use capabilities::Capabilities;
 pub use config::Config;
 pub use error::Error;
 pub use group::Group;

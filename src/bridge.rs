@@ -1,4 +1,5 @@
 use crate::{
+    capabilities::Capabilities,
     config::{self, Config},
     error::Error,
     group::{self, Group},
@@ -403,5 +404,12 @@ impl Bridge {
             scenes.push(scene.with_id(&id));
         }
         Ok(scenes)
+    }
+
+    /// Returns the capabilities of resources.
+    pub fn get_capabilities(&self) -> Result<Capabilities, Error> {
+        let response: serde_json::Value = self.api_request("capabilities", RequestType::Get)?;
+        try_into_response_error(response.clone())?;
+        Ok(serde_json::from_value(response)?)
     }
 }

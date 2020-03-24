@@ -36,8 +36,10 @@ pub struct Light {
     /// Information about software updates of the light.
     #[serde(rename(deserialize = "swupdate"))]
     pub software_update: SoftwareUpdate,
-    // TODO: Config
-    // TODO: Capabilities
+    /// Configuration of the light.
+    pub config: Config,
+    /// Capabilities of the light.
+    pub capabilities: Capabilities,
 }
 
 impl Light {
@@ -99,6 +101,79 @@ pub enum SoftwareUpdateState {
     /// Device cannot be updated.
     NotUpdatable,
     // TODO: Add additional variants for states
+}
+
+/// Configuration of a light.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Config {
+    /// Arche type of the light.
+    #[serde(rename(deserialize = "archetype"))]
+    pub arche_type: String,
+    /// Function of the light.
+    pub function: String,
+    /// Direction of the light.
+    pub direction: String,
+    /// Startup configuration of the light.
+    pub startup: Option<StartupConfig>,
+}
+
+/// Startup configuration of a light.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct StartupConfig {
+    /// Mode of the startup.
+    #[serde(rename(deserialize = "archetype"))]
+    pub mode: String,
+    /// Whether startup is configured for the light.
+    pub configured: bool,
+}
+
+/// Capabilities of a light.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct Capabilities {
+    /// Whether the light is certified.
+    pub certified: bool,
+    /// Control capabilities of the light.
+    pub control: ControlCapabilities,
+    /// Streaming capabilities of the light.
+    pub streaming: StreamingCapabilities,
+}
+
+/// Control capabilities of a light.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct ControlCapabilities {
+    /// Minimal dimlevel of the light.
+    #[serde(rename(deserialize = "mindimlevel"))]
+    pub min_dimlevel: Option<usize>,
+    /// Maximal lumen of the light.
+    #[serde(rename(deserialize = "maxlumen"))]
+    pub max_lumen: Option<usize>,
+    /// Color gamut of the light.
+    #[serde(rename(deserialize = "colorgamut"))]
+    pub color_gamut: Option<Vec<(f32, f32)>>,
+    /// Type of the color gamut of the light.
+    #[serde(rename(deserialize = "colorgamuttype"))]
+    pub color_gamut_type: Option<String>,
+    /// Maximal/minimal color temperature of the light.
+    #[serde(rename(deserialize = "ct"))]
+    pub color_temperature: Option<ColorTemperatureCapabilities>,
+}
+
+/// Maximal/minimal color temperature of the light.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct ColorTemperatureCapabilities {
+    /// Whether a renderer is enabled.
+    pub min: usize,
+    /// Whether a proxy is enabled.
+    pub max: usize,
+}
+
+/// Streaming capabilities of a light.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct StreamingCapabilities {
+    /// Whether a renderer is enabled.
+    pub renderer: bool,
+    /// Whether a proxy is enabled.
+    pub proxy: bool,
 }
 
 /// Struct for modifying light attributes.

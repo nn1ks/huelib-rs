@@ -86,7 +86,7 @@ use serde::{Deserialize, Serialize};
 
 /// Alert effect of a light.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all(deserialize = "lowercase"))]
+#[serde(rename_all = "lowercase")]
 pub enum Alert {
     /// Performs one breathe cycle.
     Select,
@@ -98,7 +98,7 @@ pub enum Alert {
 
 /// Dynamic effect of a light.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all(deserialize = "lowercase"))]
+#[serde(rename_all = "lowercase")]
 pub enum Effect {
     /// Cycles through all hues with the current brightness and saturation.
     Colorloop,

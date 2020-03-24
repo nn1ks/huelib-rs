@@ -380,7 +380,7 @@ impl Modifier {
         }
     }
 
-    /// Sets the proxy port of the bridge.
+    /// Sets the proxy port of the bridge. If set to 0 then a proxy is not being used.
     pub fn proxy_port(self, value: u16) -> Self {
         Self {
             proxy_port: Some(value),
@@ -388,20 +388,13 @@ impl Modifier {
         }
     }
 
-    /// Sets the proxy address of the bridge.
-    pub fn proxy_address(self, value: IpAddr) -> Self {
+    /// Sets the proxy address of the bridge. If set to `None` then a proxy is not being used.
+    pub fn proxy_address(self, value: Option<IpAddr>) -> Self {
         Self {
-            proxy_address: Some(value.to_string()),
-            ..self
-        }
-    }
-
-    /// Sets the proxy port to 0 and the proxy address to "none". This results in deactivating the
-    /// proxy.
-    pub fn no_proxy(self) -> Self {
-        Self {
-            proxy_port: Some(0),
-            proxy_address: Some("none".to_owned()),
+            proxy_address: Some(match value {
+                Some(v) => v.to_string(),
+                None => "none".to_owned(),
+            }),
             ..self
         }
     }

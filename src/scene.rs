@@ -124,11 +124,11 @@ pub struct Creator {
 impl crate::Creator for Creator {}
 
 impl Creator {
-    /// Creates a new creator.
-    pub fn new(name: &str, lights: Vec<String>) -> Self {
+    /// Creates a new scene creator.
+    pub fn new(name: &str, lights: &[&str]) -> Self {
         Self {
             name: name.to_owned(),
-            lights,
+            lights: lights.to_vec().iter().map(|v| (*v).to_string()).collect(),
             ..Default::default()
         }
     }

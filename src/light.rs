@@ -198,49 +198,31 @@ impl AttributeModifier {
 pub struct StateModifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     on: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", rename(deserialize = "bri"))]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "bri")]
     brightness: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     hue: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename(deserialize = "sat"))]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "sat")]
     saturation: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none", rename(deserialize = "xy"))]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "xy")]
     color_space_coordinates: Option<(f32, f32)>,
-    #[serde(skip_serializing_if = "Option::is_none", rename(deserialize = "ct"))]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "ct")]
     color_temperature: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
     alert: Option<Alert>,
     #[serde(skip_serializing_if = "Option::is_none")]
     effect: Option<Effect>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "transitiontime")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "transitiontime")]
     transition_time: Option<u16>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "bri_inc")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "bri_inc")]
     brightness_increment: Option<i16>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "hue_inc")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "hue_inc")]
     hue_increment: Option<i32>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "sat_inc")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "sat_inc")]
     saturation_increment: Option<i16>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "xy_inc")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "xy_inc")]
     color_space_coordinates_increment: Option<(f32, f32)>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        rename(deserialize = "ct_inc")
-    )]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "ct_inc")]
     color_temperature_increment: Option<i32>,
 }
 

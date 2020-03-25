@@ -10,9 +10,9 @@ pub struct Scene {
     pub id: String,
     /// Name of the scene.
     pub name: String,
-    /// Type of the scene.
+    /// Kind of the scene.
     #[serde(rename = "type")]
-    pub kind: Type,
+    pub kind: Kind,
     /// Identifier of the group that the scene is linked to.
     pub group: Option<String>,
     /// Identifier of the lights that are in this scene.
@@ -58,9 +58,9 @@ impl Scene {
     }
 }
 
-/// Type of a scene.
+/// Kind of a scene.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub enum Type {
+pub enum Kind {
     /// Represents a scene with lights.
     LightScene,
     /// Represents a scene which links to a specific group.
@@ -114,7 +114,7 @@ pub struct Creator {
     name: String,
     lights: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
-    kind: Option<Type>,
+    kind: Option<Kind>,
     #[serde(skip_serializing_if = "Option::is_none")]
     app_data: Option<AppData>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "lightstates")]
@@ -134,7 +134,7 @@ impl Creator {
     }
 
     /// Sets the type of the scene.
-    pub fn kind(self, value: Type) -> Self {
+    pub fn kind(self, value: Kind) -> Self {
         Self {
             kind: Some(value),
             ..self

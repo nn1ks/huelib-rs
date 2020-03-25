@@ -134,8 +134,8 @@ pub struct State {
     pub all_on: bool,
 }
 
-/// Struct for creating a new group.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+/// Struct for creating a group.
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
 pub struct Creator {
     /// The name of the new group.
     pub name: String,
@@ -148,6 +148,35 @@ pub struct Creator {
     /// `Room` and `class` is `None` the room will get the class `Other`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub class: Option<Class>,
+}
+
+impl crate::Creator for Creator {}
+
+impl Creator {
+    /// Creates a new group creator.
+    pub fn new(name: &str, lights: &[&str]) -> Self {
+        Self {
+            name: name.to_owned(),
+            lights: lights.to_vec().iter().map(|v| (*v).to_string()).collect(),
+            ..Default::default()
+        }
+    }
+
+    /// Sets the type of the group.
+    pub fn kind(self, value: TypeCreator) -> Self {
+        Self {
+            kind: Some(value),
+            ..self
+        }
+    }
+
+    /// Sets the class of the group.
+    pub fn class(self, value: Class) -> Self {
+        Self {
+            class: Some(value),
+            ..self
+        }
+    }
 }
 
 /// Group type of a `Creator`.
@@ -182,19 +211,9 @@ pub struct AttributeModifier {
     class: Option<Class>,
 }
 
+impl crate::Modifier for AttributeModifier {}
+
 impl AttributeModifier {
-    /// Creates a new attribute modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    /// Whether all attributes are `None`.
-    pub fn is_empty(&self) -> bool {
-        self.name == None && self.lights == None && self.class == None
-    }
-
     /// Changes the name of the group.
     pub fn name(self, value: &str) -> Self {
         Self {
@@ -206,7 +225,7 @@ impl AttributeModifier {
     /// Changes what lights are in the group.
     pub fn lights(self, value: &[&str]) -> Self {
         Self {
-            lights: Some(Vec::from(value).iter().map(|v| (*v).to_string()).collect()),
+            lights: Some(value.to_vec().iter().map(|v| (*v).to_string()).collect()),
             ..self
         }
     }
@@ -255,33 +274,9 @@ pub struct StateModifier {
     scene: Option<String>,
 }
 
+impl crate::Modifier for StateModifier {}
+
 impl StateModifier {
-    /// Creates a new state modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    /// Whether all attributes are `None`.
-    pub fn is_empty(&self) -> bool {
-        self.on == None
-            && self.brightness == None
-            && self.hue == None
-            && self.saturation == None
-            && self.color_space_coordinates == None
-            && self.color_temperature == None
-            && self.alert == None
-            && self.effect == None
-            && self.transition_time == None
-            && self.brightness_increment == None
-            && self.hue_increment == None
-            && self.saturation_increment == None
-            && self.color_space_coordinates_increment == None
-            && self.color_temperature_increment == None
-            && self.scene == None
-    }
-
     /// Turns the lights on or off.
     pub fn on(self, value: bool) -> Self {
         Self {

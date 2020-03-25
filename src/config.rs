@@ -316,30 +316,9 @@ pub struct Modifier {
     timezone: Option<String>,
 }
 
+impl crate::Modifier for Modifier {}
+
 impl Modifier {
-    /// Creates a new modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    /// Whether all attributes are `None`.
-    pub fn is_empty(&self) -> bool {
-        self.name == None
-            && self.ip_address == None
-            && self.netmask == None
-            && self.gateway == None
-            && self.dhcp == None
-            && self.proxy_port == None
-            && self.proxy_address == None
-            && self.linkbutton == None
-            && self.touchlink == None
-            && self.zigbee_channel == None
-            && self.current_time == None
-            && self.timezone == None
-    }
-
     /// Sets the name of the bridge.
     pub fn name(self, value: &str) -> Self {
         Self {

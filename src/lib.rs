@@ -155,3 +155,19 @@ pub enum CoordinateModifierType {
     /// second coordinate.
     DecrementIncrement,
 }
+
+/// Trait for modifiers.
+pub trait Modifier: Default + Clone + PartialEq {
+    /// Creates a new modifier.
+    fn new() -> Self {
+        Default::default()
+    }
+
+    /// Whether the modifier will not modify anything.
+    fn is_empty(&self) -> bool {
+        self.clone() == Default::default()
+    }
+}
+
+/// Trait for creators.
+pub trait Creator {}

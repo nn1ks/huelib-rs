@@ -78,14 +78,9 @@ pub struct AppData {
     pub data: Option<String>,
 }
 
-impl AppData {
-    /// Creates new app data.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
+impl crate::Modifier for AppData {}
 
+impl AppData {
     /// Sets the version.
     pub fn version(self, value: i8) -> Self {
         Self {
@@ -125,6 +120,8 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none", rename = "lightstates")]
     light_states: Option<HashMap<String, LightStateModifier>>,
 }
+
+impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new creator.
@@ -182,14 +179,9 @@ pub struct LightStateModifier {
     transition_time: Option<u16>,
 }
 
-impl LightStateModifier {
-    /// Creates a new light state modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
+impl crate::Modifier for LightStateModifier {}
 
+impl LightStateModifier {
     /// Turns the lights on or off.
     pub fn on(self, value: bool) -> Self {
         Self {
@@ -268,14 +260,9 @@ pub struct Modifier {
     store_light_state: Option<bool>,
 }
 
-impl Modifier {
-    /// Creates a new modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
+impl crate::Modifier for Modifier {}
 
+impl Modifier {
     /// Sets the name of the scene.
     pub fn name(self, value: &str) -> Self {
         Self {

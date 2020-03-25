@@ -183,19 +183,9 @@ pub struct AttributeModifier {
     name: Option<String>,
 }
 
+impl crate::Modifier for AttributeModifier {}
+
 impl AttributeModifier {
-    /// Creates a new attribute modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    /// Whether all attributes are `None`.
-    pub fn is_empty(&self) -> bool {
-        self.name == None
-    }
-
     /// Changes the name of the light.
     pub fn name(self, value: &str) -> Self {
         Self {
@@ -255,32 +245,9 @@ pub struct StateModifier {
     color_temperature_increment: Option<i32>,
 }
 
+impl crate::Modifier for StateModifier {}
+
 impl StateModifier {
-    /// Creates a new state modifier.
-    pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    /// Whether all attributes are `None`.
-    pub fn is_empty(&self) -> bool {
-        self.on == None
-            && self.brightness == None
-            && self.hue == None
-            && self.saturation == None
-            && self.color_space_coordinates == None
-            && self.color_temperature == None
-            && self.alert == None
-            && self.effect == None
-            && self.transition_time == None
-            && self.brightness_increment == None
-            && self.hue_increment == None
-            && self.saturation_increment == None
-            && self.color_space_coordinates_increment == None
-            && self.color_temperature_increment == None
-    }
-
     /// Turns the light on or off.
     pub fn on(self, value: bool) -> Self {
         Self {

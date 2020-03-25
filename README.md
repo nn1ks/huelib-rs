@@ -26,7 +26,7 @@ are deserialized/serialized using the [serde], [serde_json] and [serde_repr] cra
 
 Register a user and set the brightness and saturation of a light.
 ```rust
-use huelib::{bridge, light};
+use huelib::{bridge, light, Modifier};
 use std::net::{IpAddr, Ipv4Addr};
 
 let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));

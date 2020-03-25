@@ -3,27 +3,27 @@ use serde_repr::Deserialize_repr;
 use std::net::IpAddr;
 
 /// Configuration for a bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Config {
     /// Name of the bridge.
     pub name: String,
     /// Information about software updates.
-    #[serde(rename(deserialize = "swupdate2"))]
+    #[serde(rename = "swupdate2")]
     pub software_update: SoftwareUpdate,
     /// Software version of the bridge.
-    #[serde(rename(deserialize = "swversion"))]
+    #[serde(rename = "swversion")]
     pub software_version: String,
     /// The version of the Philips Hue API.
-    #[serde(rename(deserialize = "apiversion"))]
+    #[serde(rename = "apiversion")]
     pub api_version: String,
     /// Indicates whether the link button has been pressed within the last 30 seconds.
-    #[serde(rename(deserialize = "linkbutton"))]
+    #[serde(rename = "linkbutton")]
     pub link_button: bool,
     /// IP address of the bridge.
-    #[serde(rename(deserialize = "ipaddress"))]
+    #[serde(rename = "ipaddress")]
     pub ip_address: IpAddr,
     /// MAC address of the bridge.
-    #[serde(rename(deserialize = "mac"))]
+    #[serde(rename = "mac")]
     pub mac_address: String,
     /// Network mask of the bridge.
     pub netmask: String,
@@ -32,22 +32,22 @@ pub struct Config {
     /// Whether the IP address of the bridge is obtained with DHCP.
     pub dhcp: bool,
     /// Whether the bridge is registered to synchronize data with a portal account.
-    #[serde(rename(deserialize = "portalservices"))]
+    #[serde(rename = "portalservices")]
     pub portal_services: bool,
     /// Status of the portal connection.
-    #[serde(rename(deserialize = "portalconnection"))]
+    #[serde(rename = "portalconnection")]
     pub portal_connection: ServiceStatus,
     /// Portal state of the bridge.
-    #[serde(rename(deserialize = "portalstate"))]
+    #[serde(rename = "portalstate")]
     pub portal_state: PortalState,
     /// Internet services of the bridge.
-    #[serde(rename(deserialize = "internetservices"))]
+    #[serde(rename = "internetservices")]
     pub internet_services: InternetServices,
     /// Current time stored on the bridge.
-    #[serde(rename(deserialize = "UTC"))]
+    #[serde(rename = "UTC")]
     pub current_time: chrono::NaiveDateTime,
     /// Local time of the bridge.
-    #[serde(rename(deserialize = "localtime"))]
+    #[serde(rename = "localtime")]
     #[serde(deserialize_with = "deserialize_local_time")]
     pub local_time: Option<chrono::NaiveDateTime>,
     /// Timezone of the bridge as OlsenIDs, like "Europe/Amsterdam".
@@ -55,26 +55,26 @@ pub struct Config {
     pub timezone: Option<String>,
     /// The current wireless frequency channel used by the bridge. It can take values of 11, 15,
     /// 20, 25 or 0 if undefined (factory new).
-    #[serde(rename(deserialize = "zigbeechannel"))]
+    #[serde(rename = "zigbeechannel")]
     pub zigbee_channel: u8,
     /// Uniquely identifies the hardware model of the bridge.
-    #[serde(rename(deserialize = "modelid"))]
+    #[serde(rename = "modelid")]
     pub model_id: String,
     /// The unique bridge id.
-    #[serde(rename(deserialize = "bridgeid"))]
+    #[serde(rename = "bridgeid")]
     pub bridge_id: String,
-    #[serde(rename(deserialize = "factorynew"))]
+    #[serde(rename = "factorynew")]
     /// Indicates if bridge settings are factory new.
     pub factory_new: bool,
-    #[serde(rename(deserialize = "replacesbridgeid"))]
+    #[serde(rename = "replacesbridgeid")]
     /// If a bridge backup file has been restored on this bridge from a bridge with a different
     /// bridge id, it will indicate that bridge id, otherwise it will be None.
     pub replaces_bridge_id: Option<bool>,
     /// The version of the datastore.
-    #[serde(rename(deserialize = "datastoreversion"))]
+    #[serde(rename = "datastoreversion")]
     pub datastore_version: String,
     /// Name of the starterkit created in the factory.
-    #[serde(rename(deserialize = "starterkitid"))]
+    #[serde(rename = "starterkitid")]
     pub starterkit_id: String,
     /// Backup information about the bridge.
     pub backup: Backup,
@@ -116,27 +116,27 @@ fn deserialize_whitelist<'de, D: Deserializer<'de>>(
 }
 
 /// Information about software updates.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct SoftwareUpdate {
     /// State of software updates.
     pub state: SoftwareUpdateState,
     /// Triggers checking for software updates.
-    #[serde(rename(deserialize = "checkforupdate"))]
+    #[serde(rename = "checkforupdate")]
     pub check: bool,
     /// Configuration for automatically updating.
-    #[serde(rename(deserialize = "autoinstall"))]
+    #[serde(rename = "autoinstall")]
     pub auto_install: SoftwareUpdateAutoInstall,
     /// Time of last change in system configuration.
-    #[serde(rename(deserialize = "lastchange"))]
+    #[serde(rename = "lastchange")]
     pub last_change: Option<chrono::NaiveDateTime>,
     /// Time of last software update.
-    #[serde(rename(deserialize = "lastinstall"))]
+    #[serde(rename = "lastinstall")]
     pub last_install: Option<chrono::NaiveDateTime>,
 }
 
 /// State of software updates.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all(deserialize = "lowercase"))]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
     /// System does not know if new updates are available.
     Unkown,
@@ -153,15 +153,12 @@ pub enum SoftwareUpdateState {
 }
 
 /// Configuration for automatically updating.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct SoftwareUpdateAutoInstall {
     /// Whether automatic updates are activated.
     pub on: bool,
     /// The time when updates are installed.
-    #[serde(
-        rename(deserialize = "updatetime"),
-        deserialize_with = "deserialize_update_time"
-    )]
+    #[serde(rename = "updatetime", deserialize_with = "deserialize_update_time")]
     pub update_time: Option<chrono::NaiveTime>,
 }
 
@@ -177,7 +174,7 @@ fn deserialize_update_time<'de, D: Deserializer<'de>>(
 }
 
 /// Portal state of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct PortalState {
     /// Signedon.
     pub signedon: bool,
@@ -190,22 +187,22 @@ pub struct PortalState {
 }
 
 /// Internet services of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct InternetServices {
     /// Whether the bridge is connected to the internet.
     pub internet: ServiceStatus,
     /// Whether remote CLIP is available.
-    #[serde(rename(deserialize = "remoteaccess"))]
+    #[serde(rename = "remoteaccess")]
     pub remote_access: ServiceStatus,
     /// Whether the time was synchronized with internet service in the last 48 hours.
     pub time: ServiceStatus,
     /// Whether the software update server was reachable in the last 24 hours.
-    #[serde(rename(deserialize = "swupdate"))]
+    #[serde(rename = "swupdate")]
     pub software_update: ServiceStatus,
 }
 
 /// Status of a service.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(rename_all(deserialize = "lowercase"))]
 pub enum ServiceStatus {
     /// The serivce is connected.
@@ -215,43 +212,43 @@ pub enum ServiceStatus {
 }
 
 /// Backup information about the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Backup {
     /// Status of backup/restore.
     pub status: BackupStatus,
     /// Specifies the last error source if the backup has detected an internal error. Cleared at
     /// the start of a backup import or export.
-    #[serde(rename(deserialize = "errorcode"))]
+    #[serde(rename = "errorcode")]
     pub error: BackupError,
 }
 
 /// Status of backup/restore.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub enum BackupStatus {
     /// No backup/restore ongoing.
-    #[serde(rename(deserialize = "idle"))]
+    #[serde(rename = "idle")]
     Idle,
     /// Can be written if status is `Idle`. Creates a backup file which can be retrieved via the
     /// backup interface and puts the bridge in `FilereadyDisabled` status. ndicates that a backup
     /// file for migration is being created. CLIP is not available for some time after this
     /// command.
-    #[serde(rename(deserialize = "startmigration"))]
+    #[serde(rename = "startmigration")]
     StartMigration,
     /// Indicates that a backup file is available and that this bridge has been disabled due to a
     /// migration procedure. The bridge can be activated again by a factory reset or power cycle.
-    #[serde(rename(deserialize = "fileready_disabled"))]
+    #[serde(rename = "fileready_disabled")]
     FilereadyDisabled,
     /// Indicates that the a backup file has been sent to the bridge and the bridge is in the
     /// process of preparing it for restoring.
-    #[serde(rename(deserialize = "prepare_restore"))]
+    #[serde(rename = "prepare_restore")]
     PrepareRestore,
     /// Indicates that the bridge is in the process of restoring the backup file.
-    #[serde(rename(deserialize = "restoring"))]
+    #[serde(rename = "restoring")]
     Restoring,
 }
 
 /// Backup error of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize_repr, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize_repr)]
 #[repr(u8)]
 pub enum BackupError {
     /// The backup has not detected an internal error.
@@ -263,18 +260,18 @@ pub enum BackupError {
 }
 
 /// User of a bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct User {
     /// Identifier of the user.
-    #[serde(skip_deserializing)]
+    #[serde(skip)]
     pub id: String,
     /// Name of the user.
     pub name: String,
     /// Date of the last use of the user.
-    #[serde(rename(deserialize = "last use date"))]
+    #[serde(rename = "last use date")]
     pub last_use_date: chrono::NaiveDateTime,
     /// Date when the user was created.
-    #[serde(rename(deserialize = "create date"))]
+    #[serde(rename = "create date")]
     pub create_date: chrono::NaiveDateTime,
 }
 

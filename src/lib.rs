@@ -113,7 +113,7 @@ pub enum Effect {
 }
 
 /// Color mode of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub enum ColorMode {
     /// Uses a color temperatue to set the color of a light.
     #[serde(rename = "ct")]

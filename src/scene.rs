@@ -1,9 +1,9 @@
 use serde::{de::Deserializer, Deserialize, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
 
 /// A scene.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Scene {
     /// Identifier of the scene.
     #[serde(skip_deserializing)]
@@ -99,7 +99,7 @@ impl AppData {
 }
 
 /// Version of a scene document.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize_repr, Serialize_repr)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize_repr)]
 #[repr(i32)]
 pub enum Version {
     /// Scene was created with a PUT request.

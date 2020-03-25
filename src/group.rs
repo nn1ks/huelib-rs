@@ -3,17 +3,17 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 
 /// A group of lights.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Group {
     /// Identifier of the group.
-    #[serde(skip_deserializing)]
+    #[serde(skip)]
     pub id: String,
     /// Name of the group.
     pub name: String,
     /// Identifier of lights that are in this group.
     pub lights: Vec<String>,
     /// Type of the group.
-    #[serde(rename(deserialize = "type"))]
+    #[serde(rename = "type")]
     pub kind: Type,
     /// Class of the group. Only used if `group_type` is `Room`.
     pub class: Option<Class>,
@@ -21,11 +21,11 @@ pub struct Group {
     pub state: Option<State>,
     /// Uniquely identifies the hardware model of the luminaire. Only present for automatically
     /// created Luminaires.
-    #[serde(rename(deserialize = "modelid"))]
+    #[serde(rename = "modelid")]
     pub model_id: Option<String>,
     /// Unique Id in AA:BB:CC:DD format for Luminaire groups or AA:BB:CC:DD-XX format for
     /// Lightsource groups, where XX is the lightsource position.
-    #[serde(rename(deserialize = "unique_id"))]
+    #[serde(rename = "unique_id")]
     pub unique_id: Option<String>,
     // TODO: Sensors
 }
@@ -40,7 +40,7 @@ impl Group {
 }
 
 /// Type of a group.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub enum Type {
     /// A special group containing all lights in the system, and is not returned by the
     /// `get_all_groups` function. This group is not visible, and cannot be created, modified or
@@ -52,7 +52,7 @@ pub enum Type {
     Luminaire,
     /// A group of lights which is created by the bridge based on multisource luminaire attributes
     /// of Zigbee light resource.
-    #[serde(rename(deserialize = "Lightsource"))]
+    #[serde(rename = "Lightsource")]
     LightSource,
     /// A group of lights that can be controlled together. This the default group type that the
     /// bridge generates for user created groups. Default type when no type is given on creation.
@@ -87,24 +87,24 @@ pub enum Class {
     Dining,
     Downstairs,
     Driveway,
-    #[serde(rename(deserialize = "Front door"))]
+    #[serde(rename = "Front door")]
     FrontDoor,
     Garage,
     Garden,
-    #[serde(rename(deserialize = "Guest room"))]
+    #[serde(rename = "Guest room")]
     GuestRoom,
     Gym,
     Hallway,
     Home,
-    #[serde(rename(deserialize = "Kids bedroom"))]
+    #[serde(rename = "Kids bedroom")]
     KidsBedroom,
     Kitchen,
-    #[serde(rename(deserialize = "Laundry room"))]
+    #[serde(rename = "Laundry room")]
     LaundryRoom,
-    #[serde(rename(deserialize = "Living room"))]
+    #[serde(rename = "Living room")]
     LivingRoom,
     Lounge,
-    #[serde(rename(deserialize = "Man cave"))]
+    #[serde(rename = "Man cave")]
     ManCave,
     Music,
     Nursery,
@@ -120,13 +120,13 @@ pub enum Class {
     TV,
     Terrace,
     Toilet,
-    #[serde(rename(deserialize = "Top floor"))]
+    #[serde(rename = "Top floor")]
     TopFloor,
     Upstairs,
 }
 
 /// State of a group.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct State {
     /// Whether any light in a group is on.
     pub any_on: bool,
@@ -142,7 +142,7 @@ pub struct Creator {
     /// Identifier of the lights that will be in the new group.
     pub lights: Vec<String>,
     /// The type of the new group.
-    #[serde(skip_serializing_if = "Option::is_none", rename(deserialize = "type"))]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<TypeCreator>,
     /// The class of the new group. It is only used when `group_type` is `Room`. If `group_type` is
     /// `Room` and `class` is `None` the room will get the class `Other`.

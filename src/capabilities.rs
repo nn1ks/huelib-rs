@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Capabilities of resources.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Capabilities {
     /// Capabilities of the connected lights.
     pub lights: Info,
@@ -24,7 +24,7 @@ pub struct Capabilities {
 }
 
 /// Info about the capability of a resource.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct Info {
     /// Number of currently available resources.
     pub available: usize,
@@ -33,7 +33,7 @@ pub struct Info {
 }
 
 /// Info about the capability of sensors.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct SensorsInfo {
     /// Number of currently available sensors.
     pub available: usize,
@@ -48,19 +48,19 @@ pub struct SensorsInfo {
 }
 
 /// Info about the capability of scenes.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct ScenesInfo {
     /// Number of currently available scenes.
     pub available: usize,
     /// Total number of available scenes.
     pub total: usize,
     /// Capabilities of light states.
-    #[serde(rename(deserialize = "lightstates"))]
+    #[serde(rename = "lightstates")]
     pub light_states: Info,
 }
 
 /// Info about the capability of rules.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct RulesInfo {
     /// Number of currently available rules.
     pub available: usize,
@@ -73,7 +73,7 @@ pub struct RulesInfo {
 }
 
 /// Info about the capability of scenes.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct StreamingInfo {
     /// Number of currently available client streams.
     pub available: usize,
@@ -84,7 +84,7 @@ pub struct StreamingInfo {
 }
 
 /// List of timezones.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Timezones {
     values: Vec<String>,
 }

@@ -272,9 +272,9 @@ impl Modifier {
     }
 
     /// Sets the indentifiers of the lights that are in this scene.
-    pub fn lights(self, value: Vec<String>) -> Self {
+    pub fn lights(self, value: &[&str]) -> Self {
         Self {
-            lights: Some(value),
+            lights: Some(value.to_vec().iter().map(|v| (*v).to_string()).collect()),
             ..self
         }
     }

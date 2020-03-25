@@ -12,9 +12,9 @@ pub struct Group {
     pub name: String,
     /// Identifier of lights that are in this group.
     pub lights: Vec<String>,
-    /// Type of the group.
+    /// Kind of the group.
     #[serde(rename = "type")]
-    pub kind: Type,
+    pub kind: Kind,
     /// Class of the group. Only used if `group_type` is `Room`.
     pub class: Option<Class>,
     /// State of the group.
@@ -39,9 +39,9 @@ impl Group {
     }
 }
 
-/// Type of a group.
+/// Kind of a group.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
-pub enum Type {
+pub enum Kind {
     /// A special group containing all lights in the system, and is not returned by the
     /// `get_all_groups` function. This group is not visible, and cannot be created, modified or
     /// deleted using the API.

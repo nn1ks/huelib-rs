@@ -121,7 +121,6 @@ pub struct Config {
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct StartupConfig {
     /// Mode of the startup.
-    #[serde(rename(deserialize = "archetype"))]
     pub mode: String,
     /// Whether startup is configured for the light.
     pub configured: bool,

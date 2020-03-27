@@ -203,7 +203,7 @@ pub struct InternetServices {
 
 /// Status of a service.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
-#[serde(rename_all(deserialize = "lowercase"))]
+#[serde(rename_all = "lowercase")]
 pub enum ServiceStatus {
     /// The serivce is connected.
     Connected,

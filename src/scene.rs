@@ -148,6 +148,19 @@ impl Creator {
             ..self
         }
     }
+
+    /// Sets the state of a light.
+    pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
+        let mut light_states = match self.light_states {
+            Some(v) => v,
+            None => HashMap::new(),
+        };
+        light_states.insert(id.into(), modifier);
+        Self {
+            light_states: Some(light_states),
+            ..self
+        }
+    }
 }
 
 /// Struct for modifying the state of a light.
@@ -267,6 +280,19 @@ impl Modifier {
     pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
         Self {
             lights: Some(value.into_iter().map(|v| v.into()).collect()),
+            ..self
+        }
+    }
+
+    /// Sets the state of a light.
+    pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
+        let mut light_states = match self.light_states {
+            Some(v) => v,
+            None => HashMap::new(),
+        };
+        light_states.insert(id.into(), modifier);
+        Self {
+            light_states: Some(light_states),
             ..self
         }
     }

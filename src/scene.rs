@@ -50,9 +50,9 @@ fn deserialize_owner<'de, D: Deserializer<'de>>(
 }
 
 impl Scene {
-    pub(crate) fn with_id(self, id: &str) -> Self {
+    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {
-            id: id.to_owned(),
+            id: id.into(),
             ..self
         }
     }
@@ -90,9 +90,9 @@ impl AppData {
     }
 
     /// Sets the data.
-    pub fn data(self, value: String) -> Self {
+    pub fn data<S: Into<String>>(self, value: S) -> Self {
         Self {
-            data: Some(value),
+            data: Some(value.into()),
             ..self
         }
     }
@@ -264,9 +264,9 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the scene.
-    pub fn name(self, value: &str) -> Self {
+    pub fn name<S: Into<String>>(self, value: S) -> Self {
         Self {
-            name: Some(value.to_owned()),
+            name: Some(value.into()),
             ..self
         }
     }

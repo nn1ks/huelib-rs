@@ -101,19 +101,19 @@ pub struct User {
 ///     Err(_) => unreachable!()
 /// };
 /// ```
-pub fn register_user(
+pub fn register_user<S: AsRef<str>>(
     ip_address: IpAddr,
-    devicetype: &str,
+    devicetype: S,
     generate_clientkey: bool,
 ) -> Result<User, Error> {
     let url = format!("http://{}/api", ip_address);
     let body = if generate_clientkey {
         format!(
             "{{\"devicetype\": \"{}\", \"generateclientkey\": true}}",
-            devicetype
+            devicetype.as_ref()
         )
     } else {
-        format!("{{\"devicetype\": \"{}\"}}", devicetype)
+        format!("{{\"devicetype\": \"{}\"}}", devicetype.as_ref())
     };
     let http_response = ureq::post(&url).send_string(&body);
     let mut responses: Vec<Response<User>> = serde_json::from_value(http_response.into_json()?)?;
@@ -162,21 +162,22 @@ impl Bridge {
     /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
     /// let bridge = huelib::Bridge::new(bridge_ip, "example-username");
     /// ```
-    pub fn new(ip_address: IpAddr, username: &str) -> Self {
+    pub fn new<S: Into<String>>(ip_address: IpAddr, username: S) -> Self {
+        let username = username.into();
         Bridge {
-            username: username.to_string(),
+            api_url: format!("http://{}/api/{}", ip_address, &username),
+            username,
             ip_address,
-            api_url: format!("http://{}/api/{}", ip_address, username),
         }
     }
 
     /// Sends a HTTP request to the Philips Hue API and returns the response.
-    fn api_request<T: DeserializeOwned>(
-        &self,
-        url_suffix: &str,
-        request_type: RequestType,
-    ) -> Result<T, Error> {
-        let url = format!("{}/{}", self.api_url, url_suffix);
+    fn api_request<S, T>(&self, url_suffix: S, request_type: RequestType) -> Result<T, Error>
+    where
+        S: AsRef<str>,
+        T: DeserializeOwned,
+    {
+        let url = format!("{}/{}", self.api_url, url_suffix.as_ref());
         let response = match request_type {
             RequestType::Put(v) => ureq::put(&url).send_string(&v),
             RequestType::Post(v) => ureq::post(&url).send_string(&v),
@@ -203,29 +204,32 @@ impl Bridge {
     }
 
     /// Modifies attributes of a light.
-    pub fn set_light_attribute(
+    pub fn set_light_attribute<S: AsRef<str>>(
         &self,
-        id: &str,
+        id: S,
         modifier: &light::AttributeModifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         let body = serde_json::to_string(modifier)?;
-        self.api_request(&format!("lights/{}", id), RequestType::Put(body))
+        self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Put(body))
     }
 
     /// Modifies the state of a light.
-    pub fn set_light_state(
+    pub fn set_light_state<S: AsRef<str>>(
         &self,
-        id: &str,
+        id: S,
         modifier: &light::StateModifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         let body = serde_json::to_string(modifier)?;
-        self.api_request(&format!("lights/{}/state", id), RequestType::Put(body))
+        self.api_request(
+            &format!("lights/{}/state", id.as_ref()),
+            RequestType::Put(body),
+        )
     }
 
     /// Deletes a light from the bridge.
-    pub fn delete_light(&self, id: &str) -> Result<(), Error> {
+    pub fn delete_light<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
         let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("lights/{}", id), RequestType::Delete)?;
+            self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
         }
@@ -233,9 +237,10 @@ impl Bridge {
     }
 
     /// Returns a light.
-    pub fn get_light(&self, id: &str) -> Result<Light, Error> {
+    pub fn get_light<S: Into<String>>(&self, id: S) -> Result<Light, Error> {
+        let id = id.into();
         let response: serde_json::Value =
-            self.api_request(&format!("lights/{}", id), RequestType::Get)?;
+            self.api_request(&format!("lights/{}", &id), RequestType::Get)?;
         try_into_response_error(response.clone())?;
         Ok(serde_json::from_value::<Light>(response)?.with_id(id))
     }
@@ -247,7 +252,7 @@ impl Bridge {
         let map: HashMap<String, Light> = serde_json::from_value(response)?;
         let mut lights = Vec::new();
         for (id, light) in map {
-            lights.push(light.with_id(&id));
+            lights.push(light.with_id(id));
         }
         Ok(lights)
     }
@@ -264,9 +269,12 @@ impl Bridge {
     /// function.
     ///
     /// [`get_new_lights`]: #method.get_new_lights
-    pub fn search_new_lights(&self, device_ids: Option<&[&str]>) -> Result<(), Error> {
+    pub fn search_new_lights<S: AsRef<str>>(&self, device_ids: Option<&[S]>) -> Result<(), Error> {
         let body = match device_ids {
-            Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
+            Some(v) => {
+                let vec: Vec<&str> = v.iter().map(|v| v.as_ref()).collect();
+                format!("{{\"deviceid\": {}}}", serde_json::to_string(&vec)?)
+            }
             None => "".to_owned(),
         };
         let response: Vec<Response<serde_json::Value>> =
@@ -300,29 +308,32 @@ impl Bridge {
     }
 
     /// Modifies attributes of a group.
-    pub fn set_group_attribute(
+    pub fn set_group_attribute<S: AsRef<str>>(
         &self,
-        id: &str,
+        id: S,
         modifier: &group::AttributeModifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         let body = serde_json::to_string(modifier)?;
-        self.api_request(&format!("groups/{}", id), RequestType::Put(body))
+        self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Put(body))
     }
 
     /// Modifies the state of a group.
-    pub fn set_group_state(
+    pub fn set_group_state<S: AsRef<str>>(
         &self,
-        id: &str,
+        id: S,
         modifier: &group::StateModifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         let body = serde_json::to_string(modifier)?;
-        self.api_request(&format!("groups/{}/action", id), RequestType::Put(body))
+        self.api_request(
+            &format!("groups/{}/action", id.as_ref()),
+            RequestType::Put(body),
+        )
     }
 
     /// Deletes a group from the bridge.
-    pub fn delete_group(&self, id: &str) -> Result<(), Error> {
+    pub fn delete_group<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
         let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("groups/{}", id), RequestType::Delete)?;
+            self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
         }
@@ -330,9 +341,10 @@ impl Bridge {
     }
 
     /// Returns a group.
-    pub fn get_group(&self, id: &str) -> Result<Group, Error> {
+    pub fn get_group<S: Into<String>>(&self, id: S) -> Result<Group, Error> {
+        let id = id.into();
         let response: serde_json::Value =
-            self.api_request(&format!("groups/{}", id), RequestType::Get)?;
+            self.api_request(&format!("groups/{}", &id), RequestType::Get)?;
         try_into_response_error(response.clone())?;
         Ok(serde_json::from_value::<Group>(response)?.with_id(id))
     }
@@ -344,7 +356,7 @@ impl Bridge {
         let map: HashMap<String, Group> = serde_json::from_value(response)?;
         let mut groups = Vec::new();
         for (id, group) in map {
-            groups.push(group.with_id(&id));
+            groups.push(group.with_id(id));
         }
         Ok(groups)
     }
@@ -363,23 +375,20 @@ impl Bridge {
         }
     }
 
-    /// Modifies light states of a scene.
-    pub fn set_scene(
+    /// Modifies the state and attributes of a scene.
+    pub fn set_scene<S: AsRef<str>>(
         &self,
-        id: &str,
+        id: S,
         modifier: &scene::Modifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         let body = serde_json::to_string(modifier)?;
-        self.api_request(
-            &format!("scenes/{}/lightstates/{}", id, id),
-            RequestType::Put(body),
-        )
+        self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Put(body))
     }
 
     /// Deletes a scene.
-    pub fn delete_scene(&self, id: &str) -> Result<(), Error> {
+    pub fn delete_scene<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
         let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("scenes/{}", id), RequestType::Delete)?;
+            self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
         }
@@ -387,9 +396,10 @@ impl Bridge {
     }
 
     /// Returns a scene.
-    pub fn get_scene(&self, id: &str) -> Result<Scene, Error> {
+    pub fn get_scene<S: Into<String>>(&self, id: S) -> Result<Scene, Error> {
+        let id = id.into();
         let response: serde_json::Value =
-            self.api_request(&format!("scenes/{}", id), RequestType::Get)?;
+            self.api_request(&format!("scenes/{}", &id), RequestType::Get)?;
         try_into_response_error(response.clone())?;
         Ok(serde_json::from_value::<Scene>(response)?.with_id(id))
     }
@@ -401,7 +411,7 @@ impl Bridge {
         let map: HashMap<String, Scene> = serde_json::from_value(response)?;
         let mut scenes = Vec::new();
         for (id, scene) in map {
-            scenes.push(scene.with_id(&id));
+            scenes.push(scene.with_id(id));
         }
         Ok(scenes)
     }

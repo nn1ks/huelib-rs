@@ -276,9 +276,9 @@ pub struct User {
 }
 
 impl User {
-    fn with_id(self, id: &str) -> Self {
+    fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {
-            id: id.to_owned(),
+            id: id.into(),
             ..self
         }
     }
@@ -317,9 +317,9 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the bridge.
-    pub fn name(self, value: &str) -> Self {
+    pub fn name<S: Into<String>>(self, value: S) -> Self {
         Self {
-            name: Some(value.to_owned()),
+            name: Some(value.into()),
             ..self
         }
     }
@@ -333,9 +333,9 @@ impl Modifier {
     }
 
     /// Sets the network mask of the bridge.
-    pub fn netmask(self, value: &str) -> Self {
+    pub fn netmask<S: Into<String>>(self, value: S) -> Self {
         Self {
-            netmask: Some(value.to_owned()),
+            netmask: Some(value.into()),
             ..self
         }
     }
@@ -403,17 +403,17 @@ impl Modifier {
     }
 
     /// Sets the current time of the bridge in UTC.
-    pub fn current_time(self, value: &str) -> Self {
+    pub fn current_time<S: Into<String>>(self, value: S) -> Self {
         Self {
-            current_time: Some(value.to_owned()),
+            current_time: Some(value.into()),
             ..self
         }
     }
 
     /// Sets the timezone of the bridge.
-    pub fn timezone(self, value: &str) -> Self {
+    pub fn timezone<S: Into<String>>(self, value: S) -> Self {
         Self {
-            timezone: Some(value.to_owned()),
+            timezone: Some(value.into()),
             ..self
         }
     }

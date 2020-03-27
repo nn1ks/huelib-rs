@@ -31,9 +31,9 @@ pub struct Group {
 }
 
 impl Group {
-    pub(crate) fn with_id(self, id: &str) -> Self {
+    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {
-            id: id.to_owned(),
+            id: id.into(),
             ..self
         }
     }
@@ -215,9 +215,9 @@ impl crate::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the group.
-    pub fn name(self, value: &str) -> Self {
+    pub fn name<S: Into<String>>(self, value: S) -> Self {
         Self {
-            name: Some(value.to_owned()),
+            name: Some(value.into()),
             ..self
         }
     }
@@ -415,10 +415,10 @@ impl StateModifier {
         }
     }
 
-    /// Sets the scene of the group.
-    pub fn scene(self, value: &str) -> Self {
+    /// Sets the scene identifier of the group.
+    pub fn scene<S: Into<String>>(self, value: S) -> Self {
         Self {
-            scene: Some(value.to_owned()),
+            scene: Some(value.into()),
             ..self
         }
     }

@@ -148,14 +148,6 @@ impl Creator {
             ..self
         }
     }
-
-    /// Sets the state of the lights.
-    pub fn light_states(self, value: HashMap<String, LightStateModifier>) -> Self {
-        Self {
-            light_states: Some(value),
-            ..self
-        }
-    }
 }
 
 /// Struct for modifying the state of a light.
@@ -275,14 +267,6 @@ impl Modifier {
     pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
         Self {
             lights: Some(value.into_iter().map(|v| v.into()).collect()),
-            ..self
-        }
-    }
-
-    /// Sets the state of the lights in this scene.
-    pub fn light_states(self, value: HashMap<String, LightStateModifier>) -> Self {
-        Self {
-            light_states: Some(value),
             ..self
         }
     }

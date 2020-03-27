@@ -125,10 +125,10 @@ impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new scene creator.
-    pub fn new(name: &str, lights: &[&str]) -> Self {
+    pub fn new<S: Into<String>>(name: S, lights: Vec<S>) -> Self {
         Self {
-            name: name.to_owned(),
-            lights: lights.to_vec().iter().map(|v| (*v).to_string()).collect(),
+            name: name.into(),
+            lights: lights.into_iter().map(|v| v.into()).collect(),
             ..Default::default()
         }
     }
@@ -272,9 +272,9 @@ impl Modifier {
     }
 
     /// Sets the indentifiers of the lights that are in this scene.
-    pub fn lights(self, value: &[&str]) -> Self {
+    pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
         Self {
-            lights: Some(value.to_vec().iter().map(|v| (*v).to_string()).collect()),
+            lights: Some(value.into_iter().map(|v| v.into()).collect()),
             ..self
         }
     }

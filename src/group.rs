@@ -154,7 +154,7 @@ impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new group creator.
-    pub fn new<S: Into<String>>(name: S, lights: Vec<S>) -> Self {
+    pub fn new<S: Into<String>, V: Into<String>>(name: S, lights: Vec<V>) -> Self {
         Self {
             name: name.into(),
             lights: lights.into_iter().map(|v| v.into()).collect(),

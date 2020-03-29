@@ -22,8 +22,6 @@ impl<T> Response<T> {
     }
 }
 
-impl std::error::Error for Error {}
-
 impl<T: fmt::Display> fmt::Display for Response<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -38,7 +36,8 @@ impl<T: fmt::Display> fmt::Display for Response<T> {
 /// View the [API documentation] for more information.
 ///
 /// [API documentation]: https://developers.meethue.com/develop/hue-api/error-messages
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, thiserror::Error)]
+#[error("{description}")]
 pub struct Error {
     /// Kind of the error.
     #[serde(rename = "type", deserialize_with = "deserialize_error_kind")]
@@ -57,12 +56,6 @@ fn deserialize_error_kind<'de, D: Deserializer<'de>>(
         serde_json::from_value(Deserialize::deserialize(deserializer)?)
             .map_err(D::Error::custom)?,
     )
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} (description: {})", self.kind, self.description)
-    }
 }
 
 /// Kind of an error from a response.

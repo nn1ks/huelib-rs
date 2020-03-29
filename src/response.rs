@@ -104,12 +104,6 @@ pub enum ErrorKind {
     UnkownError,
 }
 
-impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 /// A response type that is used when modifying a light or group.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Modified {

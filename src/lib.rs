@@ -165,7 +165,7 @@ pub trait Modifier: Default + Clone + PartialEq {
 
     /// Whether the modifier will not modify anything.
     fn is_empty(&self) -> bool {
-        self.clone() == Default::default()
+        self == &Default::default()
     }
 }
 

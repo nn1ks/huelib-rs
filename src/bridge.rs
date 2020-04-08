@@ -1,6 +1,6 @@
 use crate::{
-    config, group, light, response, scene, Capabilities, Config, Error, Group, Light, Response,
-    Scene,
+    config, group, light, response, scene, schedule, Capabilities, Config, Error, Group, Light,
+    Response, Scene, Schedule,
 };
 use serde::{de::DeserializeOwned, Deserialize};
 use std::collections::HashMap;
@@ -183,17 +183,17 @@ impl Bridge {
         Ok(serde_json::from_value(response.into_json()?)?)
     }
 
-    /// Returns the configuration of the bridge.
-    pub fn get_config(&self) -> Result<Config, Error> {
-        parse_response(self.api_request("config", RequestType::Get)?)
-    }
-
     /// Modifies the configuration of the bridge
     pub fn set_config(
         &self,
         modifier: &config::Modifier,
     ) -> Result<Vec<Response<response::Modified>>, Error> {
         self.api_request("config", RequestType::Put(serde_json::to_value(modifier)?))
+    }
+
+    /// Returns the configuration of the bridge.
+    pub fn get_config(&self) -> Result<Config, Error> {
+        parse_response(self.api_request("config", RequestType::Get)?)
     }
 
     /// Modifies attributes of a light.
@@ -218,16 +218,6 @@ impl Bridge {
             &format!("lights/{}/state", id.as_ref()),
             RequestType::Put(serde_json::to_value(modifier)?),
         )
-    }
-
-    /// Deletes a light from the bridge.
-    pub fn delete_light<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
-        let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
-        for i in response {
-            i.into_result()?;
-        }
-        Ok(())
     }
 
     /// Returns a light.
@@ -283,6 +273,16 @@ impl Bridge {
         parse_response(self.api_request("lights/new", RequestType::Get)?)
     }
 
+    /// Deletes a light from the bridge.
+    pub fn delete_light<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
+
     /// Creates a new group.
     pub fn create_group(&self, creator: &group::Creator) -> Result<String, Error> {
         let mut response: Vec<Response<HashMap<String, String>>> =
@@ -320,16 +320,6 @@ impl Bridge {
         )
     }
 
-    /// Deletes a group from the bridge.
-    pub fn delete_group<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
-        let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
-        for i in response {
-            i.into_result()?;
-        }
-        Ok(())
-    }
-
     /// Returns a group.
     pub fn get_group<S: AsRef<str>>(&self, id: S) -> Result<Group, Error> {
         let group: Group = parse_response(
@@ -347,6 +337,16 @@ impl Bridge {
             groups.push(group.with_id(id));
         }
         Ok(groups)
+    }
+
+    /// Deletes a group from the bridge.
+    pub fn delete_group<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
     }
 
     /// Creates a new scene.
@@ -374,16 +374,6 @@ impl Bridge {
         )
     }
 
-    /// Deletes a scene.
-    pub fn delete_scene<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
-        let response: Vec<Response<serde_json::Value>> =
-            self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
-        for i in response {
-            i.into_result()?;
-        }
-        Ok(())
-    }
-
     /// Returns a scene.
     pub fn get_scene<S: AsRef<str>>(&self, id: S) -> Result<Scene, Error> {
         let scene: Scene = parse_response(
@@ -401,6 +391,16 @@ impl Bridge {
             scenes.push(scene.with_id(id));
         }
         Ok(scenes)
+    }
+
+    /// Deletes a scene.
+    pub fn delete_scene<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
     }
 
     /// Returns the capabilities of resources.

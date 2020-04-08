@@ -79,6 +79,11 @@ pub mod response;
 /// [Scenes API]: https://developers.meethue.com/develop/hue-api/4-scenes
 pub mod scene;
 
+/// Bindings to the [Schedules API].
+///
+/// [Schedules API]: https://developers.meethue.com/develop/hue-api/3-schedules-api
+pub mod schedule;
+
 pub use bridge::Bridge;
 pub use capabilities::Capabilities;
 pub use config::Config;
@@ -87,6 +92,7 @@ pub use group::Group;
 pub use light::Light;
 pub use response::Response;
 pub use scene::Scene;
+pub use schedule::Schedule;
 
 use serde::{Deserialize, Serialize};
 

@@ -407,4 +407,60 @@ impl Bridge {
     pub fn get_capabilities(&self) -> Result<Capabilities, Error> {
         parse_response(self.api_request("capabilities", RequestType::Get)?)
     }
+
+    /// Creates a new schedule and returns the identifier.
+    pub fn create_schedule(&self, creator: &schedule::Creator) -> Result<String, Error> {
+        let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
+            "schedules",
+            RequestType::Post(serde_json::to_value(creator)?),
+        )?;
+        match response.pop() {
+            Some(v) => match v.into_result()?.get("id") {
+                Some(v) => Ok(v.to_string()),
+                None => Err(Error::GetSceneId),
+            },
+            None => Err(Error::GetSceneId),
+        }
+    }
+
+    /// Modifies attributes of a schedule.
+    pub fn set_schedule<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &schedule::Modifier,
+    ) -> Result<Vec<Response<response::Modified>>, Error> {
+        self.api_request(
+            &format!("schedules/{}", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Returns a schedule.
+    pub fn get_schedule<S: AsRef<str>>(&self, id: S) -> Result<Schedule, Error> {
+        let schedule: Schedule = parse_response(
+            self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Get)?,
+        )?;
+        Ok(schedule.with_id(id.as_ref()))
+    }
+
+    /// Returns all schedules.
+    pub fn get_all_schedules(&self) -> Result<Vec<Schedule>, Error> {
+        let map: HashMap<String, Schedule> =
+            parse_response(self.api_request("schedules", RequestType::Get)?)?;
+        let mut schedules = Vec::new();
+        for (id, schedule) in map {
+            schedules.push(schedule.with_id(id));
+        }
+        Ok(schedules)
+    }
+
+    /// Deletes a schedule.
+    pub fn delete_schedule<S: AsRef<str>>(&self, id: S) -> Result<(), Error> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Delete)?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
 }

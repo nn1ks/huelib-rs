@@ -1,4 +1,4 @@
-use serde::{de, de::Deserializer, Deserialize};
+use serde::{de, Deserialize};
 use serde_repr::Deserialize_repr;
 use std::fmt;
 
@@ -40,22 +40,12 @@ impl<T: fmt::Display> fmt::Display for Response<T> {
 #[error("{description}")]
 pub struct Error {
     /// Kind of the error.
-    #[serde(rename = "type", deserialize_with = "deserialize_error_kind")]
+    #[serde(rename = "type")]
     pub kind: ErrorKind,
     /// Address where the error occurred.
     pub address: String,
     /// Description of the error.
     pub description: String,
-}
-
-fn deserialize_error_kind<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<ErrorKind, D::Error> {
-    use serde::de::Error;
-    Ok(
-        serde_json::from_value(Deserialize::deserialize(deserializer)?)
-            .map_err(D::Error::custom)?,
-    )
 }
 
 /// Kind of an error from a response.

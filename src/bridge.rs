@@ -241,22 +241,19 @@ impl Bridge {
 
     /// Starts searching for new lights.
     ///
-    /// The bridge will open the network for 40s. The overall search might take longer since the
-    /// configuration of (multiple) new devices can take longer. If many devices are found the
-    /// command will have to be issued a second time after discovery time has elapsed. If the
-    /// command is received again during search the search will continue for at least an additional
-    /// 40s.
+    /// The bridge will open the network for 40 seconds. The overall search might take longer since
+    /// the configuration of new devices can take longer. If many devices are found the command
+    /// will have to be issued a second time after discovery time has elapsed. If the command is
+    /// received again during search the search will continue for at least an additional 40
+    /// seconds.
     ///
     /// When the search has finished, new lights will be available using the [`get_new_lights`]
     /// function.
     ///
     /// [`get_new_lights`]: #method.get_new_lights
-    pub fn search_new_lights<S: AsRef<str>>(&self, device_ids: Option<&[S]>) -> Result<(), Error> {
+    pub fn search_new_lights(&self, device_ids: Option<&[&str]>) -> Result<(), Error> {
         let body = match device_ids {
-            Some(v) => {
-                let vec: Vec<&str> = v.iter().map(|v| v.as_ref()).collect();
-                format!("{{\"deviceid\": {}}}", serde_json::to_string(&vec)?)
-            }
+            Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
             None => "".to_owned(),
         };
         let response: Vec<Response<serde_json::Value>> =

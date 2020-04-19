@@ -10,6 +10,7 @@ pub enum Error {
     /// Error that can occur when the identifier of a newly created resource cannot be obtained.
     #[error("Failed to get identifier of created resource")]
     GetCreatedId,
+    /// Error that can occur while converting a string to a date.
     #[error("Failed to parse date: {0}")]
     ParseDate(#[from] chrono::ParseError),
     /// Error that can occur while converting a http response into a string.

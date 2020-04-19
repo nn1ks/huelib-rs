@@ -284,9 +284,9 @@ impl Bridge {
         match response.pop() {
             Some(v) => match v.into_result()?.get("id") {
                 Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetGroupId),
+                None => Err(Error::GetCreatedId),
             },
-            None => Err(Error::GetGroupId),
+            None => Err(Error::GetCreatedId),
         }
     }
 
@@ -350,9 +350,9 @@ impl Bridge {
         match response.pop() {
             Some(v) => match v.into_result()?.get("id") {
                 Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetSceneId),
+                None => Err(Error::GetCreatedId),
             },
-            None => Err(Error::GetSceneId),
+            None => Err(Error::GetCreatedId),
         }
     }
 
@@ -411,9 +411,9 @@ impl Bridge {
         match response.pop() {
             Some(v) => match v.into_result()?.get("id") {
                 Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetSceneId),
+                None => Err(Error::GetCreatedId),
             },
-            None => Err(Error::GetSceneId),
+            None => Err(Error::GetCreatedId),
         }
     }
 

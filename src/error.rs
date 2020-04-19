@@ -7,15 +7,9 @@ pub enum Error {
     /// Error that can occur when the username cannot be obtained after registering a user.
     #[error("Failed to get username")]
     GetUsername,
-    /// Error that can occur when the identifier of a group cannot be obtained after creating a
-    /// group.
-    #[error("Failed to get group identifier")]
-    GetGroupId,
-    /// Error that can occur when the identifier of a scene cannot be obtained after creating a
-    /// scene.
-    #[error("Failed to get scene identifier")]
-    GetSceneId,
-    /// Error that can occur while converting a string to a date.
+    /// Error that can occur when the identifier of a newly created resource cannot be obtained.
+    #[error("Failed to get identifier of created resource")]
+    GetCreatedId,
     #[error("Failed to parse date: {0}")]
     ParseDate(#[from] chrono::ParseError),
     /// Error that can occur while converting a http response into a string.

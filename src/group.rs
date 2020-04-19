@@ -138,9 +138,11 @@ pub struct State {
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
 pub struct Creator {
     /// The name of the new group.
-    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     /// Identifier of the lights that will be in the new group.
-    pub lights: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lights: Option<Vec<String>>,
     /// The type of the new group.
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<TypeCreator>,
@@ -156,8 +158,8 @@ impl Creator {
     /// Creates a new group creator.
     pub fn new<S: Into<String>, V: Into<String>>(name: S, lights: Vec<V>) -> Self {
         Self {
-            name: name.into(),
-            lights: lights.into_iter().map(|v| v.into()).collect(),
+            name: Some(name.into()),
+            lights: Some(lights.into_iter().map(|v| v.into()).collect()),
             ..Default::default()
         }
     }

@@ -111,8 +111,10 @@ pub enum Version {
 /// Struct for creating a scene.
 #[derive(Clone, Debug, Default, PartialEq, Serialize)]
 pub struct Creator {
-    name: String,
-    lights: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
+    lights: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     kind: Option<Kind>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -127,8 +129,8 @@ impl Creator {
     /// Creates a new scene creator.
     pub fn new<S: Into<String>, V: Into<String>>(name: S, lights: Vec<V>) -> Self {
         Self {
-            name: name.into(),
-            lights: lights.into_iter().map(|v| v.into()).collect(),
+            name: Some(name.into()),
+            lights: Some(lights.into_iter().map(|v| v.into()).collect()),
             ..Default::default()
         }
     }

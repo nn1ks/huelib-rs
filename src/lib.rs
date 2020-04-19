@@ -71,6 +71,11 @@ pub mod group;
 /// [Lights API]: https://developers.meethue.com/develop/hue-api/lights-api
 pub mod light;
 
+/// Bindings to the [Resourcelinks API].
+///
+/// [Resourcelinks API]: https://developers.meethue.com/develop/hue-api/9-resourcelinks-api
+pub mod resourcelink;
+
 /// Responses returned from the Philips Hue API.
 pub mod response;
 
@@ -90,6 +95,7 @@ pub use config::Config;
 pub use error::Error;
 pub use group::Group;
 pub use light::Light;
+pub use resourcelink::Resourcelink;
 pub use response::Response;
 pub use scene::Scene;
 pub use schedule::Schedule;

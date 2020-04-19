@@ -457,4 +457,62 @@ impl Bridge {
         }
         Ok(())
     }
+
+    /// Creates a new resourcelink and returns the identifier.
+    pub fn create_resourcelink(&self, creator: &crate::resourcelink::Creator) -> Result<String> {
+        let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
+            "resourcelinks",
+            RequestType::Post(serde_json::to_value(creator)?),
+        )?;
+        match response.pop() {
+            Some(v) => match v.into_result()?.get("id") {
+                Some(v) => Ok(v.to_string()),
+                None => Err(Error::GetCreatedId),
+            },
+            None => Err(Error::GetCreatedId),
+        }
+    }
+
+    /// Modifies attributes of a resourcelink.
+    pub fn set_resourcelink<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &crate::resourcelink::Modifier,
+    ) -> Result<Vec<ResponseModified>> {
+        self.api_request(
+            &format!("resourcelinks/{}", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Returns a resourcelink.
+    pub fn get_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<crate::Resourcelink> {
+        let resourcelink: crate::Resourcelink = parse_response(
+            self.api_request(&format!("resourcelinks/{}", id.as_ref()), RequestType::Get)?,
+        )?;
+        Ok(resourcelink.with_id(id.as_ref()))
+    }
+
+    /// Returns all resourcelinks.
+    pub fn get_all_resourcelinks(&self) -> Result<Vec<crate::Resourcelink>> {
+        let map: HashMap<String, crate::Resourcelink> =
+            parse_response(self.api_request("resourcelinks", RequestType::Get)?)?;
+        let mut resourcelinks = Vec::new();
+        for (id, resourcelink) in map {
+            resourcelinks.push(resourcelink.with_id(id));
+        }
+        Ok(resourcelinks)
+    }
+
+    /// Deletes a resourcelink.
+    pub fn delete_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<()> {
+        let response: Vec<Response<serde_json::Value>> = self.api_request(
+            &format!("resourcelinks/{}", id.as_ref()),
+            RequestType::Delete,
+        )?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
 }

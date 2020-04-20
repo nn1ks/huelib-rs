@@ -176,7 +176,7 @@ pub struct Creator {
     pub lights: Option<Vec<String>>,
     /// The type of the new group.
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
-    pub kind: Option<TypeCreator>,
+    pub kind: Option<CreatableKind>,
     /// The class of the new group.
     ///
     /// It is only used when `group_type` is `Room`. If `group_type` is `Room` and `class` is
@@ -198,7 +198,7 @@ impl Creator {
     }
 
     /// Sets the kind of the group.
-    pub fn kind(self, value: TypeCreator) -> Self {
+    pub fn kind(self, value: CreatableKind) -> Self {
         Self {
             kind: Some(value),
             ..self
@@ -212,27 +212,6 @@ impl Creator {
             ..self
         }
     }
-}
-
-/// Group type of a `Creator`.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
-pub enum TypeCreator {
-    /// A group of lights that can be controlled together. This the default group type that the
-    /// bridge generates for user created groups. Default type when no type is given on creation.
-    LightGroup,
-    /// A group of lights that are physically located in the same place in the house. Rooms behave
-    /// similar as light groups, except: (1) A room can be empty and contain 0 lights, (2) a light
-    /// is only allowed in one room and (3) a room isn not automatically deleted when all lights in
-    /// that room are deleted.
-    Room,
-    /// A group of lights that are used in an entertainment setup. Entertainment group behave in a
-    /// similar way as light groups, with the exception: it can be empty and contain 0 lights. The
-    /// group is also not automatically recycled when lights are deleted. The group of lights can
-    /// be controlled together as in LightGroup.
-    Entertainment,
-    /// Zones describe a group of lights that can be controlled together. Zones can be empty and
-    /// contain 0 lights. A light is allowed to be in multiple zones.
-    Zone,
 }
 
 /// Struct for modifying group attributes.

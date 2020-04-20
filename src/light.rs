@@ -2,7 +2,7 @@ use crate::{Alert, ColorMode, CoordinateModifierType, Effect, ModifierType};
 use serde::{de, de::Error, Deserialize, Serialize};
 use std::fmt;
 
-/// Details about a light.
+/// A light.
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct Light {
     /// Identifier of the light.
@@ -56,13 +56,18 @@ impl Light {
 pub struct State {
     /// Whether the light is on.
     pub on: Option<bool>,
-    /// Brightness of the light. The maximum brightness is 254 and 1 is the minimum brightness.
+    /// Brightness of the light.
+    ///
+    /// The maximum brightness is 254 and 1 is the minimum brightness.
     #[serde(rename = "bri")]
     pub brightness: Option<u8>,
-    /// Hue of the light. Both 0 and 65535 are red, 25500 is green and 46920 is blue.
+    /// Hue of the light.
+    ///
+    /// Both 0 and 65535 are red, 25500 is green and 46920 is blue.
     pub hue: Option<u16>,
-    /// Saturation of the light. The most saturated (colored) is 254 and 0 is the least saturated
-    /// (white).
+    /// Saturation of the light.
+    ///
+    /// The most saturated (colored) is 254 and 0 is the least saturated (white).
     #[serde(rename = "sat")]
     pub saturation: Option<u8>,
     /// X and y coordinates of a color in CIE color space. Both values must be between 0 and 1.
@@ -100,7 +105,7 @@ pub enum SoftwareUpdateState {
     NoUpdates,
     /// Device cannot be updated.
     NotUpdatable,
-    // TODO: Add additional variants for states
+    // TODO: Add missing variants for states (missing due to incomplete documentation)
 }
 
 /// Configuration of a light.
@@ -157,12 +162,12 @@ pub struct ControlCapabilities {
     pub color_temperature: Option<ColorTemperatureCapabilities>,
 }
 
-/// Maximal/minimal color temperature of the light.
+/// Color temperature capabilities of a light.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct ColorTemperatureCapabilities {
-    /// Whether a renderer is enabled.
+    /// Minimal color temperature.
     pub min: usize,
-    /// Whether a proxy is enabled.
+    /// Maximal color temperature.
     pub max: usize,
 }
 
@@ -175,7 +180,104 @@ pub struct StreamingCapabilities {
     pub proxy: bool,
 }
 
-/// Struct for modifying light attributes.
+/// Struct for new lights that were scanned by the bridge.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Scan {
+    /// When the bridge last scanned for new lights.
+    pub last_scan: LastScan,
+    /// New lights that were discovered.
+    pub lights: Vec<ScanLight>,
+}
+
+impl<'de> Deserialize<'de> for Scan {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        enum Field {
+            LastScan,
+            LightId(String),
+        }
+
+        impl<'de> Deserialize<'de> for Field {
+            fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                let value: String = Deserialize::deserialize(deserializer)?;
+                Ok(match value.as_ref() {
+                    "lastscan" => Field::LastScan,
+                    v => Field::LightId(v.to_owned()),
+                })
+            }
+        }
+
+        struct ScanVisitor;
+
+        impl<'de> de::Visitor<'de> for ScanVisitor {
+            type Value = Scan;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                f.write_str("struct Scan")
+            }
+
+            fn visit_map<V: de::MapAccess<'de>>(self, mut map: V) -> Result<Scan, V::Error> {
+                let mut lights = Vec::new();
+                let mut last_scan = None;
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        Field::LastScan => {
+                            last_scan = serde_json::from_value(map.next_value()?)
+                                .map_err(V::Error::custom)?
+                        }
+                        Field::LightId(v) => {
+                            let light = ScanLight {
+                                id: v,
+                                name: map.next_value()?,
+                            };
+                            lights.push(light);
+                        }
+                    }
+                }
+                let last_scan = last_scan.ok_or_else(|| de::Error::missing_field("lastscan"))?;
+                Ok(Scan { lights, last_scan })
+            }
+        }
+
+        const FIELDS: &[&str] = &["lastscan", "lights"];
+        deserializer.deserialize_struct("Scan", FIELDS, ScanVisitor)
+    }
+}
+
+/// Status of the last scan for new lights.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum LastScan {
+    /// Date and time of the last scan.
+    DateTime(chrono::NaiveDateTime),
+    /// The bridge is currently scanning.
+    Active,
+    /// The bridge did not scan since it was powered on.
+    None,
+}
+
+impl<'de> Deserialize<'de> for LastScan {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let value: String = Deserialize::deserialize(deserializer)?;
+        Ok(match value.as_ref() {
+            "active" => LastScan::Active,
+            "none" => LastScan::None,
+            v => LastScan::DateTime(
+                chrono::NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S")
+                    .map_err(D::Error::custom)?,
+            ),
+        })
+    }
+}
+
+/// Informatino about a light that is returned from a scan.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ScanLight {
+    /// Identifier of the light.
+    pub id: String,
+    /// Name of the light.
+    pub name: String,
+}
+
+/// Modifier for light attributes.
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
 pub struct AttributeModifier {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -193,7 +295,7 @@ impl AttributeModifier {
     }
 }
 
-/// Modifier for a light.
+/// Modifier for the light state.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize)]
 pub struct StateModifier {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -358,109 +460,13 @@ impl StateModifier {
         }
     }
 
-    /// Sets the duration of the transition from the light's current state to the new state. This
-    /// is given as a multiple of 100ms.
+    /// Sets the transition duration of state changes.
+    ///
+    /// This is given as a multiple of 100ms.
     pub fn transition_time(self, value: u16) -> Self {
         Self {
             transition_time: Some(value),
             ..self
         }
     }
-}
-
-/// Struct for new lights that were scanned by the bridge.
-#[derive(Clone, Debug, PartialEq)]
-pub struct Scan {
-    /// When the bridge last scanned for new lights.
-    pub last_scan: LastScan,
-    /// New lights that were discovered.
-    pub lights: Vec<ScanLight>,
-}
-
-impl<'de> Deserialize<'de> for Scan {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        enum Field {
-            LastScan,
-            LightId(String),
-        }
-
-        impl<'de> Deserialize<'de> for Field {
-            fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-                let value: String = Deserialize::deserialize(deserializer)?;
-                Ok(match value.as_ref() {
-                    "lastscan" => Field::LastScan,
-                    v => Field::LightId(v.to_owned()),
-                })
-            }
-        }
-
-        struct ScanVisitor;
-
-        impl<'de> de::Visitor<'de> for ScanVisitor {
-            type Value = Scan;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str("struct LightScan")
-            }
-
-            fn visit_map<V: de::MapAccess<'de>>(self, mut map: V) -> Result<Scan, V::Error> {
-                let mut lights = Vec::new();
-                let mut last_scan = None;
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        Field::LastScan => {
-                            last_scan = serde_json::from_value(map.next_value()?)
-                                .map_err(V::Error::custom)?
-                        }
-                        Field::LightId(v) => {
-                            let light = ScanLight {
-                                id: v,
-                                name: map.next_value()?,
-                            };
-                            lights.push(light);
-                        }
-                    }
-                }
-                let last_scan = last_scan.ok_or_else(|| de::Error::missing_field("lastscan"))?;
-                Ok(Scan { lights, last_scan })
-            }
-        }
-
-        const FIELDS: &[&str] = &["lastscan", "lights"];
-        deserializer.deserialize_struct("LightScan", FIELDS, ScanVisitor)
-    }
-}
-
-/// Status of the last scan for new lights.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum LastScan {
-    /// Date and time of the last scan.
-    DateTime(chrono::NaiveDateTime),
-    /// The bridge is currently scanning.
-    Active,
-    /// The bridge did not scan since it was powered on.
-    None,
-}
-
-impl<'de> Deserialize<'de> for LastScan {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let value: String = Deserialize::deserialize(deserializer)?;
-        Ok(match value.as_ref() {
-            "active" => LastScan::Active,
-            "none" => LastScan::None,
-            v => LastScan::DateTime(
-                chrono::NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S")
-                    .map_err(D::Error::custom)?,
-            ),
-        })
-    }
-}
-
-/// A light that is returned from a scan.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ScanLight {
-    /// Identifier of the light.
-    pub id: String,
-    /// Name of the light.
-    pub name: String,
 }

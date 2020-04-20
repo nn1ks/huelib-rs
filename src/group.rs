@@ -49,35 +49,58 @@ impl Group {
 
 /// Kind of a group.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[serde(untagged)]
 pub enum Kind {
-    /// A special group containing all lights in the system, and is not returned by the
-    /// `get_all_groups` function. This group is not visible, and cannot be created, modified or
-    /// deleted using the API.
+    /// Kind of a group that can be manually created.
+    Creatable(CreatableKind),
+    /// Kind of a group that is automatically created by the bridge and cannot be manually created.
+    Immutable(ImmutableKind),
+}
+
+/// Kind of a group that can be manually created.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub enum CreatableKind {
+    /// A group of lights that can be controlled together.
+    ///
+    /// This the default group type that the bridge generates for user created groups. Default type
+    /// when no type is given on creation.
+    LightGroup,
+    /// A group of lights that are physically located in the same place.
+    ///
+    /// Rooms behave similar as light groups, except: (1) A room can be empty and contain 0 lights,
+    /// (2) a light is only allowed in one room and (3) a room is not automatically deleted when
+    /// all lights in that room are deleted.
+    Room,
+    /// A group of lights that are used in an entertainment setup.
+    ///
+    /// Entertainment group behave in a similar way as light groups, with the exception: it can be
+    /// empty and contain 0 lights. The group is also not automatically recycled when lights are
+    /// deleted. The group of lights can be controlled together as in LightGroup.
+    Entertainment,
+    /// Zones describe a group of lights that can be controlled together.
+    ///
+    /// Zones can be empty and contain 0 lights. A light is allowed to be in multiple zones.
+    Zone,
+}
+
+/// Kind of a group that is automatically created by the bridge and cannot be manually created.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+pub enum ImmutableKind {
+    /// A special group containing all lights in the system.
+    ///
+    /// This group is not returned by the `get_all_groups` function, and cannot be created,
+    /// modified or deleted.
     Zero,
-    /// A lighting installation of default groupings of hue lights. The bridge will pre-install
-    /// these groups for ease of use. This type cannot be created manually.  Also, a light can only
-    /// be in a maximum of one luminaire group. See multisource luminaires for more info.
+    /// A lighting installation of default groupings of hue lights.
+    ///
+    /// The bridge will pre-install these groups for ease of use. This type cannot be created
+    /// manually. Also, a light can only be in a maximum of one luminaire group.
     Luminaire,
-    /// A group of lights which is created by the bridge based on multisource luminaire attributes
-    /// of Zigbee light resource.
+    /// A group of lights based on multisource luminaire attributes.
+    ///
+    /// This group is created by the bridge.
     #[serde(rename = "Lightsource")]
     LightSource,
-    /// A group of lights that can be controlled together. This the default group type that the
-    /// bridge generates for user created groups. Default type when no type is given on creation.
-    LightGroup,
-    /// A group of lights that are physically located in the same place in the house. Rooms behave
-    /// similar as light groups, except: (1) A room can be empty and contain 0 lights, (2) a light
-    /// is only allowed in one room and (3) a room isn not automatically deleted when all lights in
-    /// that room are deleted.
-    Room,
-    /// A group of lights that are used in an entertainment setup. Entertainment group behave in a
-    /// similar way as light groups, with the exception: it can be empty and contain 0 lights. The
-    /// group is also not automatically recycled when lights are deleted. The group of lights can
-    /// be controlled together as in LightGroup.
-    Entertainment,
-    /// Zones describe a group of lights that can be controlled together. Zones can be empty and
-    /// contain 0 lights. A light is allowed to be in multiple zones.
-    Zone,
 }
 
 /// Class of a group.

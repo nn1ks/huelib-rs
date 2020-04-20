@@ -89,6 +89,11 @@ pub mod scene;
 /// [Schedules API]: https://developers.meethue.com/develop/hue-api/3-schedules-api
 pub mod schedule;
 
+/// Bindings to the [Sensors API].
+///
+/// [Sensors API]: https://developers.meethue.com/develop/hue-api/5-sensors-api
+pub mod sensor;
+
 pub use bridge::Bridge;
 pub use capabilities::Capabilities;
 pub use config::Config;
@@ -99,6 +104,7 @@ pub use resourcelink::Resourcelink;
 pub use response::Response;
 pub use scene::Scene;
 pub use schedule::Schedule;
+pub use sensor::Sensor;
 
 use serde::{Deserialize, Serialize};
 

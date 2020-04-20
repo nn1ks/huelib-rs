@@ -261,8 +261,7 @@ impl Bridge {
         Ok(())
     }
 
-    /// Returns lights that were discovered the last time a search for new lights was performed.
-    /// The list of new lights is always deleted when a new search is started.
+    /// Returns discovered lights.
     pub fn get_new_lights(&self) -> Result<crate::light::Scan> {
         parse_response(self.api_request("lights/new", RequestType::Get)?)
     }
@@ -510,6 +509,101 @@ impl Bridge {
             &format!("resourcelinks/{}", id.as_ref()),
             RequestType::Delete,
         )?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
+
+    /// Modifies attributes of a sensor.
+    pub fn set_sensor_attribute<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &crate::sensor::AttributeModifier,
+    ) -> Result<Vec<ResponseModified>> {
+        self.api_request(
+            &format!("sensors/{}", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Modifies the state of a sensor.
+    pub fn set_sensor_state<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &crate::sensor::StateModifier,
+    ) -> Result<Vec<ResponseModified>> {
+        self.api_request(
+            &format!("sensors/{}/state", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Modifies the configuration of a sensor.
+    pub fn set_sensor_config<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &crate::sensor::ConfigModifier,
+    ) -> Result<Vec<ResponseModified>> {
+        self.api_request(
+            &format!("sensors/{}/config", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Returns a sensor.
+    pub fn get_sensor<S: AsRef<str>>(&self, id: S) -> Result<crate::Sensor> {
+        let sensor: crate::Sensor = parse_response(
+            self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Get)?,
+        )?;
+        Ok(sensor.with_id(id.as_ref()))
+    }
+
+    /// Returns all sensors that are connected to the bridge.
+    pub fn get_all_sensors(&self) -> Result<Vec<crate::Sensor>> {
+        let map: HashMap<String, crate::Sensor> =
+            parse_response(self.api_request("sensors", RequestType::Get)?)?;
+        let mut sensors = Vec::new();
+        for (id, sensor) in map {
+            sensors.push(sensor.with_id(id));
+        }
+        Ok(sensors)
+    }
+
+    /// Starts searching for new sensors.
+    ///
+    /// The bridge will open the network for 40 seconds. The overall search might take longer since
+    /// the configuration of new devices can take longer. If many devices are found the command
+    /// will have to be issued a second time after discovery time has elapsed. If the command is
+    /// received again during search the search will continue for at least an additional 40
+    /// seconds.
+    ///
+    /// When the search has finished, new sensors will be available using the [`get_new_sensors`]
+    /// function.
+    ///
+    /// [`get_new_sensors`]: #method.get_new_sensors
+    pub fn search_new_sensors(&self, device_ids: Option<&[&str]>) -> Result<()> {
+        let body = match device_ids {
+            Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
+            None => "".to_owned(),
+        };
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request("sensors", RequestType::Post(serde_json::to_value(body)?))?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
+
+    /// Returns discovered sensors.
+    pub fn get_new_sensors(&self) -> Result<crate::sensor::Scan> {
+        parse_response(self.api_request("sensors/new", RequestType::Get)?)
+    }
+
+    /// Deletes a sensor from the bridge.
+    pub fn delete_sensor<S: AsRef<str>>(&self, id: S) -> Result<()> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
         }

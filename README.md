@@ -65,5 +65,5 @@ match bridge.set_light_state("1", &state_modifier) {
 - [x] Capabilities API
 - [x] Schedules API
 - [x] Resourcelinks API
+- [x] Sensors API
 - [ ] Rules API
-- [ ] Sensors API

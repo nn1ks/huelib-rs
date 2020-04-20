@@ -15,16 +15,24 @@ pub struct Group {
     /// Kind of the group.
     #[serde(rename = "type")]
     pub kind: Kind,
-    /// Class of the group. Only used if `group_type` is `Room`.
+    /// Class of the group.
+    ///
+    /// Only used if [`kind`] is [`Room`].
+    ///
+    /// [`kind`]: #structfield.kind
+    /// [`Room`]: enum.CreatableKind.html#variant.Room
     pub class: Option<Class>,
     /// State of the group.
     pub state: Option<State>,
-    /// Uniquely identifies the hardware model of the luminaire. Only present for automatically
-    /// created Luminaires.
+    /// Model identifier of the group.
+    ///
+    /// Only present for automatically created luminaires.
     #[serde(rename = "modelid")]
     pub model_id: Option<String>,
-    /// Unique Id in AA:BB:CC:DD format for Luminaire groups or AA:BB:CC:DD-XX format for
-    /// Lightsource groups, where XX is the lightsource position.
+    /// Unique identifier of the group.
+    ///
+    /// In AA:BB:CC:DD format for luminaire groups or AA:BB:CC:DD-XX format for
+    /// lightsource groups, where XX is the lightsource position.
     #[serde(rename = "unique_id")]
     pub unique_id: Option<String>,
     // TODO: Sensors
@@ -146,8 +154,10 @@ pub struct Creator {
     /// The type of the new group.
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<TypeCreator>,
-    /// The class of the new group. It is only used when `group_type` is `Room`. If `group_type` is
-    /// `Room` and `class` is `None` the room will get the class `Other`.
+    /// The class of the new group.
+    ///
+    /// It is only used when `group_type` is `Room`. If `group_type` is `Room` and `class` is
+    /// `None` the room will get the class `Other`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub class: Option<Class>,
 }
@@ -164,7 +174,7 @@ impl Creator {
         }
     }
 
-    /// Sets the type of the group.
+    /// Sets the kind of the group.
     pub fn kind(self, value: TypeCreator) -> Self {
         Self {
             kind: Some(value),
@@ -408,8 +418,9 @@ impl StateModifier {
         }
     }
 
-    /// Sets the duration of the transition from the light's current state to the new state. This
-    /// is given as a multiple of 100ms.
+    /// Sets the transition duration of state changes.
+    ///
+    /// This is given as a multiple of 100ms.
     pub fn transition_time(self, value: u16) -> Self {
         Self {
             transition_time: Some(value),

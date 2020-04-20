@@ -47,14 +47,14 @@ pub struct Config {
     #[serde(rename = "UTC")]
     pub current_time: chrono::NaiveDateTime,
     /// Local time of the bridge.
-    #[serde(rename = "localtime")]
-    #[serde(deserialize_with = "deserialize_local_time")]
+    #[serde(rename = "localtime", deserialize_with = "deserialize_local_time")]
     pub local_time: Option<chrono::NaiveDateTime>,
-    /// Timezone of the bridge as OlsenIDs, like "Europe/Amsterdam".
+    /// Timezone of the bridge as OlsenIDs.
     #[serde(deserialize_with = "deserialize_timezone")]
     pub timezone: Option<String>,
-    /// The current wireless frequency channel used by the bridge. It can take values of 11, 15,
-    /// 20, 25 or 0 if undefined (factory new).
+    /// The current wireless frequency channel used by the bridge.
+    ///
+    /// It can take values of 11, 15, 20, 25 or 0 if undefined (factory new).
     #[serde(rename = "zigbeechannel")]
     pub zigbee_channel: u8,
     /// Uniquely identifies the hardware model of the bridge.
@@ -67,9 +67,10 @@ pub struct Config {
     /// Indicates if bridge settings are factory new.
     pub factory_new: bool,
     #[serde(rename = "replacesbridgeid")]
-    /// If a bridge backup file has been restored on this bridge from a bridge with a different
-    /// bridge id, it will indicate that bridge id, otherwise it will be None.
-    pub replaces_bridge_id: Option<bool>,
+    /// Identifier of the bridge where a backup was restored.
+    ///
+    /// If no backup was restored from another bridge, this will be `None`.
+    pub replaces_bridge_id: Option<String>,
     /// The version of the datastore.
     #[serde(rename = "datastoreversion")]
     pub datastore_version: String,
@@ -216,8 +217,9 @@ pub enum ServiceStatus {
 pub struct Backup {
     /// Status of backup/restore.
     pub status: BackupStatus,
-    /// Specifies the last error source if the backup has detected an internal error. Cleared at
-    /// the start of a backup import or export.
+    /// Specifies the last error source if the backup has detected an internal error.
+    ///
+    /// Cleared at the start of a backup import or export.
     #[serde(rename = "errorcode")]
     pub error: BackupError,
 }
@@ -225,17 +227,19 @@ pub struct Backup {
 /// Status of backup/restore.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub enum BackupStatus {
-    /// No backup/restore ongoing.
+    /// No backup or restore ongoing.
     #[serde(rename = "idle")]
     Idle,
-    /// Can be written if status is `Idle`. Creates a backup file which can be retrieved via the
-    /// backup interface and puts the bridge in `FilereadyDisabled` status. ndicates that a backup
-    /// file for migration is being created. CLIP is not available for some time after this
-    /// command.
+    /// Indicates that a file for migration is being created.
+    ///
+    /// It can only be written if status is `Idle` and puts the bridge in `FilereadyDisable`
+    /// status. CLIP is not available for some time after this command.
     #[serde(rename = "startmigration")]
     StartMigration,
     /// Indicates that a backup file is available and that this bridge has been disabled due to a
-    /// migration procedure. The bridge can be activated again by a factory reset or power cycle.
+    /// migration procedure.
+    ///
+    /// The bridge can be activated again by a factory reset or power cycle.
     #[serde(rename = "fileready_disabled")]
     FilereadyDisabled,
     /// Indicates that the a backup file has been sent to the bridge and the bridge is in the
@@ -356,7 +360,9 @@ impl Modifier {
         }
     }
 
-    /// Sets the proxy port of the bridge. If set to 0 then a proxy is not being used.
+    /// Sets the proxy port of the bridge.
+    ///
+    /// If set to 0 then a proxy is not being used.
     pub fn proxy_port(self, value: u16) -> Self {
         Self {
             proxy_port: Some(value),
@@ -364,7 +370,9 @@ impl Modifier {
         }
     }
 
-    /// Sets the proxy address of the bridge. If set to `None` then a proxy is not being used.
+    /// Sets the proxy address of the bridge.
+    ///
+    /// If set to `None` then a proxy is not being used.
     pub fn proxy_address(self, value: Option<IpAddr>) -> Self {
         Self {
             proxy_address: Some(match value {
@@ -375,8 +383,9 @@ impl Modifier {
         }
     }
 
-    /// Indicates whether the link button has been pressed within the last 30 seconds. Writing is
-    /// only allowed for portal access via cloud application_key.
+    /// Indicates whether the link button has been pressed within the last 30 seconds.
+    ///
+    /// Writing is only allowed for portal access via cloud application_key.
     pub fn linkbutton(self, value: bool) -> Self {
         Self {
             linkbutton: Some(value),
@@ -384,8 +393,9 @@ impl Modifier {
         }
     }
 
-    /// Starts a touchlink procedure which adds the closest lamp (within range) to the ZigBee
-    /// network. You can then search for new lights and the lamp will show up in the bridge.
+    /// Starts a touchlink procedure which adds the closest lamp to the ZigBee network.
+    ///
+    /// You can then search for new lights and the lamp will show up in the bridge.
     pub fn touchlink(self) -> Self {
         Self {
             touchlink: Some(true),
@@ -393,8 +403,9 @@ impl Modifier {
         }
     }
 
-    /// Sets the wireless frequency channel used by the bridge. It can take values of 11, 15, 20 or
-    /// 25.
+    /// Sets the wireless frequency channel used by the bridge.
+    ///
+    /// It can take values of 11, 15, 20 or 25.
     pub fn zigbee_channel(self, value: u8) -> Self {
         Self {
             zigbee_channel: Some(value),

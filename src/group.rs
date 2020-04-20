@@ -168,21 +168,14 @@ pub struct State {
 /// Struct for creating a group.
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
 pub struct Creator {
-    /// The name of the new group.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    /// Identifier of the lights that will be in the new group.
+    name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub lights: Option<Vec<String>>,
-    /// The type of the new group.
+    lights: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
-    pub kind: Option<CreatableKind>,
-    /// The class of the new group.
-    ///
-    /// It is only used when `group_type` is `Room`. If `group_type` is `Room` and `class` is
-    /// `None` the room will get the class `Other`.
+    kind: Option<CreatableKind>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub class: Option<Class>,
+    class: Option<Class>,
 }
 
 impl crate::Creator for Creator {}

@@ -144,6 +144,28 @@ pub enum ColorMode {
     ColorSpaceCoordinates,
 }
 
+/// Action of a schedule or rule.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Action {
+    /// Address where the action will be executed.
+    pub address: String,
+    /// The HTTP method used to send the body to the given address.
+    #[serde(rename = "method")]
+    pub request_type: ActionRequestType,
+    /// Body of the request that the action sends.
+    pub body: std::collections::HashMap<String, serde_json::Value>,
+}
+
+/// Request type of an action.
+#[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum ActionRequestType {
+    Put,
+    Post,
+    Delete,
+}
+
 /// Type of a modifier.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ModifierType {

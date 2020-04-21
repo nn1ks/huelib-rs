@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Schedule of a resource.
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -11,8 +10,9 @@ pub struct Schedule {
     pub name: String,
     /// Description of the schedule.
     pub description: String,
-    /// Command to execute when the scheduled event occurs.
-    pub command: Command,
+    /// Action to execute when the scheduled event occurs.
+    #[serde(rename = "command")]
+    pub action: crate::Action,
     /// Time when the scheduled event will occur.
     #[serde(rename = "localtime")]
     pub local_time: String,
@@ -45,28 +45,6 @@ pub enum Status {
     Disabled,
 }
 
-/// Command of a schedule.
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct Command {
-    /// Address where the command will be executed.
-    pub address: String,
-    /// The HTTP method used to send the body to the given address.
-    #[serde(rename = "method")]
-    pub request_type: CommandRequestType,
-    /// Body of the request that the command sends.
-    pub body: HashMap<String, serde_json::Value>,
-}
-
-/// Request method of a command.
-#[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "UPPERCASE")]
-pub enum CommandRequestType {
-    Put,
-    Post,
-    Delete,
-}
-
 /// Struct for creating a schedule.
 #[derive(Clone, Debug, Default, PartialEq, Serialize)]
 pub struct Creator {
@@ -75,7 +53,7 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    command: Option<Command>,
+    action: Option<crate::Action>,
     #[serde(skip_serializing_if = "Option::is_none")]
     localtime: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -90,9 +68,9 @@ impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new schedule creator.
-    pub fn new(command: Command, localtime: String) -> Self {
+    pub fn new(action: crate::Action, localtime: String) -> Self {
         Self {
-            command: Some(command),
+            action: Some(action),
             localtime: Some(localtime),
             ..Default::default()
         }
@@ -147,7 +125,7 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    command: Option<Command>,
+    action: Option<crate::Action>,
     #[serde(skip_serializing_if = "Option::is_none")]
     localtime: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -181,9 +159,9 @@ impl Modifier {
     }
 
     /// Sets the description of the schedule.
-    pub fn command(self, value: Command) -> Self {
+    pub fn action(self, value: crate::Action) -> Self {
         Self {
-            command: Some(value),
+            action: Some(value),
             ..self
         }
     }

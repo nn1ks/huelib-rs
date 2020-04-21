@@ -55,15 +55,3 @@ match bridge.set_light_state("1", &state_modifier) {
 ```
 
 <!-- cargo-sync-readme end -->
-
-## Todo
-
-- [x] Lights API
-- [x] Groups API
-- [x] Scenes API
-- [x] Configuration API
-- [x] Capabilities API
-- [x] Schedules API
-- [x] Resourcelinks API
-- [x] Sensors API
-- [x] Rules API

@@ -111,9 +111,9 @@ pub enum Version {
 /// Struct for creating a scene.
 #[derive(Clone, Debug, Default, PartialEq, Serialize)]
 pub struct Creator {
-    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     lights: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     kind: Option<Kind>,

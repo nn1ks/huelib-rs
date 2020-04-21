@@ -262,7 +262,7 @@ impl Bridge {
     }
 
     /// Returns discovered lights.
-    pub fn get_new_lights(&self) -> Result<crate::light::Scan> {
+    pub fn get_new_lights(&self) -> Result<crate::Scan> {
         parse_response(self.api_request("lights/new", RequestType::Get)?)
     }
 
@@ -596,7 +596,7 @@ impl Bridge {
     }
 
     /// Returns discovered sensors.
-    pub fn get_new_sensors(&self) -> Result<crate::sensor::Scan> {
+    pub fn get_new_sensors(&self) -> Result<crate::Scan> {
         parse_response(self.api_request("sensors/new", RequestType::Get)?)
     }
 

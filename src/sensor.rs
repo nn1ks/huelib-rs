@@ -1,5 +1,4 @@
-use serde::{de, de::Error, Deserialize, Serialize};
-use std::fmt;
+use serde::{Deserialize, Serialize};
 
 /// A sensor.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -68,103 +67,6 @@ pub struct Config {
     ///
     /// Only for battery powered devices. Not present when not provided on creation (CLIP sensors).
     pub battery: Option<u8>,
-}
-
-/// Struct for new sensors that were scanned by the bridge.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Scan {
-    /// When the bridge last scanned for new sensors.
-    pub last_scan: LastScan,
-    /// New sensors that were discovered.
-    pub sensors: Vec<ScanSensor>,
-}
-
-impl<'de> Deserialize<'de> for Scan {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        enum Field {
-            LastScan,
-            SensorId(String),
-        }
-
-        impl<'de> Deserialize<'de> for Field {
-            fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-                let value: String = Deserialize::deserialize(deserializer)?;
-                Ok(match value.as_ref() {
-                    "lastscan" => Field::LastScan,
-                    v => Field::SensorId(v.to_owned()),
-                })
-            }
-        }
-
-        struct ScanVisitor;
-
-        impl<'de> de::Visitor<'de> for ScanVisitor {
-            type Value = Scan;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str("struct Scan")
-            }
-
-            fn visit_map<V: de::MapAccess<'de>>(self, mut map: V) -> Result<Scan, V::Error> {
-                let mut sensors = Vec::new();
-                let mut last_scan = None;
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        Field::LastScan => {
-                            last_scan = serde_json::from_value(map.next_value()?)
-                                .map_err(V::Error::custom)?
-                        }
-                        Field::SensorId(v) => {
-                            let sensor = ScanSensor {
-                                id: v,
-                                name: map.next_value()?,
-                            };
-                            sensors.push(sensor);
-                        }
-                    }
-                }
-                let last_scan = last_scan.ok_or_else(|| de::Error::missing_field("lastscan"))?;
-                Ok(Scan { sensors, last_scan })
-            }
-        }
-
-        const FIELDS: &[&str] = &["lastscan", "sensors"];
-        deserializer.deserialize_struct("Scan", FIELDS, ScanVisitor)
-    }
-}
-
-/// Status of the last scan for new sensors.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum LastScan {
-    /// Date and time of the last scan.
-    DateTime(chrono::NaiveDateTime),
-    /// The bridge is currently scanning.
-    Active,
-    /// The bridge did not scan since it was powered on.
-    None,
-}
-
-impl<'de> Deserialize<'de> for LastScan {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let value: String = Deserialize::deserialize(deserializer)?;
-        Ok(match value.as_ref() {
-            "active" => LastScan::Active,
-            "none" => LastScan::None,
-            v => LastScan::DateTime(
-                chrono::NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S")
-                    .map_err(D::Error::custom)?,
-            ),
-        })
-    }
-}
-
-/// Information about a sensor that is returned from a scan.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ScanSensor {
-    /// Identifier of the sensor.
-    pub id: String,
-    /// Name of the sensor.
-    pub name: String,
 }
 
 /// Modifier for sensor attributes.

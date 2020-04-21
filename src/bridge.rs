@@ -609,4 +609,57 @@ impl Bridge {
         }
         Ok(())
     }
+
+    /// Creates a new rule.
+    pub fn create_rule(&self, creator: &crate::rule::Creator) -> Result<String> {
+        let mut response: Vec<Response<HashMap<String, String>>> =
+            self.api_request("rules", RequestType::Post(serde_json::to_value(creator)?))?;
+        match response.pop() {
+            Some(v) => match v.into_result()?.get("id") {
+                Some(v) => Ok(v.to_string()),
+                None => Err(Error::GetCreatedId),
+            },
+            None => Err(Error::GetCreatedId),
+        }
+    }
+
+    /// Modifies attributes of a rule.
+    pub fn set_rule<S: AsRef<str>>(
+        &self,
+        id: S,
+        modifier: &crate::rule::Modifier,
+    ) -> Result<Vec<ResponseModified>> {
+        self.api_request(
+            &format!("rules/{}", id.as_ref()),
+            RequestType::Put(serde_json::to_value(modifier)?),
+        )
+    }
+
+    /// Returns a rule.
+    pub fn get_rule<S: AsRef<str>>(&self, id: S) -> Result<crate::Rule> {
+        let rule: crate::Rule =
+            parse_response(self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Get)?)?;
+        Ok(rule.with_id(id.as_ref()))
+    }
+
+    /// Returns all rules.
+    pub fn get_all_rules(&self) -> Result<Vec<crate::Rule>> {
+        let map: HashMap<String, crate::Rule> =
+            parse_response(self.api_request("rules", RequestType::Get)?)?;
+        let mut rules = Vec::new();
+        for (id, rule) in map {
+            rules.push(rule.with_id(id));
+        }
+        Ok(rules)
+    }
+
+    /// Deletes a rule.
+    pub fn delete_rule<S: AsRef<str>>(&self, id: S) -> Result<()> {
+        let response: Vec<Response<serde_json::Value>> =
+            self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Delete)?;
+        for i in response {
+            i.into_result()?;
+        }
+        Ok(())
+    }
 }

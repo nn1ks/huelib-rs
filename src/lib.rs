@@ -175,7 +175,7 @@ pub enum CoordinateModifierType {
 }
 
 /// Trait for modifiers.
-pub trait Modifier: Default + Clone + PartialEq {
+pub trait Modifier: Default + PartialEq {
     /// Creates a new modifier.
     fn new() -> Self {
         Default::default()

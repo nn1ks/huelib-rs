@@ -1,6 +1,5 @@
 use crate::{Alert, CoordinateModifierType, Effect, ModifierType};
 use serde::{Deserialize, Serialize};
-use std::default::Default;
 
 /// A group of lights.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]

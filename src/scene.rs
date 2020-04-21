@@ -1,4 +1,4 @@
-use serde::{de::Deserializer, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
 
@@ -19,7 +19,7 @@ pub struct Scene {
     pub lights: Option<Vec<String>>,
     /// Whitelist user that created or modified the content of the scene. Note that changing name
     /// does not change the owner.
-    #[serde(deserialize_with = "deserialize_owner")]
+    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
     pub owner: Option<String>,
     /// Indicates whether the scene can be automatically deleted by the bridge.
     pub recycle: bool,
@@ -37,16 +37,6 @@ pub struct Scene {
     pub last_update: Option<chrono::NaiveDateTime>,
     /// Version of the scene document.
     pub version: Version,
-}
-
-fn deserialize_owner<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<String>, D::Error> {
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(value),
-    })
 }
 
 impl Scene {

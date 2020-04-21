@@ -49,20 +49,12 @@ pub struct State {
     /// Flag of the sensor.
     pub flag: Option<bool>,
     /// The current battery state in percent.
-    #[serde(rename = "lastupdated", deserialize_with = "deserialize_last_updated")]
+    #[serde(
+        rename = "lastupdated",
+        deserialize_with = "crate::util::deserialize_option_date_time"
+    )]
     pub last_updated: Option<chrono::NaiveDateTime>,
     // TODO: Add missing attributes (missing due to incomplete documentation)
-}
-
-fn deserialize_last_updated<'de, D: de::Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<chrono::NaiveDateTime>, D::Error> {
-    use std::str::FromStr;
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(chrono::NaiveDateTime::from_str(&value).map_err(D::Error::custom)?),
-    })
 }
 
 /// Configuration of a sensor.

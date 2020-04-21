@@ -1,4 +1,4 @@
-use serde::{de, de::Error, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// A rule for resources on a bridge.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -9,11 +9,12 @@ pub struct Rule {
     /// Name of the rule.
     pub name: String,
     /// Owner of the rule.
-    pub owner: String,
+    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
+    pub owner: Option<String>,
     /// When the rule was last triggered.
     #[serde(
         rename = "lasttriggered",
-        deserialize_with = "deserialize_last_triggered"
+        deserialize_with = "crate::util::deserialize_option_date_time"
     )]
     pub last_triggered: Option<chrono::NaiveDateTime>,
     /// How often the rule was triggered.
@@ -36,17 +37,6 @@ impl Rule {
             ..self
         }
     }
-}
-
-fn deserialize_last_triggered<'de, D: de::Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<chrono::NaiveDateTime>, D::Error> {
-    use std::str::FromStr;
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(chrono::NaiveDateTime::from_str(&value).map_err(D::Error::custom)?),
-    })
 }
 
 /// Status of a rule.

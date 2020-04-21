@@ -112,6 +112,8 @@ pub use scene::Scene;
 pub use schedule::Schedule;
 pub use sensor::Sensor;
 
+mod util;
+
 use serde::{Deserialize, Serialize};
 
 /// Alert effect of a light.

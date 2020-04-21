@@ -1,4 +1,4 @@
-use serde::{de::Deserializer, de::Error, Deserialize, Serialize};
+use serde::{de, Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::net::IpAddr;
 
@@ -47,10 +47,13 @@ pub struct Config {
     #[serde(rename = "UTC")]
     pub current_time: chrono::NaiveDateTime,
     /// Local time of the bridge.
-    #[serde(rename = "localtime", deserialize_with = "deserialize_local_time")]
+    #[serde(
+        rename = "localtime",
+        deserialize_with = "crate::util::deserialize_option_date_time"
+    )]
     pub local_time: Option<chrono::NaiveDateTime>,
     /// Timezone of the bridge as OlsenIDs.
-    #[serde(deserialize_with = "deserialize_timezone")]
+    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
     pub timezone: Option<String>,
     /// The current wireless frequency channel used by the bridge.
     ///
@@ -84,28 +87,7 @@ pub struct Config {
     pub whitelist: Vec<User>,
 }
 
-fn deserialize_timezone<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<String>, D::Error> {
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(value),
-    })
-}
-
-fn deserialize_local_time<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<chrono::NaiveDateTime>, D::Error> {
-    use std::str::FromStr;
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(chrono::NaiveDateTime::from_str(&value).map_err(D::Error::custom)?),
-    })
-}
-
-fn deserialize_whitelist<'de, D: Deserializer<'de>>(
+fn deserialize_whitelist<'de, D: de::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Vec<User>, D::Error> {
     let map: std::collections::HashMap<String, User> = Deserialize::deserialize(deserializer)?;
@@ -159,19 +141,11 @@ pub struct SoftwareUpdateAutoInstall {
     /// Whether automatic updates are activated.
     pub on: bool,
     /// The time when updates are installed.
-    #[serde(rename = "updatetime", deserialize_with = "deserialize_update_time")]
+    #[serde(
+        rename = "updatetime",
+        deserialize_with = "crate::util::deserialize_option_time"
+    )]
     pub update_time: Option<chrono::NaiveTime>,
-}
-
-fn deserialize_update_time<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<chrono::NaiveTime>, D::Error> {
-    use std::str::FromStr;
-    let mut value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.remove(0) {
-        'T' => Some(chrono::NaiveTime::from_str(&value).map_err(D::Error::custom)?),
-        _ => None,
-    })
 }
 
 /// Portal state of the bridge.

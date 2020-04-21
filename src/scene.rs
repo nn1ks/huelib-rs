@@ -143,7 +143,7 @@ impl Creator {
 
     /// Sets the state of a light.
     pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
-        let mut light_states = self.light_states.unwrap_or(HashMap::new());
+        let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
         Self {
             light_states: Some(light_states),
@@ -275,7 +275,7 @@ impl Modifier {
 
     /// Sets the state of a light.
     pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
-        let mut light_states = self.light_states.unwrap_or(HashMap::new());
+        let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
         Self {
             light_states: Some(light_states),

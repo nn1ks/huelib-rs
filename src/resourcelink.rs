@@ -1,4 +1,5 @@
 use serde::{de, de::Error, Deserialize, Serialize};
+use std::fmt;
 
 /// A resourcelink to group resources in the bridge.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -53,18 +54,16 @@ pub struct Link {
 impl<'de> Deserialize<'de> for Link {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value: String = Deserialize::deserialize(deserializer)?;
-        let mut values: Vec<&str> = value.split("/").collect();
+        let mut values: Vec<&str> = value.split('/').collect();
         let id_str = values
             .pop()
-            .ok_or(D::Error::custom("expected link in the format /<kind>/<id>"))?;
+            .ok_or_else(|| D::Error::custom("expected link in the format /<kind>/<id>"))?;
         let kind_str = values
             .pop()
-            .ok_or(D::Error::custom("expected link in the format /<kind>/<id>"))?;
+            .ok_or_else(|| D::Error::custom("expected link in the format /<kind>/<id>"))?;
         Ok(Self {
-            kind: LinkKind::from_str(kind_str).ok_or(D::Error::custom(format!(
-                "invalid link type '{}'",
-                kind_str
-            )))?,
+            kind: LinkKind::from_str(kind_str)
+                .ok_or_else(|| D::Error::custom(format!("invalid link type '{}'", kind_str)))?,
             id: id_str.to_owned(),
         })
     }
@@ -96,18 +95,23 @@ impl LinkKind {
             _ => None,
         }
     }
+}
 
-    fn to_string(&self) -> String {
-        match self {
-            Self::Group => "groups",
-            Self::Light => "lights",
-            Self::Resourcelink => "resourcelinks",
-            Self::Rule => "rules",
-            Self::Scene => "scenes",
-            Self::Schedule => "schedules",
-            Self::Sensor => "sensors",
-        }
-        .to_owned()
+impl fmt::Display for LinkKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Group => "groups",
+                Self::Light => "lights",
+                Self::Resourcelink => "resourcelinks",
+                Self::Rule => "rules",
+                Self::Scene => "scenes",
+                Self::Schedule => "schedules",
+                Self::Sensor => "sensors",
+            }
+        )
     }
 }
 
@@ -177,8 +181,8 @@ impl Creator {
 
     /// Adds a link to the resourcelink.
     pub fn link<S: AsRef<str>>(self, kind: LinkKind, id: S) -> Self {
-        let mut links = self.links.unwrap_or(Vec::new());
-        links.push(format!("/{}/{}", kind.to_string(), id.as_ref()));
+        let mut links = self.links.unwrap_or_default();
+        links.push(format!("/{}/{}", kind, id.as_ref()));
         Self {
             links: Some(links),
             ..self
@@ -238,8 +242,8 @@ impl Modifier {
 
     /// Sets a link of the resourcelink.
     pub fn link<S: AsRef<str>>(self, kind: LinkKind, id: S) -> Self {
-        let mut links = self.links.unwrap_or(Vec::new());
-        links.push(format!("/{}/{}", kind.to_string(), id.as_ref()));
+        let mut links = self.links.unwrap_or_default();
+        links.push(format!("/{}/{}", kind, id.as_ref()));
         Self {
             links: Some(links),
             ..self

@@ -9,8 +9,10 @@ pub struct Group {
     pub id: String,
     /// Name of the group.
     pub name: String,
-    /// Identifier of lights that are in this group.
+    /// Identifiers of lights that are in this group.
     pub lights: Vec<String>,
+    /// Identifiers of sensors that are in this group.
+    pub sensors: Vec<String>,
     /// Kind of the group.
     #[serde(rename = "type")]
     pub kind: Kind,
@@ -34,7 +36,8 @@ pub struct Group {
     /// lightsource groups, where XX is the lightsource position.
     #[serde(rename = "unique_id")]
     pub unique_id: Option<String>,
-    // TODO: Sensors
+    /// Whether the group is automatically deleted when not referenced anymore.
+    pub recycle: Option<bool>,
 }
 
 impl Group {
@@ -171,10 +174,14 @@ pub struct Creator {
     name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     lights: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sensors: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     kind: Option<CreatableKind>,
     #[serde(skip_serializing_if = "Option::is_none")]
     class: Option<Class>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    recycle: Option<bool>,
 }
 
 impl crate::Creator for Creator {}
@@ -186,6 +193,14 @@ impl Creator {
             name: Some(name.into()),
             lights: Some(lights.into_iter().map(|v| v.into()).collect()),
             ..Default::default()
+        }
+    }
+
+    /// Sets the identifiers of the sensors of the group.
+    pub fn sensors<S: Into<String>>(self, value: Vec<S>) -> Self {
+        Self {
+            sensors: Some(value.into_iter().map(|v| v.into()).collect()),
+            ..self
         }
     }
 
@@ -204,6 +219,14 @@ impl Creator {
             ..self
         }
     }
+
+    /// Sets whether the group is automatically deleted when not referenced anymore.
+    pub fn recycle(self, value: bool) -> Self {
+        Self {
+            recycle: Some(value),
+            ..self
+        }
+    }
 }
 
 /// Struct for modifying group attributes.
@@ -214,13 +237,15 @@ pub struct AttributeModifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     lights: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    sensors: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     class: Option<Class>,
 }
 
 impl crate::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
-    /// Changes the name of the group.
+    /// Sets the name of the group.
     pub fn name<S: Into<String>>(self, value: S) -> Self {
         Self {
             name: Some(value.into()),
@@ -228,7 +253,7 @@ impl AttributeModifier {
         }
     }
 
-    /// Changes what lights are in the group.
+    /// Sets the identifiers of the lights of the group.
     pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
         Self {
             lights: Some(value.into_iter().map(|v| v.into()).collect()),
@@ -236,7 +261,15 @@ impl AttributeModifier {
         }
     }
 
-    /// Changes the class of the group.
+    /// Sets the identifiers of the sensors of the group.
+    pub fn sensors<S: Into<String>>(self, value: Vec<S>) -> Self {
+        Self {
+            sensors: Some(value.into_iter().map(|v| v.into()).collect()),
+            ..self
+        }
+    }
+
+    /// Sets the class of the group.
     pub fn class(self, value: Class) -> Self {
         Self {
             class: Some(value),

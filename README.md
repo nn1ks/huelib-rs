@@ -22,35 +22,55 @@ are deserialized/serialized using the [serde], [serde_json] and [serde_repr] cra
 [serde_json]: https://github.com/serde-rs/json
 [serde_repr]: https://github.com/dtolnay/serde-repr
 
-## Example
+## Examples
 
-Register a user and set the brightness and saturation of a light.
-```rust
-use huelib::{bridge, light, Modifier};
+Modifies the state of a light on a specific bridge:
+
+```rust,no_run
+use huelib::{light, Modifier, ModifierType};
 use std::net::{IpAddr, Ipv4Addr};
 
-let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-let username = match bridge::register_user(bridge_ip, "huelib-rs example", false) {
-    Ok(v) => v.name,
-    Err(e) => {
-        println!("Failed to register user: {}", e);
-        return;
-    }
+// Create a bridge with IP address and username.
+let bridge = huelib::Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username");
+
+// Create a state modifier that increments the brightness by 40 and sets the saturation to 200.
+let modifier = light::StateModifier::new()
+    .brightness(ModifierType::Increment, 40)
+    .saturation(ModifierType::Override, 200);
+
+// Set attributes of the light with index '1' from the modifier and print the responses.
+match bridge.set_light_state("1", &modifier) {
+    Ok(v) => v.iter().for_each(|response| println!("{}", response)),
+    Err(e) => eprintln!("Failed to modify the light state: {}", e),
 };
-let bridge = huelib::Bridge::new(bridge_ip, &username);
-let state_modifier = light::StateModifier::new()
-    .brightness(huelib::ModifierType::Increment, 40)
-    .saturation(huelib::ModifierType::Override, 200);
-match bridge.set_light_state("1", &state_modifier) {
-    Ok(v) => {
-        for response in v {
-            println!("{}", response);
-        }
-    },
-    Err(e) => {
-        println!("Failed to set the state of the light: {}", e);
-        return;
-    }
+```
+
+Creates a group and registers a user on a discovered bridge:
+
+```rust,no_run
+use huelib::{bridge, group};
+
+// Get the IP address of the bridge that was first discovered in the local network.
+let ip_address = bridge::discover()
+    .expect("Failed to discover bridges")
+    .pop()
+    .expect("No bridges found in the local network");
+
+// Register a user on the discovered bridge.
+let user = bridge::register_user(ip_address, "huelib-rs example", false)
+    .expect("Failed to register user");
+
+// Create a bridge with IP address and username.
+let bridge = huelib::Bridge::new(ip_address, user.name);
+
+// Create a group creator that sets the name to 'group1', adds the lights with the index '1'
+// and '2' to the group and sets the class to 'Office'.
+let creator = group::Creator::new("group", ["1", "2"].to_vec()).class(group::Class::Office);
+
+// Create the group and print the identifier of the new group.
+match bridge.create_group(&creator) {
+    Ok(v) => println!("Created group with id '{}'", v),
+    Err(e) => eprintln!("Failed to create group: {}", e),
 };
 ```
 

@@ -1,3 +1,4 @@
+use crate::{util, Effect};
 use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
@@ -19,7 +20,7 @@ pub struct Scene {
     pub lights: Option<Vec<String>>,
     /// Whitelist user that created or modified the content of the scene. Note that changing name
     /// does not change the owner.
-    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
+    #[serde(deserialize_with = "util::deserialize_option_string")]
     pub owner: Option<String>,
     /// Indicates whether the scene can be automatically deleted by the bridge.
     pub recycle: bool,
@@ -170,7 +171,7 @@ pub struct LightStateModifier {
     #[serde(skip_serializing_if = "Option::is_none", rename = "ct")]
     color_temperature: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    effect: Option<crate::Effect>,
+    effect: Option<Effect>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "transitiontime")]
     transition_time: Option<u16>,
 }
@@ -227,7 +228,7 @@ impl LightStateModifier {
     }
 
     /// Sets the effect of the lights.
-    pub fn effect(self, value: crate::Effect) -> Self {
+    pub fn effect(self, value: Effect) -> Self {
         Self {
             effect: Some(value),
             ..self

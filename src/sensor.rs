@@ -1,3 +1,4 @@
+use crate::util;
 use serde::{Deserialize, Serialize};
 
 /// A sensor.
@@ -52,7 +53,7 @@ pub struct State {
     /// The current battery state in percent.
     #[serde(
         rename = "lastupdated",
-        deserialize_with = "crate::util::deserialize_option_date_time"
+        deserialize_with = "util::deserialize_option_date_time"
     )]
     pub last_updated: Option<chrono::NaiveDateTime>,
     // TODO: Add missing attributes (missing due to incomplete documentation)

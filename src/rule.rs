@@ -1,3 +1,4 @@
+use crate::{util, Action};
 use serde::{Deserialize, Serialize};
 
 /// A rule for resources on a bridge.
@@ -9,12 +10,12 @@ pub struct Rule {
     /// Name of the rule.
     pub name: String,
     /// Owner of the rule.
-    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
+    #[serde(deserialize_with = "util::deserialize_option_string")]
     pub owner: Option<String>,
     /// When the rule was last triggered.
     #[serde(
         rename = "lasttriggered",
-        deserialize_with = "crate::util::deserialize_option_date_time"
+        deserialize_with = "util::deserialize_option_date_time"
     )]
     pub last_triggered: Option<chrono::NaiveDateTime>,
     /// How often the rule was triggered.
@@ -27,7 +28,7 @@ pub struct Rule {
     /// Conditions of the rule.
     pub conditions: Vec<Condition>,
     /// Actions of the rule.
-    pub actions: Vec<crate::Action>,
+    pub actions: Vec<Action>,
 }
 
 impl crate::Resource for Rule {}
@@ -109,14 +110,14 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none")]
     conditions: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    actions: Option<Vec<crate::Action>>,
+    actions: Option<Vec<Action>>,
 }
 
 impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new rule creator.
-    pub fn new(conditions: Vec<Condition>, actions: Vec<crate::Action>) -> Self {
+    pub fn new(conditions: Vec<Condition>, actions: Vec<Action>) -> Self {
         Self {
             conditions: Some(conditions),
             actions: Some(actions),
@@ -151,7 +152,7 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     conditions: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    actions: Option<Vec<crate::Action>>,
+    actions: Option<Vec<Action>>,
 }
 
 impl crate::Modifier for Modifier {}
@@ -182,7 +183,7 @@ impl Modifier {
     }
 
     /// Sets the actions of the rule.
-    pub fn actions(self, value: Vec<crate::Action>) -> Self {
+    pub fn actions(self, value: Vec<Action>) -> Self {
         Self {
             actions: Some(value),
             ..self

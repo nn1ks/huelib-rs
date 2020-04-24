@@ -20,7 +20,7 @@ pub struct Resourcelink {
     #[serde(rename = "classid")]
     pub class_id: u16,
     /// Whether the resource is automatically deleted when not referenced anymore in any
-    /// resourcelink
+    /// resourcelink.
     pub recycle: bool,
     /// References to resources which are used by this resourcelink.
     pub links: Vec<Link>,

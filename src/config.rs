@@ -1,3 +1,4 @@
+use crate::util;
 use serde::{de, Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::net::IpAddr;
@@ -49,11 +50,11 @@ pub struct Config {
     /// Local time of the bridge.
     #[serde(
         rename = "localtime",
-        deserialize_with = "crate::util::deserialize_option_date_time"
+        deserialize_with = "util::deserialize_option_date_time"
     )]
     pub local_time: Option<chrono::NaiveDateTime>,
     /// Timezone of the bridge as OlsenIDs.
-    #[serde(deserialize_with = "crate::util::deserialize_option_string")]
+    #[serde(deserialize_with = "util::deserialize_option_string")]
     pub timezone: Option<String>,
     /// The current wireless frequency channel used by the bridge.
     ///
@@ -145,7 +146,7 @@ pub struct SoftwareUpdateAutoInstall {
     /// The time when updates are installed.
     #[serde(
         rename = "updatetime",
-        deserialize_with = "crate::util::deserialize_option_time"
+        deserialize_with = "util::deserialize_option_time"
     )]
     pub update_time: Option<chrono::NaiveTime>,
 }

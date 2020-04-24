@@ -1,3 +1,4 @@
+use crate::Action;
 use serde::{Deserialize, Serialize};
 
 /// Schedule of a resource.
@@ -12,7 +13,7 @@ pub struct Schedule {
     pub description: String,
     /// Action to execute when the scheduled event occurs.
     #[serde(rename = "command")]
-    pub action: crate::Action,
+    pub action: Action,
     /// Time when the scheduled event will occur.
     #[serde(rename = "localtime")]
     pub local_time: String,
@@ -55,7 +56,7 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    action: Option<crate::Action>,
+    action: Option<Action>,
     #[serde(skip_serializing_if = "Option::is_none")]
     localtime: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -70,7 +71,7 @@ impl crate::Creator for Creator {}
 
 impl Creator {
     /// Creates a new schedule creator.
-    pub fn new(action: crate::Action, localtime: String) -> Self {
+    pub fn new(action: Action, localtime: String) -> Self {
         Self {
             action: Some(action),
             localtime: Some(localtime),
@@ -127,7 +128,7 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    action: Option<crate::Action>,
+    action: Option<Action>,
     #[serde(skip_serializing_if = "Option::is_none")]
     localtime: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -161,7 +162,7 @@ impl Modifier {
     }
 
     /// Sets the description of the schedule.
-    pub fn action(self, value: crate::Action) -> Self {
+    pub fn action(self, value: Action) -> Self {
         Self {
             action: Some(value),
             ..self

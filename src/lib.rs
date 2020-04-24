@@ -67,53 +67,42 @@
 
 /// Module for managing bridges.
 pub mod bridge;
-
 /// Bindings to the [Capabilities API].
 ///
 /// [Capabilities API]: https://developers.meethue.com/develop/hue-api/10-capabilities-api/
 pub mod capabilities;
-
 /// Bindings to the [Configuration API].
 ///
 /// [Configuration API]: https://developers.meethue.com/develop/hue-api/7-configuration-api
 pub mod config;
-
 /// Errors that can occur while interacting with the Philips Hue API.
 pub mod error;
-
 /// Bindings to the [Groups API].
 ///
 /// [Groups API]: https://developers.meethue.com/develop/hue-api/groupds-api
 pub mod group;
-
 /// Bindings to the [Lights API].
 ///
 /// [Lights API]: https://developers.meethue.com/develop/hue-api/lights-api
 pub mod light;
-
 /// Bindings to the [Resourcelinks API].
 ///
 /// [Resourcelinks API]: https://developers.meethue.com/develop/hue-api/9-resourcelinks-api
 pub mod resourcelink;
-
 /// Responses returned from the Philips Hue API.
 pub mod response;
-
 /// Bindings to the [Rules API].
 ///
 /// [Rules API]: https://developers.meethue.com/develop/hue-api/6-rules-api
 pub mod rule;
-
 /// Bindings to the [Scenes API].
 ///
 /// [Scenes API]: https://developers.meethue.com/develop/hue-api/4-scenes
 pub mod scene;
-
 /// Bindings to the [Schedules API].
 ///
 /// [Schedules API]: https://developers.meethue.com/develop/hue-api/3-schedules-api
 pub mod schedule;
-
 /// Bindings to the [Sensors API].
 ///
 /// [Sensors API]: https://developers.meethue.com/develop/hue-api/5-sensors-api

@@ -18,11 +18,11 @@
 //! Modifies the state of a light on a specific bridge:
 //!
 //! ```rust,no_run
-//! use huelib::{light, Modifier, ModifierType};
+//! use huelib::{light, Bridge, Modifier, ModifierType};
 //! use std::net::{IpAddr, Ipv4Addr};
 //!
 //! // Create a bridge with IP address and username.
-//! let bridge = huelib::Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username");
+//! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username");
 //!
 //! // Create a state modifier that increments the brightness by 40 and sets the saturation to 200.
 //! let modifier = light::StateModifier::new()
@@ -39,7 +39,7 @@
 //! Creates a group and registers a user on a discovered bridge:
 //!
 //! ```rust,no_run
-//! use huelib::{bridge, group};
+//! use huelib::{bridge, group, Bridge};
 //!
 //! // Get the IP address of the bridge that was first discovered in the local network.
 //! let ip_address = bridge::discover()
@@ -52,7 +52,7 @@
 //!     .expect("Failed to register user");
 //!
 //! // Create a bridge with IP address and username.
-//! let bridge = huelib::Bridge::new(ip_address, user.name);
+//! let bridge = Bridge::new(ip_address, user.name);
 //!
 //! // Create a group creator that sets the name to 'group1', adds the lights with the index '1'
 //! // and '2' to the group and sets the class to 'Office'.

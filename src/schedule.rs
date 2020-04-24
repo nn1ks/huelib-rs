@@ -26,6 +26,8 @@ pub struct Schedule {
     pub auto_delete: Option<bool>,
 }
 
+impl crate::Resource for Schedule {}
+
 impl Schedule {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

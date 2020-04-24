@@ -325,6 +325,9 @@ pub enum CoordinateModifierType {
     DecrementIncrement,
 }
 
+/// Trait for resources.
+pub trait Resource {}
+
 /// Trait for modifiers.
 pub trait Modifier: Default + PartialEq {
     /// Creates a new modifier.

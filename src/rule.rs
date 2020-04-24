@@ -30,6 +30,8 @@ pub struct Rule {
     pub actions: Vec<crate::Action>,
 }
 
+impl crate::Resource for Rule {}
+
 impl Rule {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

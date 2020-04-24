@@ -40,6 +40,8 @@ pub struct Group {
     pub recycle: Option<bool>,
 }
 
+impl crate::Resource for Group {}
+
 impl Group {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

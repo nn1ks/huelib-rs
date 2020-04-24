@@ -87,6 +87,8 @@ pub struct Config {
     pub whitelist: Vec<User>,
 }
 
+impl crate::Resource for Config {}
+
 fn deserialize_whitelist<'de, D: de::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Vec<User>, D::Error> {

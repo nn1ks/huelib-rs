@@ -39,6 +39,8 @@ pub struct Scene {
     pub version: Version,
 }
 
+impl crate::Resource for Scene {}
+
 impl Scene {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

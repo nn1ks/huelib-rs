@@ -41,6 +41,8 @@ pub struct Light {
     pub capabilities: Capabilities,
 }
 
+impl crate::Resource for Light {}
+
 impl Light {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

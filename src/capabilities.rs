@@ -23,6 +23,8 @@ pub struct Capabilities {
     pub timezones: Timezones,
 }
 
+impl crate::Resource for Capabilities {}
+
 /// Info about the capability of a resource.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub struct Info {

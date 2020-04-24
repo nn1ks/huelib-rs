@@ -26,6 +26,8 @@ pub struct Resourcelink {
     pub links: Vec<Link>,
 }
 
+impl crate::Resource for Resourcelink {}
+
 impl Resourcelink {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

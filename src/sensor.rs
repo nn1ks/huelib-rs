@@ -31,6 +31,8 @@ pub struct Sensor {
     pub recycle: Option<bool>,
 }
 
+impl crate::Resource for Sensor {}
+
 impl Sensor {
     pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
         Self {

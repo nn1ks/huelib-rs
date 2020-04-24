@@ -140,11 +140,6 @@ pub struct Modifier {
 impl crate::Modifier for Modifier {}
 
 impl Modifier {
-    /// Creates a new modifier.
-    pub fn new() -> Self {
-        Default::default()
-    }
-
     /// Sets the name of the schedule.
     pub fn name<S: Into<String>>(self, value: S) -> Self {
         Self {

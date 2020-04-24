@@ -1,6 +1,6 @@
 //! Deletes a specific light.
 
-use huelib::bridge;
+use huelib::{bridge, Bridge};
 
 fn main() {
     // Discover bridges in the local network and save the first IP address as `bridge_ip`.
@@ -10,7 +10,7 @@ fn main() {
     let user = bridge::register_user(bridge_ip, "huelib-rs example", false).unwrap();
 
     // Create a new bridge.
-    let bridge = huelib::Bridge::new(bridge_ip, &user.name);
+    let bridge = Bridge::new(bridge_ip, &user.name);
 
     // Deletes the light with the id 1.
     match bridge.delete_light("1") {

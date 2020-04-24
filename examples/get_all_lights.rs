@@ -1,6 +1,6 @@
 //! Prints every light that is connect to a bridge.
 
-use huelib::bridge;
+use huelib::{bridge, Bridge};
 
 fn main() {
     // Discover bridges in the local network and save the first IP address as `bridge_ip`.
@@ -10,7 +10,7 @@ fn main() {
     let user = bridge::register_user(bridge_ip, "huelib-rs example", false).unwrap();
 
     // Create a new bridge.
-    let bridge = huelib::Bridge::new(bridge_ip, &user.name);
+    let bridge = Bridge::new(bridge_ip, &user.name);
 
     // Print out every light that is connected to the bridge.
     let lights = bridge.get_all_lights().unwrap();

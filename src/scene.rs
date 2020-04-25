@@ -73,22 +73,6 @@ pub struct AppData {
     pub data: Option<String>,
 }
 
-impl crate::Modifier for AppData {}
-
-impl AppData {
-    /// Sets the version.
-    pub fn version(mut self, value: i8) -> Self {
-        self.version = Some(value);
-        self
-    }
-
-    /// Sets the data.
-    pub fn data<S: Into<String>>(mut self, value: S) -> Self {
-        self.data = Some(value.into());
-        self
-    }
-}
-
 /// Version of a scene document.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize_repr)]
 #[repr(i32)]

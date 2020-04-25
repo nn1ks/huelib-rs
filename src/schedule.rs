@@ -110,8 +110,7 @@ impl Creator {
             ..self
         }
     }
-    /// Sets whether resource is automatically deleted when not referenced anymore in any resource
-    /// link.
+    /// Sets whether resource is automatically deleted when not referenced anymore.
     pub fn recycle(self, value: bool) -> Self {
         Self {
             recycle: Some(value),

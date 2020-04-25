@@ -18,22 +18,26 @@ pub struct Scene {
     pub group: Option<String>,
     /// Identifier of the lights that are in this scene.
     pub lights: Option<Vec<String>>,
-    /// Whitelist user that created or modified the content of the scene. Note that changing name
-    /// does not change the owner.
+    /// Whitelist user that created or modified the content of the scene.
     #[serde(deserialize_with = "util::deserialize_option_string")]
     pub owner: Option<String>,
-    /// Indicates whether the scene can be automatically deleted by the bridge.
+    /// Whether the group is automatically deleted when not referenced anymore.
     pub recycle: bool,
-    /// Indicates that the scene is locked by a rule or a schedule and cannot be deleted until all
-    /// resources requiring or that reference the scene are deleted.
+    /// Whether the scene is locked by a rule or a schedule.
+    ///
+    /// If set to true, the scene cannot be deleted until all resources requiring or that reference
+    /// the scene are deleted.
     pub locked: bool,
     /// App specific data linked to the scene.
     #[serde(rename = "appdata")]
     pub app_data: AppData,
-    /// Only available with an individual scene resource. Reserved by the Philips Hue API for
-    /// future use.
+    /// Only available with an individual scene resource.
+    ///
+    /// Reserved by the Philips Hue API for future use.
     pub picture: Option<String>,
-    /// Time the scene has been created or updated. Not available for legacy scenes.
+    /// Time the scene has been created or updated.
+    ///
+    /// Not available for legacy scenes.
     #[serde(rename = "lastupdate")]
     pub last_update: Option<chrono::NaiveDateTime>,
     /// Version of the scene document.

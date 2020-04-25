@@ -94,7 +94,7 @@ pub enum ErrorKind {
     UnkownError,
 }
 
-/// A response type that is used when modifying a light or group.
+/// A response type that is used when modifying a resource.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Modified {
     /// Address of the changed attribute.

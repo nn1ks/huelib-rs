@@ -28,7 +28,7 @@ pub struct Sensor {
     pub state: State,
     /// Configuration of the sensor.
     pub config: Config,
-    /// Indicates whether the sensor can be automatically deleted by the bridge.
+    /// Whether the group is automatically deleted when not referenced anymore.
     pub recycle: Option<bool>,
 }
 

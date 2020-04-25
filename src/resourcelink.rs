@@ -19,8 +19,7 @@ pub struct Resourcelink {
     /// Class identifier of the resourcelink.
     #[serde(rename = "classid")]
     pub class_id: u16,
-    /// Whether the resource is automatically deleted when not referenced anymore in any
-    /// resourcelink.
+    /// Whether the resource is automatically deleted when not referenced anymore.
     pub recycle: bool,
     /// References to resources which are used by this resourcelink.
     pub links: Vec<Link>,
@@ -72,8 +71,8 @@ impl<'de> Deserialize<'de> for Link {
 }
 
 /// Kind of a link.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LinkKind {
     Group,
     Light,

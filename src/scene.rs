@@ -132,9 +132,21 @@ impl Creator {
         self
     }
 
-    /// Sets the app data of the scene.
-    pub fn app_data(mut self, value: AppData) -> Self {
-        self.app_data = Some(value);
+    /// Sets the data of the app data.
+    pub fn app_data<S: Into<String>>(mut self, value: S) -> Self {
+        self.app_data = Some(AppData {
+            data: Some(value.into()),
+            version: self.app_data.unwrap_or_default().version,
+        });
+        self
+    }
+
+    /// Sets the version of the app data.
+    pub fn app_version(mut self, value: i8) -> Self {
+        self.app_data = Some(AppData {
+            data: self.app_data.unwrap_or_default().data,
+            version: Some(value),
+        });
         self
     }
 

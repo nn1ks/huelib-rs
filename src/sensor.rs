@@ -35,11 +35,9 @@ pub struct Sensor {
 impl crate::Resource for Sensor {}
 
 impl Sensor {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -83,10 +81,9 @@ impl crate::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the sensor.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 }
 
@@ -101,10 +98,9 @@ impl crate::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Sets the presence of the sensor.
-    pub fn presence(self, value: bool) -> Self {
-        Self {
-            presence: Some(value),
-        }
+    pub fn presence(mut self, value: bool) -> Self {
+        self.presence = Some(value);
+        self
     }
 }
 
@@ -119,7 +115,8 @@ impl crate::Modifier for ConfigModifier {}
 
 impl ConfigModifier {
     /// Sets whether the sensor is on.
-    pub fn on(self, value: bool) -> Self {
-        Self { on: Some(value) }
+    pub fn on(mut self, value: bool) -> Self {
+        self.on = Some(value);
+        self
     }
 }

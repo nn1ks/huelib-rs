@@ -257,11 +257,9 @@ pub struct User {
 }
 
 impl User {
-    fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -298,111 +296,87 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the bridge.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the ip address of the bridge.
-    pub fn ip_address(self, value: IpAddr) -> Self {
-        Self {
-            ip_address: Some(value),
-            ..self
-        }
+    pub fn ip_address(mut self, value: IpAddr) -> Self {
+        self.ip_address = Some(value);
+        self
     }
 
     /// Sets the network mask of the bridge.
-    pub fn netmask<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            netmask: Some(value.into()),
-            ..self
-        }
+    pub fn netmask<S: Into<String>>(mut self, value: S) -> Self {
+        self.netmask = Some(value.into());
+        self
     }
 
     /// Sets the gateway ip address of the bridge.
-    pub fn gateway(self, value: IpAddr) -> Self {
-        Self {
-            gateway: Some(value),
-            ..self
-        }
+    pub fn gateway(mut self, value: IpAddr) -> Self {
+        self.gateway = Some(value);
+        self
     }
 
     /// Sets whether the ip address of the bridge is obtained with DHCP.
-    pub fn dhcp(self, value: bool) -> Self {
-        Self {
-            dhcp: Some(value),
-            ..self
-        }
+    pub fn dhcp(mut self, value: bool) -> Self {
+        self.dhcp = Some(value);
+        self
     }
 
     /// Sets the proxy port of the bridge.
     ///
     /// If set to 0 then a proxy is not being used.
-    pub fn proxy_port(self, value: u16) -> Self {
-        Self {
-            proxy_port: Some(value),
-            ..self
-        }
+    pub fn proxy_port(mut self, value: u16) -> Self {
+        self.proxy_port = Some(value);
+        self
     }
 
     /// Sets the proxy address of the bridge.
     ///
     /// If set to `None` then a proxy is not being used.
-    pub fn proxy_address(self, value: Option<IpAddr>) -> Self {
-        Self {
-            proxy_address: Some(match value {
-                Some(v) => v.to_string(),
-                None => "none".to_owned(),
-            }),
-            ..self
-        }
+    pub fn proxy_address(mut self, value: Option<IpAddr>) -> Self {
+        self.proxy_address = Some(match value {
+            Some(v) => v.to_string(),
+            None => "none".to_owned(),
+        });
+        self
     }
 
     /// Indicates whether the link button has been pressed within the last 30 seconds.
     ///
     /// Writing is only allowed for portal access via cloud application_key.
-    pub fn linkbutton(self, value: bool) -> Self {
-        Self {
-            linkbutton: Some(value),
-            ..self
-        }
+    pub fn linkbutton(mut self, value: bool) -> Self {
+        self.linkbutton = Some(value);
+        self
     }
 
     /// Starts a touchlink procedure which adds the closest lamp to the ZigBee network.
     ///
     /// You can then search for new lights and the lamp will show up in the bridge.
-    pub fn touchlink(self) -> Self {
-        Self {
-            touchlink: Some(true),
-            ..self
-        }
+    pub fn touchlink(mut self) -> Self {
+        self.touchlink = Some(true);
+        self
     }
 
     /// Sets the wireless frequency channel used by the bridge.
     ///
     /// It can take values of 11, 15, 20 or 25.
-    pub fn zigbee_channel(self, value: u8) -> Self {
-        Self {
-            zigbee_channel: Some(value),
-            ..self
-        }
+    pub fn zigbee_channel(mut self, value: u8) -> Self {
+        self.zigbee_channel = Some(value);
+        self
     }
 
     /// Sets the current time of the bridge in UTC.
-    pub fn current_time<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            current_time: Some(value.into()),
-            ..self
-        }
+    pub fn current_time<S: Into<String>>(mut self, value: S) -> Self {
+        self.current_time = Some(value.into());
+        self
     }
 
     /// Sets the timezone of the bridge.
-    pub fn timezone<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            timezone: Some(value.into()),
-            ..self
-        }
+    pub fn timezone<S: Into<String>>(mut self, value: S) -> Self {
+        self.timezone = Some(value.into());
+        self
     }
 }

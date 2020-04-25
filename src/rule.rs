@@ -34,11 +34,9 @@ pub struct Rule {
 impl crate::Resource for Rule {}
 
 impl Rule {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -126,19 +124,15 @@ impl Creator {
     }
 
     /// Sets the name of the rule.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the status of the rule.
-    pub fn status(self, value: Status) -> Self {
-        Self {
-            status: Some(value),
-            ..self
-        }
+    pub fn status(mut self, value: Status) -> Self {
+        self.status = Some(value);
+        self
     }
 }
 
@@ -159,34 +153,26 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the rule.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the status of the rule.
-    pub fn status(self, value: Status) -> Self {
-        Self {
-            status: Some(value),
-            ..self
-        }
+    pub fn status(mut self, value: Status) -> Self {
+        self.status = Some(value);
+        self
     }
 
     /// Sets the conditions of the rule.
-    pub fn conditions(self, value: Vec<Condition>) -> Self {
-        Self {
-            conditions: Some(value),
-            ..self
-        }
+    pub fn conditions(mut self, value: Vec<Condition>) -> Self {
+        self.conditions = Some(value);
+        self
     }
 
     /// Sets the actions of the rule.
-    pub fn actions(self, value: Vec<Action>) -> Self {
-        Self {
-            actions: Some(value),
-            ..self
-        }
+    pub fn actions(mut self, value: Vec<Action>) -> Self {
+        self.actions = Some(value);
+        self
     }
 }

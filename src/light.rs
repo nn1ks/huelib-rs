@@ -44,11 +44,9 @@ pub struct Light {
 impl crate::Resource for Light {}
 
 impl Light {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -192,10 +190,9 @@ impl crate::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the light.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 }
 
@@ -236,65 +233,39 @@ impl crate::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Turns the light on or off.
-    pub fn on(self, value: bool) -> Self {
-        Self {
-            on: Some(value),
-            ..self
-        }
+    pub fn on(mut self, value: bool) -> Self {
+        self.on = Some(value);
+        self
     }
 
     /// Sets the brightness of the light.
-    pub fn brightness(self, modifier_type: ModifierType, value: u8) -> Self {
+    pub fn brightness(mut self, modifier_type: ModifierType, value: u8) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                brightness: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                brightness_increment: Some(value as i16),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                brightness_increment: Some(-(value as i16)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.brightness = Some(value),
+            ModifierType::Increment => self.brightness_increment = Some(value as i16),
+            ModifierType::Decrement => self.brightness_increment = Some(-(value as i16)),
+        };
+        self
     }
 
     /// Sets the hue of a light.
-    pub fn hue(self, modifier_type: ModifierType, value: u16) -> Self {
+    pub fn hue(mut self, modifier_type: ModifierType, value: u16) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                hue: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                hue_increment: Some(value as i32),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                hue_increment: Some(-(value as i32)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.hue = Some(value),
+            ModifierType::Increment => self.hue_increment = Some(value as i32),
+            ModifierType::Decrement => self.hue_increment = Some(-(value as i32)),
+        };
+        self
     }
 
     /// Sets the saturation of a light.
-    pub fn saturation(self, modifier_type: ModifierType, value: u8) -> Self {
+    pub fn saturation(mut self, modifier_type: ModifierType, value: u8) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                saturation: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                saturation_increment: Some(value as i16),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                saturation_increment: Some(-(value as i16)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.saturation = Some(value),
+            ModifierType::Increment => self.saturation_increment = Some(value as i16),
+            ModifierType::Decrement => self.saturation_increment = Some(-(value as i16)),
+        };
+        self
     }
 
     /// Sets the x and y coordinates in the color space to set the color of a light.
@@ -302,75 +273,55 @@ impl StateModifier {
     /// If the modifier type is `Override`, the values must be between 0 and 1. If the modifier
     /// type is not `Override`, the values must be between 0 and 0.5.
     pub fn color_space_coordinates(
-        self,
+        mut self,
         modifier_type: CoordinateModifierType,
         value: (f32, f32),
     ) -> Self {
         match modifier_type {
-            CoordinateModifierType::Override => Self {
-                color_space_coordinates: Some(value),
-                ..self
-            },
-            CoordinateModifierType::Increment => Self {
-                color_space_coordinates_increment: Some(value),
-                ..self
-            },
-            CoordinateModifierType::Decrement => Self {
-                color_space_coordinates_increment: Some((-value.0, -value.1)),
-                ..self
-            },
-            CoordinateModifierType::IncrementDecrement => Self {
-                color_space_coordinates_increment: Some((value.0, -value.1)),
-                ..self
-            },
-            CoordinateModifierType::DecrementIncrement => Self {
-                color_space_coordinates_increment: Some((-value.0, value.1)),
-                ..self
-            },
-        }
+            CoordinateModifierType::Override => self.color_space_coordinates = Some(value),
+            CoordinateModifierType::Increment => {
+                self.color_space_coordinates_increment = Some(value)
+            }
+            CoordinateModifierType::Decrement => {
+                self.color_space_coordinates_increment = Some((-value.0, -value.1))
+            }
+            CoordinateModifierType::IncrementDecrement => {
+                self.color_space_coordinates_increment = Some((value.0, -value.1))
+            }
+            CoordinateModifierType::DecrementIncrement => {
+                self.color_space_coordinates_increment = Some((-value.0, value.1))
+            }
+        };
+        self
     }
 
     /// Sets the color temperature of a light.
-    pub fn color_temperature(self, modifier_type: ModifierType, value: u16) -> Self {
+    pub fn color_temperature(mut self, modifier_type: ModifierType, value: u16) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                color_temperature: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                color_temperature_increment: Some(value as i32),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                color_temperature_increment: Some(-(value as i32)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.color_temperature = Some(value),
+            ModifierType::Increment => self.color_temperature_increment = Some(value as i32),
+            ModifierType::Decrement => self.color_temperature_increment = Some(-(value as i32)),
+        };
+        self
     }
 
     /// Sets the alert effect of a light.
-    pub fn alert(self, value: Alert) -> Self {
-        Self {
-            alert: Some(value),
-            ..self
-        }
+    pub fn alert(mut self, value: Alert) -> Self {
+        self.alert = Some(value);
+        self
     }
 
     /// Sets the dynamic effect of a light.
-    pub fn effect(self, value: Effect) -> Self {
-        Self {
-            effect: Some(value),
-            ..self
-        }
+    pub fn effect(mut self, value: Effect) -> Self {
+        self.effect = Some(value);
+        self
     }
 
     /// Sets the transition duration of state changes.
     ///
     /// This is given as a multiple of 100ms.
-    pub fn transition_time(self, value: u16) -> Self {
-        Self {
-            transition_time: Some(value),
-            ..self
-        }
+    pub fn transition_time(mut self, value: u16) -> Self {
+        self.transition_time = Some(value);
+        self
     }
 }

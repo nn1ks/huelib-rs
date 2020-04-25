@@ -43,11 +43,9 @@ pub struct Group {
 impl crate::Resource for Group {}
 
 impl Group {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -199,35 +197,27 @@ impl Creator {
     }
 
     /// Sets the identifiers of the sensors of the group.
-    pub fn sensors<S: Into<String>>(self, value: Vec<S>) -> Self {
-        Self {
-            sensors: Some(value.into_iter().map(|v| v.into()).collect()),
-            ..self
-        }
+    pub fn sensors<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+        self.sensors = Some(value.into_iter().map(|v| v.into()).collect());
+        self
     }
 
     /// Sets the kind of the group.
-    pub fn kind(self, value: CreatableKind) -> Self {
-        Self {
-            kind: Some(value),
-            ..self
-        }
+    pub fn kind(mut self, value: CreatableKind) -> Self {
+        self.kind = Some(value);
+        self
     }
 
     /// Sets the class of the group.
-    pub fn class(self, value: Class) -> Self {
-        Self {
-            class: Some(value),
-            ..self
-        }
+    pub fn class(mut self, value: Class) -> Self {
+        self.class = Some(value);
+        self
     }
 
     /// Sets whether the group is automatically deleted when not referenced anymore.
-    pub fn recycle(self, value: bool) -> Self {
-        Self {
-            recycle: Some(value),
-            ..self
-        }
+    pub fn recycle(mut self, value: bool) -> Self {
+        self.recycle = Some(value);
+        self
     }
 }
 
@@ -248,35 +238,27 @@ impl crate::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Sets the name of the group.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the identifiers of the lights of the group.
-    pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
-        Self {
-            lights: Some(value.into_iter().map(|v| v.into()).collect()),
-            ..self
-        }
+    pub fn lights<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+        self.lights = Some(value.into_iter().map(|v| v.into()).collect());
+        self
     }
 
     /// Sets the identifiers of the sensors of the group.
-    pub fn sensors<S: Into<String>>(self, value: Vec<S>) -> Self {
-        Self {
-            sensors: Some(value.into_iter().map(|v| v.into()).collect()),
-            ..self
-        }
+    pub fn sensors<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+        self.sensors = Some(value.into_iter().map(|v| v.into()).collect());
+        self
     }
 
     /// Sets the class of the group.
-    pub fn class(self, value: Class) -> Self {
-        Self {
-            class: Some(value),
-            ..self
-        }
+    pub fn class(mut self, value: Class) -> Self {
+        self.class = Some(value);
+        self
     }
 }
 
@@ -319,65 +301,39 @@ impl crate::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Turns the lights on or off.
-    pub fn on(self, value: bool) -> Self {
-        Self {
-            on: Some(value),
-            ..self
-        }
+    pub fn on(mut self, value: bool) -> Self {
+        self.on = Some(value);
+        self
     }
 
     /// Sets the brightness of the lights.
-    pub fn brightness(self, modifier_type: ModifierType, value: u8) -> Self {
+    pub fn brightness(mut self, modifier_type: ModifierType, value: u8) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                brightness: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                brightness_increment: Some(value as i16),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                brightness_increment: Some(-(value as i16)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.brightness = Some(value),
+            ModifierType::Increment => self.brightness_increment = Some(value as i16),
+            ModifierType::Decrement => self.brightness_increment = Some(-(value as i16)),
+        };
+        self
     }
 
     /// Sets the hue of the lights.
-    pub fn hue(self, modifier_type: ModifierType, value: u16) -> Self {
+    pub fn hue(mut self, modifier_type: ModifierType, value: u16) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                hue: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                hue_increment: Some(value as i32),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                hue_increment: Some(-(value as i32)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.hue = Some(value),
+            ModifierType::Increment => self.hue_increment = Some(value as i32),
+            ModifierType::Decrement => self.hue_increment = Some(-(value as i32)),
+        };
+        self
     }
 
     /// Sets the saturation of the lights.
-    pub fn saturation(self, modifier_type: ModifierType, value: u8) -> Self {
+    pub fn saturation(mut self, modifier_type: ModifierType, value: u8) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                saturation: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                saturation_increment: Some(value as i16),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                saturation_increment: Some(-(value as i16)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.saturation = Some(value),
+            ModifierType::Increment => self.saturation_increment = Some(value as i16),
+            ModifierType::Decrement => self.saturation_increment = Some(-(value as i16)),
+        };
+        self
     }
 
     /// Sets the x and y coordinates in the color space to set the color of the lights.
@@ -385,83 +341,61 @@ impl StateModifier {
     /// If the modifier type is `Override`, the values must be between 0 and 1. If the modifier
     /// type is not `Override`, the values must be between 0 and 0.5.
     pub fn color_space_coordinates(
-        self,
+        mut self,
         modifier_type: CoordinateModifierType,
         value: (f32, f32),
     ) -> Self {
         match modifier_type {
-            CoordinateModifierType::Override => Self {
-                color_space_coordinates: Some(value),
-                ..self
-            },
-            CoordinateModifierType::Increment => Self {
-                color_space_coordinates_increment: Some(value),
-                ..self
-            },
-            CoordinateModifierType::Decrement => Self {
-                color_space_coordinates_increment: Some((-value.0, -value.1)),
-                ..self
-            },
-            CoordinateModifierType::IncrementDecrement => Self {
-                color_space_coordinates_increment: Some((value.0, -value.1)),
-                ..self
-            },
-            CoordinateModifierType::DecrementIncrement => Self {
-                color_space_coordinates_increment: Some((-value.0, value.1)),
-                ..self
-            },
-        }
+            CoordinateModifierType::Override => self.color_space_coordinates = Some(value),
+            CoordinateModifierType::Increment => {
+                self.color_space_coordinates_increment = Some(value)
+            }
+            CoordinateModifierType::Decrement => {
+                self.color_space_coordinates_increment = Some((-value.0, -value.1))
+            }
+            CoordinateModifierType::IncrementDecrement => {
+                self.color_space_coordinates_increment = Some((value.0, -value.1))
+            }
+            CoordinateModifierType::DecrementIncrement => {
+                self.color_space_coordinates_increment = Some((-value.0, value.1))
+            }
+        };
+        self
     }
 
     /// Sets the color temperature of the lights.
-    pub fn color_temperature(self, modifier_type: ModifierType, value: u16) -> Self {
+    pub fn color_temperature(mut self, modifier_type: ModifierType, value: u16) -> Self {
         match modifier_type {
-            ModifierType::Override => Self {
-                color_temperature: Some(value),
-                ..self
-            },
-            ModifierType::Increment => Self {
-                color_temperature_increment: Some(value as i32),
-                ..self
-            },
-            ModifierType::Decrement => Self {
-                color_temperature_increment: Some(-(value as i32)),
-                ..self
-            },
-        }
+            ModifierType::Override => self.color_temperature = Some(value),
+            ModifierType::Increment => self.color_temperature_increment = Some(value as i32),
+            ModifierType::Decrement => self.color_temperature_increment = Some(-(value as i32)),
+        };
+        self
     }
 
     /// Sets the alert effect of the lights.
-    pub fn alert(self, value: Alert) -> Self {
-        Self {
-            alert: Some(value),
-            ..self
-        }
+    pub fn alert(mut self, value: Alert) -> Self {
+        self.alert = Some(value);
+        self
     }
 
     /// Sets the dynamic effect of the lights.
-    pub fn effect(self, value: Effect) -> Self {
-        Self {
-            effect: Some(value),
-            ..self
-        }
+    pub fn effect(mut self, value: Effect) -> Self {
+        self.effect = Some(value);
+        self
     }
 
     /// Sets the transition duration of state changes.
     ///
     /// This is given as a multiple of 100ms.
-    pub fn transition_time(self, value: u16) -> Self {
-        Self {
-            transition_time: Some(value),
-            ..self
-        }
+    pub fn transition_time(mut self, value: u16) -> Self {
+        self.transition_time = Some(value);
+        self
     }
 
     /// Sets the scene identifier of the group.
-    pub fn scene<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            scene: Some(value.into()),
-            ..self
-        }
+    pub fn scene<S: Into<String>>(mut self, value: S) -> Self {
+        self.scene = Some(value.into());
+        self
     }
 }

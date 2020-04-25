@@ -47,11 +47,9 @@ pub struct Scene {
 impl crate::Resource for Scene {}
 
 impl Scene {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -79,19 +77,15 @@ impl crate::Modifier for AppData {}
 
 impl AppData {
     /// Sets the version.
-    pub fn version(self, value: i8) -> Self {
-        Self {
-            version: Some(value),
-            ..self
-        }
+    pub fn version(mut self, value: i8) -> Self {
+        self.version = Some(value);
+        self
     }
 
     /// Sets the data.
-    pub fn data<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            data: Some(value.into()),
-            ..self
-        }
+    pub fn data<S: Into<String>>(mut self, value: S) -> Self {
+        self.data = Some(value.into());
+        self
     }
 }
 
@@ -133,29 +127,23 @@ impl Creator {
     }
 
     /// Sets the type of the scene.
-    pub fn kind(self, value: Kind) -> Self {
-        Self {
-            kind: Some(value),
-            ..self
-        }
+    pub fn kind(mut self, value: Kind) -> Self {
+        self.kind = Some(value);
+        self
     }
 
     /// Sets the app data of the scene.
-    pub fn app_data(self, value: AppData) -> Self {
-        Self {
-            app_data: Some(value),
-            ..self
-        }
+    pub fn app_data(mut self, value: AppData) -> Self {
+        self.app_data = Some(value);
+        self
     }
 
     /// Sets the state of a light.
-    pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
+    pub fn light_state<S: Into<String>>(mut self, id: S, modifier: LightStateModifier) -> Self {
         let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
-        Self {
-            light_states: Some(light_states),
-            ..self
-        }
+        self.light_states = Some(light_states);
+        self
     }
 }
 
@@ -184,67 +172,51 @@ impl crate::Modifier for LightStateModifier {}
 
 impl LightStateModifier {
     /// Turns the lights on or off.
-    pub fn on(self, value: bool) -> Self {
-        Self {
-            on: Some(value),
-            ..self
-        }
+    pub fn on(mut self, value: bool) -> Self {
+        self.on = Some(value);
+        self
     }
 
     /// Sets the brightness of the lights.
-    pub fn brightness(self, value: u8) -> Self {
-        Self {
-            brightness: Some(value),
-            ..self
-        }
+    pub fn brightness(mut self, value: u8) -> Self {
+        self.brightness = Some(value);
+        self
     }
 
     /// Sets the hue of the lights.
-    pub fn hue(self, value: u16) -> Self {
-        Self {
-            hue: Some(value),
-            ..self
-        }
+    pub fn hue(mut self, value: u16) -> Self {
+        self.hue = Some(value);
+        self
     }
 
     /// Sets the saturation of the lights.
-    pub fn saturation(self, value: u8) -> Self {
-        Self {
-            saturation: Some(value),
-            ..self
-        }
+    pub fn saturation(mut self, value: u8) -> Self {
+        self.saturation = Some(value);
+        self
     }
 
     /// Sets the color space coordinates of the lights.
-    pub fn color_space_coordinates(self, value: (f32, f32)) -> Self {
-        Self {
-            color_space_coordinates: Some(value),
-            ..self
-        }
+    pub fn color_space_coordinates(mut self, value: (f32, f32)) -> Self {
+        self.color_space_coordinates = Some(value);
+        self
     }
 
     /// Sets the colot temperature of the lights.
-    pub fn color_temperature(self, value: u16) -> Self {
-        Self {
-            color_temperature: Some(value),
-            ..self
-        }
+    pub fn color_temperature(mut self, value: u16) -> Self {
+        self.color_temperature = Some(value);
+        self
     }
 
     /// Sets the effect of the lights.
-    pub fn effect(self, value: Effect) -> Self {
-        Self {
-            effect: Some(value),
-            ..self
-        }
+    pub fn effect(mut self, value: Effect) -> Self {
+        self.effect = Some(value);
+        self
     }
 
     /// Sets the transition time of the lights.
-    pub fn transition_time(self, value: u16) -> Self {
-        Self {
-            transition_time: Some(value),
-            ..self
-        }
+    pub fn transition_time(mut self, value: u16) -> Self {
+        self.transition_time = Some(value);
+        self
     }
 }
 
@@ -265,37 +237,29 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the scene.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the indentifiers of the lights that are in this scene.
-    pub fn lights<S: Into<String>>(self, value: Vec<S>) -> Self {
-        Self {
-            lights: Some(value.into_iter().map(|v| v.into()).collect()),
-            ..self
-        }
+    pub fn lights<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+        self.lights = Some(value.into_iter().map(|v| v.into()).collect());
+        self
     }
 
     /// Sets the state of a light.
-    pub fn light_state<S: Into<String>>(self, id: S, modifier: LightStateModifier) -> Self {
+    pub fn light_state<S: Into<String>>(mut self, id: S, modifier: LightStateModifier) -> Self {
         let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
-        Self {
-            light_states: Some(light_states),
-            ..self
-        }
+        self.light_states = Some(light_states);
+        self
     }
 
     /// Sets whether the state of the lights will be overwritten by the current state of the
     /// lights.
-    pub fn store_light_state(self, value: bool) -> Self {
-        Self {
-            store_light_state: Some(value),
-            ..self
-        }
+    pub fn store_light_state(mut self, value: bool) -> Self {
+        self.store_light_state = Some(value);
+        self
     }
 }

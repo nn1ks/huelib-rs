@@ -30,11 +30,9 @@ pub struct Schedule {
 impl crate::Resource for Schedule {}
 
 impl Schedule {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -80,42 +78,33 @@ impl Creator {
     }
 
     /// Sets the name of the schedule.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn description<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            description: Some(value.into()),
-            ..self
-        }
+    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+        self.description = Some(value.into());
+        self
     }
 
     /// Sets the status of the schedule.
-    pub fn status(self, value: Status) -> Self {
-        Self {
-            status: Some(value),
-            ..self
-        }
+    pub fn status(mut self, value: Status) -> Self {
+        self.status = Some(value);
+        self
     }
 
     /// Sets whether the schedule will be removed after it expires.
-    pub fn auto_delete(self, value: bool) -> Self {
-        Self {
-            auto_delete: Some(value),
-            ..self
-        }
+    pub fn auto_delete(mut self, value: bool) -> Self {
+        self.auto_delete = Some(value);
+        self
     }
+
     /// Sets whether resource is automatically deleted when not referenced anymore.
-    pub fn recycle(self, value: bool) -> Self {
-        Self {
-            recycle: Some(value),
-            ..self
-        }
+    pub fn recycle(mut self, value: bool) -> Self {
+        self.recycle = Some(value);
+        self
     }
 }
 
@@ -140,50 +129,38 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the schedule.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn description<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            description: Some(value.into()),
-            ..self
-        }
+    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+        self.description = Some(value.into());
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn action(self, value: Action) -> Self {
-        Self {
-            action: Some(value),
-            ..self
-        }
+    pub fn action(mut self, value: Action) -> Self {
+        self.action = Some(value);
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn localtime<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            localtime: Some(value.into()),
-            ..self
-        }
+    pub fn localtime<S: Into<String>>(mut self, value: S) -> Self {
+        self.localtime = Some(value.into());
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn status(self, value: Status) -> Self {
-        Self {
-            status: Some(value),
-            ..self
-        }
+    pub fn status(mut self, value: Status) -> Self {
+        self.status = Some(value);
+        self
     }
 
     /// Sets the description of the schedule.
-    pub fn auto_delete(self, value: bool) -> Self {
-        Self {
-            auto_delete: Some(value),
-            ..self
-        }
+    pub fn auto_delete(mut self, value: bool) -> Self {
+        self.auto_delete = Some(value);
+        self
     }
 }

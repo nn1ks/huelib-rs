@@ -28,11 +28,9 @@ pub struct Resourcelink {
 impl crate::Resource for Resourcelink {}
 
 impl Resourcelink {
-    pub(crate) fn with_id<S: Into<String>>(self, id: S) -> Self {
-        Self {
-            id: id.into(),
-            ..self
-        }
+    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.id = id.into();
+        self
     }
 }
 
@@ -149,45 +147,35 @@ impl Creator {
     }
 
     /// Sets the description of the resourcelink.
-    pub fn description<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            description: Some(value.into()),
-            ..self
-        }
+    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+        self.description = Some(value.into());
+        self
     }
 
     /// Sets the owner of the resourcelink.
-    pub fn owner<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            owner: Some(value.into()),
-            ..self
-        }
+    pub fn owner<S: Into<String>>(mut self, value: S) -> Self {
+        self.owner = Some(value.into());
+        self
     }
 
     /// Sets the kind of the resourcelink.
-    pub fn kind(self, value: Kind) -> Self {
-        Self {
-            kind: Some(value),
-            ..self
-        }
+    pub fn kind(mut self, value: Kind) -> Self {
+        self.kind = Some(value);
+        self
     }
 
     /// Sets the whether to recycle the resourcelink.
-    pub fn recycle(self, value: bool) -> Self {
-        Self {
-            recycle: Some(value),
-            ..self
-        }
+    pub fn recycle(mut self, value: bool) -> Self {
+        self.recycle = Some(value);
+        self
     }
 
     /// Adds a link to the resourcelink.
-    pub fn link<S: AsRef<str>>(self, kind: LinkKind, id: S) -> Self {
+    pub fn link<S: AsRef<str>>(mut self, kind: LinkKind, id: S) -> Self {
         let mut links = self.links.unwrap_or_default();
         links.push(format!("/{}/{}", kind, id.as_ref()));
-        Self {
-            links: Some(links),
-            ..self
-        }
+        self.links = Some(links);
+        self
     }
 }
 
@@ -210,44 +198,34 @@ impl crate::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the resourcelink.
-    pub fn name<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            name: Some(value.into()),
-            ..self
-        }
+    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+        self.name = Some(value.into());
+        self
     }
 
     /// Sets the description of the resourcelink.
-    pub fn description<S: Into<String>>(self, value: S) -> Self {
-        Self {
-            description: Some(value.into()),
-            ..self
-        }
+    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+        self.description = Some(value.into());
+        self
     }
 
     /// Sets the class id of the resourcelink.
-    pub fn class_id(self, value: u16) -> Self {
-        Self {
-            class_id: Some(value),
-            ..self
-        }
+    pub fn class_id(mut self, value: u16) -> Self {
+        self.class_id = Some(value);
+        self
     }
 
     /// Sets the kind of the resourcelink.
-    pub fn kind(self, value: Kind) -> Self {
-        Self {
-            kind: Some(value),
-            ..self
-        }
+    pub fn kind(mut self, value: Kind) -> Self {
+        self.kind = Some(value);
+        self
     }
 
     /// Sets a link of the resourcelink.
-    pub fn link<S: AsRef<str>>(self, kind: LinkKind, id: S) -> Self {
+    pub fn link<S: AsRef<str>>(mut self, kind: LinkKind, id: S) -> Self {
         let mut links = self.links.unwrap_or_default();
         links.push(format!("/{}/{}", kind, id.as_ref()));
-        Self {
-            links: Some(links),
-            ..self
-        }
+        self.links = Some(links);
+        self
     }
 }

@@ -1,4 +1,5 @@
-use crate::{util, Action};
+use crate::resource::{self, Action};
+use crate::util;
 use serde::{Deserialize, Serialize};
 
 /// A rule for resources on a bridge.
@@ -31,7 +32,7 @@ pub struct Rule {
     pub actions: Vec<Action>,
 }
 
-impl crate::Resource for Rule {}
+impl resource::Resource for Rule {}
 
 impl Rule {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -111,7 +112,7 @@ pub struct Creator {
     actions: Option<Vec<Action>>,
 }
 
-impl crate::Creator for Creator {}
+impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new rule creator.
@@ -149,7 +150,7 @@ pub struct Modifier {
     actions: Option<Vec<Action>>,
 }
 
-impl crate::Modifier for Modifier {}
+impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the rule.

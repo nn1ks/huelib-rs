@@ -1,4 +1,4 @@
-use crate::Action;
+use crate::resource::{self, Action};
 use serde::{Deserialize, Serialize};
 
 /// Schedule of a resource.
@@ -27,7 +27,7 @@ pub struct Schedule {
     pub auto_delete: Option<bool>,
 }
 
-impl crate::Resource for Schedule {}
+impl resource::Resource for Schedule {}
 
 impl Schedule {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -65,7 +65,7 @@ pub struct Creator {
     recycle: Option<bool>,
 }
 
-impl crate::Creator for Creator {}
+impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new schedule creator.
@@ -125,7 +125,7 @@ pub struct Modifier {
     auto_delete: Option<bool>,
 }
 
-impl crate::Modifier for Modifier {}
+impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the schedule.

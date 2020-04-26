@@ -1,4 +1,4 @@
-use crate::{Error, Response};
+use crate::{resource, Error, Response};
 use serde::{de::DeserializeOwned, Deserialize};
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -184,12 +184,15 @@ impl Bridge {
     }
 
     /// Modifies the configuration of the bridge
-    pub fn set_config(&self, modifier: &crate::config::Modifier) -> Result<Vec<ResponseModified>> {
+    pub fn set_config(
+        &self,
+        modifier: &resource::config::Modifier,
+    ) -> Result<Vec<ResponseModified>> {
         self.api_request("config", RequestType::Put(serde_json::to_value(modifier)?))
     }
 
     /// Returns the configuration of the bridge.
-    pub fn get_config(&self) -> Result<crate::Config> {
+    pub fn get_config(&self) -> Result<resource::Config> {
         parse_response(self.api_request("config", RequestType::Get)?)
     }
 
@@ -197,7 +200,7 @@ impl Bridge {
     pub fn set_light_attribute<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::light::AttributeModifier,
+        modifier: &resource::light::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("lights/{}", id.as_ref()),
@@ -209,7 +212,7 @@ impl Bridge {
     pub fn set_light_state<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::light::StateModifier,
+        modifier: &resource::light::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("lights/{}/state", id.as_ref()),
@@ -218,16 +221,16 @@ impl Bridge {
     }
 
     /// Returns a light.
-    pub fn get_light<S: AsRef<str>>(&self, id: S) -> Result<crate::Light> {
-        let light: crate::Light = parse_response(
+    pub fn get_light<S: AsRef<str>>(&self, id: S) -> Result<resource::Light> {
+        let light: resource::Light = parse_response(
             self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(light.with_id(id.as_ref()))
     }
 
     /// Returns all lights that are connected to the bridge.
-    pub fn get_all_lights(&self) -> Result<Vec<crate::Light>> {
-        let map: HashMap<String, crate::Light> =
+    pub fn get_all_lights(&self) -> Result<Vec<resource::Light>> {
+        let map: HashMap<String, resource::Light> =
             parse_response(self.api_request("lights", RequestType::Get)?)?;
         let mut lights = Vec::new();
         for (id, light) in map {
@@ -262,7 +265,7 @@ impl Bridge {
     }
 
     /// Returns discovered lights.
-    pub fn get_new_lights(&self) -> Result<crate::Scan> {
+    pub fn get_new_lights(&self) -> Result<resource::Scan> {
         parse_response(self.api_request("lights/new", RequestType::Get)?)
     }
 
@@ -277,7 +280,7 @@ impl Bridge {
     }
 
     /// Creates a new group.
-    pub fn create_group(&self, creator: &crate::group::Creator) -> Result<String> {
+    pub fn create_group(&self, creator: &resource::group::Creator) -> Result<String> {
         let mut response: Vec<Response<HashMap<String, String>>> =
             self.api_request("groups", RequestType::Post(serde_json::to_value(creator)?))?;
         match response.pop() {
@@ -293,7 +296,7 @@ impl Bridge {
     pub fn set_group_attribute<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::group::AttributeModifier,
+        modifier: &resource::group::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("groups/{}", id.as_ref()),
@@ -305,7 +308,7 @@ impl Bridge {
     pub fn set_group_state<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::group::StateModifier,
+        modifier: &resource::group::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("groups/{}/action", id.as_ref()),
@@ -314,16 +317,16 @@ impl Bridge {
     }
 
     /// Returns a group.
-    pub fn get_group<S: AsRef<str>>(&self, id: S) -> Result<crate::Group> {
-        let group: crate::Group = parse_response(
+    pub fn get_group<S: AsRef<str>>(&self, id: S) -> Result<resource::Group> {
+        let group: resource::Group = parse_response(
             self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(group.with_id(id.as_ref()))
     }
 
     /// Returns all groups.
-    pub fn get_all_groups(&self) -> Result<Vec<crate::Group>> {
-        let map: HashMap<String, crate::Group> =
+    pub fn get_all_groups(&self) -> Result<Vec<resource::Group>> {
+        let map: HashMap<String, resource::Group> =
             parse_response(self.api_request("groups", RequestType::Get)?)?;
         let mut groups = Vec::new();
         for (id, group) in map {
@@ -343,7 +346,7 @@ impl Bridge {
     }
 
     /// Creates a new scene.
-    pub fn create_scene(&self, creator: &crate::scene::Creator) -> Result<String> {
+    pub fn create_scene(&self, creator: &resource::scene::Creator) -> Result<String> {
         let mut response: Vec<Response<HashMap<String, String>>> =
             self.api_request("scenes", RequestType::Post(serde_json::to_value(creator)?))?;
         match response.pop() {
@@ -359,7 +362,7 @@ impl Bridge {
     pub fn set_scene<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::scene::Modifier,
+        modifier: &resource::scene::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("scenes/{}", id.as_ref()),
@@ -368,16 +371,16 @@ impl Bridge {
     }
 
     /// Returns a scene.
-    pub fn get_scene<S: AsRef<str>>(&self, id: S) -> Result<crate::Scene> {
-        let scene: crate::Scene = parse_response(
+    pub fn get_scene<S: AsRef<str>>(&self, id: S) -> Result<resource::Scene> {
+        let scene: resource::Scene = parse_response(
             self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(scene.with_id(id.as_ref()))
     }
 
     /// Returns all scenes.
-    pub fn get_all_scenes(&self) -> Result<Vec<crate::Scene>> {
-        let map: HashMap<String, crate::Scene> =
+    pub fn get_all_scenes(&self) -> Result<Vec<resource::Scene>> {
+        let map: HashMap<String, resource::Scene> =
             parse_response(self.api_request("scenes", RequestType::Get)?)?;
         let mut scenes = Vec::new();
         for (id, scene) in map {
@@ -397,12 +400,12 @@ impl Bridge {
     }
 
     /// Returns the capabilities of resources.
-    pub fn get_capabilities(&self) -> Result<crate::Capabilities> {
+    pub fn get_capabilities(&self) -> Result<resource::Capabilities> {
         parse_response(self.api_request("capabilities", RequestType::Get)?)
     }
 
     /// Creates a new schedule and returns the identifier.
-    pub fn create_schedule(&self, creator: &crate::schedule::Creator) -> Result<String> {
+    pub fn create_schedule(&self, creator: &resource::schedule::Creator) -> Result<String> {
         let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
             "schedules",
             RequestType::Post(serde_json::to_value(creator)?),
@@ -420,7 +423,7 @@ impl Bridge {
     pub fn set_schedule<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::schedule::Modifier,
+        modifier: &resource::schedule::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("schedules/{}", id.as_ref()),
@@ -429,16 +432,16 @@ impl Bridge {
     }
 
     /// Returns a schedule.
-    pub fn get_schedule<S: AsRef<str>>(&self, id: S) -> Result<crate::Schedule> {
-        let schedule: crate::Schedule = parse_response(
+    pub fn get_schedule<S: AsRef<str>>(&self, id: S) -> Result<resource::Schedule> {
+        let schedule: resource::Schedule = parse_response(
             self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(schedule.with_id(id.as_ref()))
     }
 
     /// Returns all schedules.
-    pub fn get_all_schedules(&self) -> Result<Vec<crate::Schedule>> {
-        let map: HashMap<String, crate::Schedule> =
+    pub fn get_all_schedules(&self) -> Result<Vec<resource::Schedule>> {
+        let map: HashMap<String, resource::Schedule> =
             parse_response(self.api_request("schedules", RequestType::Get)?)?;
         let mut schedules = Vec::new();
         for (id, schedule) in map {
@@ -458,7 +461,7 @@ impl Bridge {
     }
 
     /// Creates a new resourcelink and returns the identifier.
-    pub fn create_resourcelink(&self, creator: &crate::resourcelink::Creator) -> Result<String> {
+    pub fn create_resourcelink(&self, creator: &resource::resourcelink::Creator) -> Result<String> {
         let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
             "resourcelinks",
             RequestType::Post(serde_json::to_value(creator)?),
@@ -476,7 +479,7 @@ impl Bridge {
     pub fn set_resourcelink<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::resourcelink::Modifier,
+        modifier: &resource::resourcelink::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("resourcelinks/{}", id.as_ref()),
@@ -485,16 +488,16 @@ impl Bridge {
     }
 
     /// Returns a resourcelink.
-    pub fn get_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<crate::Resourcelink> {
-        let resourcelink: crate::Resourcelink = parse_response(
+    pub fn get_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<resource::Resourcelink> {
+        let resourcelink: resource::Resourcelink = parse_response(
             self.api_request(&format!("resourcelinks/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(resourcelink.with_id(id.as_ref()))
     }
 
     /// Returns all resourcelinks.
-    pub fn get_all_resourcelinks(&self) -> Result<Vec<crate::Resourcelink>> {
-        let map: HashMap<String, crate::Resourcelink> =
+    pub fn get_all_resourcelinks(&self) -> Result<Vec<resource::Resourcelink>> {
+        let map: HashMap<String, resource::Resourcelink> =
             parse_response(self.api_request("resourcelinks", RequestType::Get)?)?;
         let mut resourcelinks = Vec::new();
         for (id, resourcelink) in map {
@@ -519,7 +522,7 @@ impl Bridge {
     pub fn set_sensor_attribute<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::sensor::AttributeModifier,
+        modifier: &resource::sensor::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("sensors/{}", id.as_ref()),
@@ -531,7 +534,7 @@ impl Bridge {
     pub fn set_sensor_state<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::sensor::StateModifier,
+        modifier: &resource::sensor::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("sensors/{}/state", id.as_ref()),
@@ -543,7 +546,7 @@ impl Bridge {
     pub fn set_sensor_config<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::sensor::ConfigModifier,
+        modifier: &resource::sensor::ConfigModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("sensors/{}/config", id.as_ref()),
@@ -552,16 +555,16 @@ impl Bridge {
     }
 
     /// Returns a sensor.
-    pub fn get_sensor<S: AsRef<str>>(&self, id: S) -> Result<crate::Sensor> {
-        let sensor: crate::Sensor = parse_response(
+    pub fn get_sensor<S: AsRef<str>>(&self, id: S) -> Result<resource::Sensor> {
+        let sensor: resource::Sensor = parse_response(
             self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Get)?,
         )?;
         Ok(sensor.with_id(id.as_ref()))
     }
 
     /// Returns all sensors that are connected to the bridge.
-    pub fn get_all_sensors(&self) -> Result<Vec<crate::Sensor>> {
-        let map: HashMap<String, crate::Sensor> =
+    pub fn get_all_sensors(&self) -> Result<Vec<resource::Sensor>> {
+        let map: HashMap<String, resource::Sensor> =
             parse_response(self.api_request("sensors", RequestType::Get)?)?;
         let mut sensors = Vec::new();
         for (id, sensor) in map {
@@ -596,7 +599,7 @@ impl Bridge {
     }
 
     /// Returns discovered sensors.
-    pub fn get_new_sensors(&self) -> Result<crate::Scan> {
+    pub fn get_new_sensors(&self) -> Result<resource::Scan> {
         parse_response(self.api_request("sensors/new", RequestType::Get)?)
     }
 
@@ -611,7 +614,7 @@ impl Bridge {
     }
 
     /// Creates a new rule.
-    pub fn create_rule(&self, creator: &crate::rule::Creator) -> Result<String> {
+    pub fn create_rule(&self, creator: &resource::rule::Creator) -> Result<String> {
         let mut response: Vec<Response<HashMap<String, String>>> =
             self.api_request("rules", RequestType::Post(serde_json::to_value(creator)?))?;
         match response.pop() {
@@ -627,7 +630,7 @@ impl Bridge {
     pub fn set_rule<S: AsRef<str>>(
         &self,
         id: S,
-        modifier: &crate::rule::Modifier,
+        modifier: &resource::rule::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
             &format!("rules/{}", id.as_ref()),
@@ -636,15 +639,15 @@ impl Bridge {
     }
 
     /// Returns a rule.
-    pub fn get_rule<S: AsRef<str>>(&self, id: S) -> Result<crate::Rule> {
-        let rule: crate::Rule =
+    pub fn get_rule<S: AsRef<str>>(&self, id: S) -> Result<resource::Rule> {
+        let rule: resource::Rule =
             parse_response(self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Get)?)?;
         Ok(rule.with_id(id.as_ref()))
     }
 
     /// Returns all rules.
-    pub fn get_all_rules(&self) -> Result<Vec<crate::Rule>> {
-        let map: HashMap<String, crate::Rule> =
+    pub fn get_all_rules(&self) -> Result<Vec<resource::Rule>> {
+        let map: HashMap<String, resource::Rule> =
             parse_response(self.api_request("rules", RequestType::Get)?)?;
         let mut rules = Vec::new();
         for (id, rule) in map {

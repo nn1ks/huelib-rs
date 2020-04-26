@@ -1,4 +1,5 @@
-use crate::{Alert, Color, CoordinateModifierType, Effect, ModifierType};
+use crate::resource::{self, Alert, CoordinateModifierType, Effect, ModifierType};
+use crate::Color;
 use serde::{Deserialize, Serialize};
 
 /// A group of lights.
@@ -40,7 +41,7 @@ pub struct Group {
     pub recycle: Option<bool>,
 }
 
-impl crate::Resource for Group {}
+impl resource::Resource for Group {}
 
 impl Group {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -184,7 +185,7 @@ pub struct Creator {
     recycle: Option<bool>,
 }
 
-impl crate::Creator for Creator {}
+impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new group creator.
@@ -234,7 +235,7 @@ pub struct AttributeModifier {
     class: Option<Class>,
 }
 
-impl crate::Modifier for AttributeModifier {}
+impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Sets the name of the group.
@@ -297,7 +298,7 @@ pub struct StateModifier {
     scene: Option<String>,
 }
 
-impl crate::Modifier for StateModifier {}
+impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Turns the lights on or off.

@@ -1,3 +1,4 @@
+use crate::resource;
 use serde::{de, de::Error, Deserialize, Serialize};
 use std::fmt;
 
@@ -25,7 +26,7 @@ pub struct Resourcelink {
     pub links: Vec<Link>,
 }
 
-impl crate::Resource for Resourcelink {}
+impl resource::Resource for Resourcelink {}
 
 impl Resourcelink {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -133,7 +134,7 @@ pub struct Creator {
     links: Option<Vec<String>>,
 }
 
-impl crate::Creator for Creator {}
+impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new resourcelink creator.
@@ -194,7 +195,7 @@ pub struct Modifier {
     links: Option<Vec<String>>,
 }
 
-impl crate::Modifier for Modifier {}
+impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the resourcelink.

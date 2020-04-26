@@ -1,4 +1,4 @@
-use crate::util;
+use crate::{resource, util};
 use serde::{de, Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::net::IpAddr;
@@ -88,7 +88,7 @@ pub struct Config {
     pub whitelist: Vec<User>,
 }
 
-impl crate::Resource for Config {}
+impl resource::Resource for Config {}
 
 fn deserialize_whitelist<'de, D: de::Deserializer<'de>>(
     deserializer: D,
@@ -292,7 +292,7 @@ pub struct Modifier {
     timezone: Option<String>,
 }
 
-impl crate::Modifier for Modifier {}
+impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the bridge.

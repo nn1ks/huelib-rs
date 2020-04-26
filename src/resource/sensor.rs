@@ -1,4 +1,4 @@
-use crate::util;
+use crate::{resource, util};
 use serde::{Deserialize, Serialize};
 
 /// A sensor.
@@ -32,7 +32,7 @@ pub struct Sensor {
     pub recycle: Option<bool>,
 }
 
-impl crate::Resource for Sensor {}
+impl resource::Resource for Sensor {}
 
 impl Sensor {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -77,7 +77,7 @@ pub struct AttributeModifier {
     name: Option<String>,
 }
 
-impl crate::Modifier for AttributeModifier {}
+impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the sensor.
@@ -94,7 +94,7 @@ pub struct StateModifier {
     presence: Option<bool>,
 }
 
-impl crate::Modifier for StateModifier {}
+impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Sets the presence of the sensor.
@@ -111,7 +111,7 @@ pub struct ConfigModifier {
     on: Option<bool>,
 }
 
-impl crate::Modifier for ConfigModifier {}
+impl resource::Modifier for ConfigModifier {}
 
 impl ConfigModifier {
     /// Sets whether the sensor is on.

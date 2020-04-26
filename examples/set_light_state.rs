@@ -1,6 +1,7 @@
 //! Modifies the state of a specific light.
 
-use huelib::{bridge, light, Alert, Bridge, Modifier, ModifierType};
+use huelib::resource::{light, Alert, Modifier, ModifierType};
+use huelib::{bridge, Bridge};
 
 fn main() {
     // Discover bridges in the local network and save the first IP address as `bridge_ip`.

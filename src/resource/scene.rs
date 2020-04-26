@@ -1,4 +1,5 @@
-use crate::{util, Color, Effect};
+use crate::resource::{self, Effect};
+use crate::{util, Color};
 use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
@@ -44,7 +45,7 @@ pub struct Scene {
     pub version: Version,
 }
 
-impl crate::Resource for Scene {}
+impl resource::Resource for Scene {}
 
 impl Scene {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -98,7 +99,7 @@ pub struct Creator {
     light_states: Option<HashMap<String, LightStateModifier>>,
 }
 
-impl crate::Creator for Creator {}
+impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new scene creator.
@@ -164,7 +165,7 @@ pub struct LightStateModifier {
     transition_time: Option<u16>,
 }
 
-impl crate::Modifier for LightStateModifier {}
+impl resource::Modifier for LightStateModifier {}
 
 impl LightStateModifier {
     /// Turns the lights on or off.
@@ -238,7 +239,7 @@ pub struct Modifier {
     store_light_state: Option<bool>,
 }
 
-impl crate::Modifier for Modifier {}
+impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the scene.

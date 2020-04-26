@@ -1,4 +1,5 @@
-use crate::{Alert, Color, ColorMode, CoordinateModifierType, Effect, ModifierType};
+use crate::resource::{self, Alert, ColorMode, CoordinateModifierType, Effect, ModifierType};
+use crate::Color;
 use serde::{Deserialize, Serialize};
 
 /// A light.
@@ -41,7 +42,7 @@ pub struct Light {
     pub capabilities: Capabilities,
 }
 
-impl crate::Resource for Light {}
+impl resource::Resource for Light {}
 
 impl Light {
     pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
@@ -186,7 +187,7 @@ pub struct AttributeModifier {
     name: Option<String>,
 }
 
-impl crate::Modifier for AttributeModifier {}
+impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the light.
@@ -229,7 +230,7 @@ pub struct StateModifier {
     color_temperature_increment: Option<i32>,
 }
 
-impl crate::Modifier for StateModifier {}
+impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Turns the light on or off.

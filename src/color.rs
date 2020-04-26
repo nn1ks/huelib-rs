@@ -36,13 +36,13 @@ impl Color {
         let red = gamma_correct(red as f32 / 255.0);
         let green = gamma_correct(green as f32 / 255.0);
         let blue = gamma_correct(blue as f32 / 255.0);
-        let x = red * 0.649_926 + green * 0.103_455 + blue * 0.197__109;
-        let y = red * 0.234_327 + green * 0.743_075 + blue * 0.022_598;
-        let z = red * 0.000_000 + green * 0.053_077 + blue * 1.035_763;
+        let x = red * 0.649926 + green * 0.103455 + blue * 0.197109;
+        let y = red * 0.234327 + green * 0.743075 + blue * 0.022598;
+        let z = red * 0.000000 + green * 0.053077 + blue * 1.035763;
         Self {
             space_coordinates: (
-                x / (x + y + z + std::f32::MIN_POSITIVE),
-                y / (x + y + z + std::f32::MIN_POSITIVE),
+                x / (x + y + z + f32::MIN_POSITIVE),
+                y / (x + y + z + f32::MIN_POSITIVE),
             ),
             brightness: Some((y * 255.0) as u8),
         }

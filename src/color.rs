@@ -41,8 +41,8 @@ impl Color {
         let z = red * 0.000000 + green * 0.053077 + blue * 1.035763;
         Self {
             space_coordinates: (
-                x / (x + y + z + f32::MIN_POSITIVE),
-                y / (x + y + z + f32::MIN_POSITIVE),
+                x / (x + y + z + std::f32::MIN_POSITIVE),
+                y / (x + y + z + std::f32::MIN_POSITIVE),
             ),
             brightness: Some((y * 255.0) as u8),
         }

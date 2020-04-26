@@ -1,4 +1,4 @@
-use crate::{util, Effect};
+use crate::{util, Color, Effect};
 use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
@@ -194,6 +194,15 @@ impl LightStateModifier {
     /// Sets the color space coordinates of the lights.
     pub fn color_space_coordinates(mut self, value: (f32, f32)) -> Self {
         self.color_space_coordinates = Some(value);
+        self
+    }
+
+    /// Sets the color (and brightness) of the lights.
+    pub fn color(mut self, value: Color) -> Self {
+        self.color_space_coordinates = Some(value.space_coordinates);
+        if let Some(v) = value.brightness {
+            self.brightness = Some(v);
+        }
         self
     }
 

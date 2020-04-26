@@ -71,6 +71,8 @@ pub mod bridge;
 ///
 /// [Capabilities API]: https://developers.meethue.com/develop/hue-api/10-capabilities-api/
 pub mod capabilities;
+/// Module for generating colors.
+pub mod color;
 /// Bindings to the [Configuration API].
 ///
 /// [Configuration API]: https://developers.meethue.com/develop/hue-api/7-configuration-api
@@ -110,6 +112,7 @@ pub mod sensor;
 
 pub use bridge::Bridge;
 pub use capabilities::Capabilities;
+pub use color::Color;
 pub use config::Config;
 pub use error::Error;
 pub use group::Group;

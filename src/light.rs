@@ -1,4 +1,4 @@
-use crate::{Alert, ColorMode, CoordinateModifierType, Effect, ModifierType};
+use crate::{Alert, Color, ColorMode, CoordinateModifierType, Effect, ModifierType};
 use serde::{Deserialize, Serialize};
 
 /// A light.
@@ -292,6 +292,15 @@ impl StateModifier {
                 self.color_space_coordinates_increment = Some((-value.0, value.1))
             }
         };
+        self
+    }
+
+    /// Sets the color (and brightness) of a light.
+    pub fn color(mut self, value: Color) -> Self {
+        self.color_space_coordinates = Some(value.space_coordinates);
+        if let Some(v) = value.brightness {
+            self.brightness = Some(v);
+        }
         self
     }
 

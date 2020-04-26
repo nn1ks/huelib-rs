@@ -1,4 +1,4 @@
-use crate::resource::{self, Alert, CoordinateModifierType, Effect, ModifierType};
+use crate::resource::{self, Alert, Effect, ModifierType};
 use crate::Color;
 use serde::{Deserialize, Serialize};
 
@@ -333,33 +333,6 @@ impl StateModifier {
             ModifierType::Override => self.saturation = Some(value),
             ModifierType::Increment => self.saturation_increment = Some(value as i16),
             ModifierType::Decrement => self.saturation_increment = Some(-(value as i16)),
-        };
-        self
-    }
-
-    /// Sets the x and y coordinates in the color space to set the color of the lights.
-    ///
-    /// If the modifier type is `Override`, the values must be between 0 and 1. If the modifier
-    /// type is not `Override`, the values must be between 0 and 0.5.
-    pub fn color_space_coordinates(
-        mut self,
-        modifier_type: CoordinateModifierType,
-        value: (f32, f32),
-    ) -> Self {
-        match modifier_type {
-            CoordinateModifierType::Override => self.color_space_coordinates = Some(value),
-            CoordinateModifierType::Increment => {
-                self.color_space_coordinates_increment = Some(value)
-            }
-            CoordinateModifierType::Decrement => {
-                self.color_space_coordinates_increment = Some((-value.0, -value.1))
-            }
-            CoordinateModifierType::IncrementDecrement => {
-                self.color_space_coordinates_increment = Some((value.0, -value.1))
-            }
-            CoordinateModifierType::DecrementIncrement => {
-                self.color_space_coordinates_increment = Some((-value.0, value.1))
-            }
         };
         self
     }

@@ -218,25 +218,6 @@ pub enum ModifierType {
     Decrement,
 }
 
-/// Type of a modifier for coordinates.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum CoordinateModifierType {
-    /// Override both current values with the given values.
-    Override,
-    /// Add the given values to the current values.
-    Increment,
-    /// Subtract the given values to the current values.
-    Decrement,
-    /// Add the given value for the first coordinate to the current value of the first coordinate
-    /// and subtract the given value for the second coordinate to the current value of the second
-    /// coordinate.
-    IncrementDecrement,
-    /// Subtract the given value for the first coordinate to the current value of the first
-    /// coordinate and add the given value for the second coordinate to the current value of the
-    /// second coordinate.
-    DecrementIncrement,
-}
-
 /// Trait for resources.
 pub trait Resource {}
 

@@ -192,12 +192,6 @@ impl LightStateModifier {
         self
     }
 
-    /// Sets the color space coordinates of the lights.
-    pub fn color_space_coordinates(mut self, value: (f32, f32)) -> Self {
-        self.color_space_coordinates = Some(value);
-        self
-    }
-
     /// Sets the color (and brightness) of the lights.
     pub fn color(mut self, value: Color) -> Self {
         self.color_space_coordinates = Some(value.space_coordinates);

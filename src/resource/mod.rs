@@ -46,7 +46,8 @@ pub use schedule::Schedule;
 pub use sensor::Sensor;
 
 use serde::{de, de::Error as DeError, Deserialize, Serialize};
-use std::fmt;
+use serde_json::Value as JsonValue;
+use std::{collections::HashMap, fmt};
 
 /// Alert effect of a light.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
@@ -93,7 +94,7 @@ pub struct Action {
     #[serde(rename = "method")]
     pub request_type: ActionRequestType,
     /// Body of the request that the action sends.
-    pub body: std::collections::HashMap<String, serde_json::Value>,
+    pub body: HashMap<String, JsonValue>,
 }
 
 /// Request type of an action.

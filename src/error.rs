@@ -1,8 +1,10 @@
 use crate::response;
+use std::result::Result as StdResult;
 use std::{io, net, num};
+use thiserror::Error as ThisError;
 
 /// All errors that can occur while interacting with the Philips Hue API.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThisError)]
 pub enum Error {
     /// Error that can occur when the username cannot be obtained after registering a user.
     #[error("Failed to get username")]
@@ -29,3 +31,8 @@ pub enum Error {
     #[error("Error returned from Philips Hue API: {0}")]
     Response(#[from] response::Error),
 }
+
+/// Short hand for [`Result`] type.
+///
+/// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
+pub(crate) type Result<T> = StdResult<T, Error>;

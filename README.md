@@ -27,7 +27,8 @@ are deserialized/serialized using the [serde], [serde_json] and [serde_repr] cra
 Modifies the state of a light on a specific bridge:
 
 ```rust,no_run
-use huelib::{light, Bridge, Modifier, ModifierType};
+use huelib::resource::{light, Modifier, ModifierType};
+use huelib::Bridge;
 use std::net::{IpAddr, Ipv4Addr};
 
 // Create a bridge with IP address and username.
@@ -48,7 +49,7 @@ match bridge.set_light_state("1", &modifier) {
 Creates a group and registers a user on a discovered bridge:
 
 ```rust,no_run
-use huelib::{bridge, group, Bridge};
+use huelib::{bridge, resource::group, Bridge};
 
 // Get the IP address of the bridge that was first discovered in the local network.
 let ip_address = bridge::discover()
@@ -65,7 +66,7 @@ let bridge = Bridge::new(ip_address, user.name);
 
 // Create a group creator that sets the name to 'group1', adds the lights with the index '1'
 // and '2' to the group and sets the class to 'Office'.
-let creator = group::Creator::new("group", ["1", "2"].to_vec()).class(group::Class::Office);
+let creator = group::Creator::new("group1", ["1", "2"].to_vec()).class(group::Class::Office);
 
 // Create the group and print the identifier of the new group.
 match bridge.create_group(&creator) {

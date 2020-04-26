@@ -1,4 +1,5 @@
 use serde::{de, Deserialize};
+use serde_json::Value as JsonValue;
 use serde_repr::Deserialize_repr;
 use std::fmt;
 
@@ -100,7 +101,7 @@ pub struct Modified {
     /// Address of the changed attribute.
     pub address: String,
     /// New value of the attribute.
-    pub value: serde_json::Value,
+    pub value: JsonValue,
 }
 
 impl fmt::Display for Modified {

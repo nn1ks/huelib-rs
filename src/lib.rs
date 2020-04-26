@@ -77,9 +77,11 @@ pub mod resource;
 /// Responses returned from the Philips Hue API.
 pub mod response;
 
+mod util;
+
 pub use bridge::Bridge;
 pub use color::Color;
 pub use error::Error;
 pub use response::Response;
 
-mod util;
+pub(crate) use error::Result;

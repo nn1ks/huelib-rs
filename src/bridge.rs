@@ -1,10 +1,10 @@
-use crate::{resource, Error, Response};
+use crate::{resource, response, Error, Response, Result};
 use serde::{de::DeserializeOwned, Deserialize};
+use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 use std::net::IpAddr;
 
-type Result<T> = std::result::Result<T, Error>;
-type ResponseModified = Response<crate::response::Modified>;
+type ResponseModified = Response<response::Modified>;
 
 /// Discovers bridges in the local netowork.
 ///
@@ -119,15 +119,14 @@ pub fn register_user<S: AsRef<str>>(
 }
 
 enum RequestType {
-    Put(serde_json::Value),
-    Post(serde_json::Value),
+    Put(JsonValue),
+    Post(JsonValue),
     Get,
     Delete,
 }
 
-fn parse_response<T: DeserializeOwned>(response: serde_json::Value) -> Result<T> {
-    if let Ok(mut v) = serde_json::from_value::<Vec<Response<serde_json::Value>>>(response.clone())
-    {
+fn parse_response<T: DeserializeOwned>(response: JsonValue) -> Result<T> {
+    if let Ok(mut v) = serde_json::from_value::<Vec<Response<JsonValue>>>(response.clone()) {
         if let Some(v) = v.pop() {
             v.into_result()?;
         }
@@ -256,7 +255,7 @@ impl Bridge {
             Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
             None => "".to_owned(),
         };
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request("lights", RequestType::Post(serde_json::to_value(body)?))?;
         for i in response {
             i.into_result()?;
@@ -271,7 +270,7 @@ impl Bridge {
 
     /// Deletes a light from the bridge.
     pub fn delete_light<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
@@ -337,7 +336,7 @@ impl Bridge {
 
     /// Deletes a group from the bridge.
     pub fn delete_group<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
@@ -391,7 +390,7 @@ impl Bridge {
 
     /// Deletes a scene.
     pub fn delete_scene<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
@@ -452,7 +451,7 @@ impl Bridge {
 
     /// Deletes a schedule.
     pub fn delete_schedule<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
@@ -508,7 +507,7 @@ impl Bridge {
 
     /// Deletes a resourcelink.
     pub fn delete_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> = self.api_request(
+        let response: Vec<Response<JsonValue>> = self.api_request(
             &format!("resourcelinks/{}", id.as_ref()),
             RequestType::Delete,
         )?;
@@ -590,7 +589,7 @@ impl Bridge {
             Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
             None => "".to_owned(),
         };
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request("sensors", RequestType::Post(serde_json::to_value(body)?))?;
         for i in response {
             i.into_result()?;
@@ -605,7 +604,7 @@ impl Bridge {
 
     /// Deletes a sensor from the bridge.
     pub fn delete_sensor<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;
@@ -658,7 +657,7 @@ impl Bridge {
 
     /// Deletes a rule.
     pub fn delete_rule<S: AsRef<str>>(&self, id: S) -> Result<()> {
-        let response: Vec<Response<serde_json::Value>> =
+        let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
             i.into_result()?;

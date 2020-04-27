@@ -96,9 +96,9 @@ pub struct User {
 ///     Err(_) => unreachable!()
 /// };
 /// ```
-pub fn register_user<S: AsRef<str>>(
+pub fn register_user(
     ip_address: IpAddr,
-    devicetype: S,
+    devicetype: impl AsRef<str>,
     generate_clientkey: bool,
 ) -> Result<User> {
     let url = format!("http://{}/api", ip_address);
@@ -157,7 +157,7 @@ impl Bridge {
     /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
     /// let bridge = huelib::Bridge::new(bridge_ip, "example-username");
     /// ```
-    pub fn new<S: Into<String>>(ip_address: IpAddr, username: S) -> Self {
+    pub fn new(ip_address: IpAddr, username: impl Into<String>) -> Self {
         let username = username.into();
         Bridge {
             api_url: format!("http://{}/api/{}", ip_address, &username),
@@ -167,11 +167,11 @@ impl Bridge {
     }
 
     /// Sends a HTTP request to the Philips Hue API and returns the response.
-    fn api_request<S, T>(&self, url_suffix: S, request_type: RequestType) -> Result<T>
-    where
-        S: AsRef<str>,
-        T: DeserializeOwned,
-    {
+    fn api_request<T: DeserializeOwned>(
+        &self,
+        url_suffix: impl AsRef<str>,
+        request_type: RequestType,
+    ) -> Result<T> {
         let url = format!("{}/{}", self.api_url, url_suffix.as_ref());
         let response = match request_type {
             RequestType::Put(v) => ureq::put(&url).send_json(v),
@@ -196,9 +196,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a light.
-    pub fn set_light_attribute<S: AsRef<str>>(
+    pub fn set_light_attribute(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::light::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -208,9 +208,9 @@ impl Bridge {
     }
 
     /// Modifies the state of a light.
-    pub fn set_light_state<S: AsRef<str>>(
+    pub fn set_light_state(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::light::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -220,7 +220,7 @@ impl Bridge {
     }
 
     /// Returns a light.
-    pub fn get_light<S: AsRef<str>>(&self, id: S) -> Result<resource::Light> {
+    pub fn get_light(&self, id: impl AsRef<str>) -> Result<resource::Light> {
         let light: resource::Light = parse_response(
             self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -269,7 +269,7 @@ impl Bridge {
     }
 
     /// Deletes a light from the bridge.
-    pub fn delete_light<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_light(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
@@ -292,9 +292,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a group.
-    pub fn set_group_attribute<S: AsRef<str>>(
+    pub fn set_group_attribute(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::group::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -304,9 +304,9 @@ impl Bridge {
     }
 
     /// Modifies the state of a group.
-    pub fn set_group_state<S: AsRef<str>>(
+    pub fn set_group_state(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::group::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -316,7 +316,7 @@ impl Bridge {
     }
 
     /// Returns a group.
-    pub fn get_group<S: AsRef<str>>(&self, id: S) -> Result<resource::Group> {
+    pub fn get_group(&self, id: impl AsRef<str>) -> Result<resource::Group> {
         let group: resource::Group = parse_response(
             self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -335,7 +335,7 @@ impl Bridge {
     }
 
     /// Deletes a group from the bridge.
-    pub fn delete_group<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_group(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
@@ -358,9 +358,9 @@ impl Bridge {
     }
 
     /// Modifies the state and attributes of a scene.
-    pub fn set_scene<S: AsRef<str>>(
+    pub fn set_scene(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::scene::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -370,7 +370,7 @@ impl Bridge {
     }
 
     /// Returns a scene.
-    pub fn get_scene<S: AsRef<str>>(&self, id: S) -> Result<resource::Scene> {
+    pub fn get_scene(&self, id: impl AsRef<str>) -> Result<resource::Scene> {
         let scene: resource::Scene = parse_response(
             self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -389,7 +389,7 @@ impl Bridge {
     }
 
     /// Deletes a scene.
-    pub fn delete_scene<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_scene(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
@@ -419,9 +419,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a schedule.
-    pub fn set_schedule<S: AsRef<str>>(
+    pub fn set_schedule(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::schedule::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -431,7 +431,7 @@ impl Bridge {
     }
 
     /// Returns a schedule.
-    pub fn get_schedule<S: AsRef<str>>(&self, id: S) -> Result<resource::Schedule> {
+    pub fn get_schedule(&self, id: impl AsRef<str>) -> Result<resource::Schedule> {
         let schedule: resource::Schedule = parse_response(
             self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -450,7 +450,7 @@ impl Bridge {
     }
 
     /// Deletes a schedule.
-    pub fn delete_schedule<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_schedule(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
@@ -475,9 +475,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a resourcelink.
-    pub fn set_resourcelink<S: AsRef<str>>(
+    pub fn set_resourcelink(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::resourcelink::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -487,7 +487,7 @@ impl Bridge {
     }
 
     /// Returns a resourcelink.
-    pub fn get_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<resource::Resourcelink> {
+    pub fn get_resourcelink(&self, id: impl AsRef<str>) -> Result<resource::Resourcelink> {
         let resourcelink: resource::Resourcelink = parse_response(
             self.api_request(&format!("resourcelinks/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -506,7 +506,7 @@ impl Bridge {
     }
 
     /// Deletes a resourcelink.
-    pub fn delete_resourcelink<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_resourcelink(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> = self.api_request(
             &format!("resourcelinks/{}", id.as_ref()),
             RequestType::Delete,
@@ -518,9 +518,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a sensor.
-    pub fn set_sensor_attribute<S: AsRef<str>>(
+    pub fn set_sensor_attribute(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::sensor::AttributeModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -530,9 +530,9 @@ impl Bridge {
     }
 
     /// Modifies the state of a sensor.
-    pub fn set_sensor_state<S: AsRef<str>>(
+    pub fn set_sensor_state(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::sensor::StateModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -542,9 +542,9 @@ impl Bridge {
     }
 
     /// Modifies the configuration of a sensor.
-    pub fn set_sensor_config<S: AsRef<str>>(
+    pub fn set_sensor_config(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::sensor::ConfigModifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -554,7 +554,7 @@ impl Bridge {
     }
 
     /// Returns a sensor.
-    pub fn get_sensor<S: AsRef<str>>(&self, id: S) -> Result<resource::Sensor> {
+    pub fn get_sensor(&self, id: impl AsRef<str>) -> Result<resource::Sensor> {
         let sensor: resource::Sensor = parse_response(
             self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Get)?,
         )?;
@@ -603,7 +603,7 @@ impl Bridge {
     }
 
     /// Deletes a sensor from the bridge.
-    pub fn delete_sensor<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_sensor(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {
@@ -626,9 +626,9 @@ impl Bridge {
     }
 
     /// Modifies attributes of a rule.
-    pub fn set_rule<S: AsRef<str>>(
+    pub fn set_rule(
         &self,
-        id: S,
+        id: impl AsRef<str>,
         modifier: &resource::rule::Modifier,
     ) -> Result<Vec<ResponseModified>> {
         self.api_request(
@@ -638,7 +638,7 @@ impl Bridge {
     }
 
     /// Returns a rule.
-    pub fn get_rule<S: AsRef<str>>(&self, id: S) -> Result<resource::Rule> {
+    pub fn get_rule(&self, id: impl AsRef<str>) -> Result<resource::Rule> {
         let rule: resource::Rule =
             parse_response(self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Get)?)?;
         Ok(rule.with_id(id.as_ref()))
@@ -656,7 +656,7 @@ impl Bridge {
     }
 
     /// Deletes a rule.
-    pub fn delete_rule<S: AsRef<str>>(&self, id: S) -> Result<()> {
+    pub fn delete_rule(&self, id: impl AsRef<str>) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
             self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Delete)?;
         for i in response {

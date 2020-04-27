@@ -44,7 +44,7 @@ pub struct Group {
 impl resource::Resource for Group {}
 
 impl Group {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -189,7 +189,7 @@ impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new group creator.
-    pub fn new<S: Into<String>, V: Into<String>>(name: S, lights: Vec<V>) -> Self {
+    pub fn new(name: impl Into<String>, lights: Vec<impl Into<String>>) -> Self {
         Self {
             name: Some(name.into()),
             lights: Some(lights.into_iter().map(|v| v.into()).collect()),
@@ -198,7 +198,7 @@ impl Creator {
     }
 
     /// Sets the identifiers of the sensors of the group.
-    pub fn sensors<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+    pub fn sensors(mut self, value: Vec<impl Into<String>>) -> Self {
         self.sensors = Some(value.into_iter().map(|v| v.into()).collect());
         self
     }
@@ -239,19 +239,19 @@ impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Sets the name of the group.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
 
     /// Sets the identifiers of the lights of the group.
-    pub fn lights<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+    pub fn lights(mut self, value: Vec<impl Into<String>>) -> Self {
         self.lights = Some(value.into_iter().map(|v| v.into()).collect());
         self
     }
 
     /// Sets the identifiers of the sensors of the group.
-    pub fn sensors<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+    pub fn sensors(mut self, value: Vec<impl Into<String>>) -> Self {
         self.sensors = Some(value.into_iter().map(|v| v.into()).collect());
         self
     }
@@ -377,7 +377,7 @@ impl StateModifier {
     }
 
     /// Sets the scene identifier of the group.
-    pub fn scene<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn scene(mut self, value: impl Into<String>) -> Self {
         self.scene = Some(value.into());
         self
     }

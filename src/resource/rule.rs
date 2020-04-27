@@ -35,7 +35,7 @@ pub struct Rule {
 impl resource::Resource for Rule {}
 
 impl Rule {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -125,7 +125,7 @@ impl Creator {
     }
 
     /// Sets the name of the rule.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
@@ -154,7 +154,7 @@ impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the rule.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }

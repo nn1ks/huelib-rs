@@ -29,7 +29,7 @@ pub struct Resourcelink {
 impl resource::Resource for Resourcelink {}
 
 impl Resourcelink {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -138,7 +138,7 @@ impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new resourcelink creator.
-    pub fn new<S: Into<String>>(name: S, class_id: u16) -> Self {
+    pub fn new(name: impl Into<String>, class_id: u16) -> Self {
         Self {
             name: Some(name.into()),
             class_id: Some(class_id),
@@ -148,13 +148,13 @@ impl Creator {
     }
 
     /// Sets the description of the resourcelink.
-    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
 
     /// Sets the owner of the resourcelink.
-    pub fn owner<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn owner(mut self, value: impl Into<String>) -> Self {
         self.owner = Some(value.into());
         self
     }
@@ -172,7 +172,7 @@ impl Creator {
     }
 
     /// Adds a link to the resourcelink.
-    pub fn link<S: AsRef<str>>(mut self, kind: LinkKind, id: S) -> Self {
+    pub fn link(mut self, kind: LinkKind, id: impl AsRef<str>) -> Self {
         let mut links = self.links.unwrap_or_default();
         links.push(format!("/{}/{}", kind, id.as_ref()));
         self.links = Some(links);
@@ -199,13 +199,13 @@ impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the resourcelink.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
 
     /// Sets the description of the resourcelink.
-    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
@@ -223,7 +223,7 @@ impl Modifier {
     }
 
     /// Sets a link of the resourcelink.
-    pub fn link<S: AsRef<str>>(mut self, kind: LinkKind, id: S) -> Self {
+    pub fn link(mut self, kind: LinkKind, id: impl AsRef<str>) -> Self {
         let mut links = self.links.unwrap_or_default();
         links.push(format!("/{}/{}", kind, id.as_ref()));
         self.links = Some(links);

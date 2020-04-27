@@ -30,7 +30,7 @@ pub struct Schedule {
 impl resource::Resource for Schedule {}
 
 impl Schedule {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -78,13 +78,13 @@ impl Creator {
     }
 
     /// Sets the name of the schedule.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
 
     /// Sets the description of the schedule.
-    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
@@ -129,13 +129,13 @@ impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the schedule.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
 
     /// Sets the description of the schedule.
-    pub fn description<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn description(mut self, value: impl Into<String>) -> Self {
         self.description = Some(value.into());
         self
     }
@@ -147,7 +147,7 @@ impl Modifier {
     }
 
     /// Sets the description of the schedule.
-    pub fn localtime<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn localtime(mut self, value: impl Into<String>) -> Self {
         self.localtime = Some(value.into());
         self
     }

@@ -45,7 +45,7 @@ pub struct Light {
 impl resource::Resource for Light {}
 
 impl Light {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -191,7 +191,7 @@ impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
     /// Changes the name of the light.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }

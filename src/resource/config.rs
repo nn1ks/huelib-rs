@@ -257,7 +257,7 @@ pub struct User {
 }
 
 impl User {
-    fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -296,7 +296,7 @@ impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the bridge.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
@@ -308,7 +308,7 @@ impl Modifier {
     }
 
     /// Sets the network mask of the bridge.
-    pub fn netmask<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn netmask(mut self, value: impl Into<String>) -> Self {
         self.netmask = Some(value.into());
         self
     }
@@ -369,13 +369,13 @@ impl Modifier {
     }
 
     /// Sets the current time of the bridge in UTC.
-    pub fn current_time<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn current_time(mut self, value: impl Into<String>) -> Self {
         self.current_time = Some(value.into());
         self
     }
 
     /// Sets the timezone of the bridge.
-    pub fn timezone<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn timezone(mut self, value: impl Into<String>) -> Self {
         self.timezone = Some(value.into());
         self
     }

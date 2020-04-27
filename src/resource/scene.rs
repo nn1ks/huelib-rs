@@ -48,7 +48,7 @@ pub struct Scene {
 impl resource::Resource for Scene {}
 
 impl Scene {
-    pub(crate) fn with_id<S: Into<String>>(mut self, id: S) -> Self {
+    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
         self.id = id.into();
         self
     }
@@ -103,7 +103,7 @@ impl resource::Creator for Creator {}
 
 impl Creator {
     /// Creates a new scene creator.
-    pub fn new<S: Into<String>, V: Into<String>>(name: S, lights: Vec<V>) -> Self {
+    pub fn new(name: impl Into<String>, lights: Vec<impl Into<String>>) -> Self {
         Self {
             name: Some(name.into()),
             lights: Some(lights.into_iter().map(|v| v.into()).collect()),
@@ -118,7 +118,7 @@ impl Creator {
     }
 
     /// Sets the data of the app data.
-    pub fn app_data<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn app_data(mut self, value: impl Into<String>) -> Self {
         self.app_data = Some(AppData {
             data: Some(value.into()),
             version: self.app_data.unwrap_or_default().version,
@@ -136,7 +136,7 @@ impl Creator {
     }
 
     /// Sets the state of a light.
-    pub fn light_state<S: Into<String>>(mut self, id: S, modifier: LightStateModifier) -> Self {
+    pub fn light_state(mut self, id: impl Into<String>, modifier: LightStateModifier) -> Self {
         let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
         self.light_states = Some(light_states);
@@ -237,19 +237,19 @@ impl resource::Modifier for Modifier {}
 
 impl Modifier {
     /// Sets the name of the scene.
-    pub fn name<S: Into<String>>(mut self, value: S) -> Self {
+    pub fn name(mut self, value: impl Into<String>) -> Self {
         self.name = Some(value.into());
         self
     }
 
     /// Sets the indentifiers of the lights that are in this scene.
-    pub fn lights<S: Into<String>>(mut self, value: Vec<S>) -> Self {
+    pub fn lights(mut self, value: Vec<impl Into<String>>) -> Self {
         self.lights = Some(value.into_iter().map(|v| v.into()).collect());
         self
     }
 
     /// Sets the state of a light.
-    pub fn light_state<S: Into<String>>(mut self, id: S, modifier: LightStateModifier) -> Self {
+    pub fn light_state(mut self, id: impl Into<String>, modifier: LightStateModifier) -> Self {
         let mut light_states = self.light_states.unwrap_or_default();
         light_states.insert(id.into(), modifier);
         self.light_states = Some(light_states);

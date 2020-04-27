@@ -54,7 +54,7 @@ pub struct State {
         deserialize_with = "util::deserialize_option_date_time"
     )]
     pub last_updated: Option<chrono::NaiveDateTime>,
-    // TODO: Add missing attributes (missing due to incomplete documentation)
+    // TODO: Add missing attributes (https://github.com/yuqio/huelib-rs/issues/2)
 }
 
 /// Configuration of a sensor.

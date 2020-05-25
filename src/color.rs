@@ -57,18 +57,16 @@ impl Color {
     /// # Examples
     ///
     /// Generate a red color.
-    /// ```rust
+    /// ```
     /// # use huelib::Color;
     /// let red = Color::from_hex("#FF0000").unwrap();
-    ///
     /// assert_eq!(red, Color::from_rgb(255, 0, 0));
     /// ```
     ///
     /// Use shorter version with 3 hex values to generate a color.
-    /// ```rust
+    /// ```
     /// # use huelib::Color;
     /// let color = Color::from_hex("#F40").unwrap();
-    ///
     /// assert_eq!(color, Color::from_hex("#ff4400").unwrap())
     /// ```
     pub fn from_hex<S: AsRef<str>>(s: S) -> Result<Self, ParseHexError> {

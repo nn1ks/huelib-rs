@@ -8,31 +8,31 @@ type ResponseModified = Response<response::Modified>;
 
 /// Discovers bridges in the local netowork.
 ///
-/// This will send a HTTP GET request to [https://www.meethue.com/api/nupnp], to get IP addresses
+/// This will send a HTTP GET request to [https://discovery.meethue.com], to get IP addresses
 /// of bridges that are in the local network.
 ///
-/// [https://www.meethue.com/api/nupnp]: https://www.meethue.com/api/nupnp
+/// [https://discovery.meethue.com]: https://discovery.meethue.com
 ///
 /// # Examples
 ///
 /// Save the ip addresses of the discovered bridges into a variable.
-/// ```
+/// ```no_run
 /// let ip_addresses = huelib::bridge::discover().unwrap();
 /// ```
 ///
 /// Print the ip addresses of the discovered bridges and handle errors.
-/// ```
-/// use huelib::Error;
+/// ```no_run
+/// use huelib::{bridge, Error};
 ///
-/// match huelib::bridge::discover() {
+/// match bridge::discover() {
 ///     Ok(v) => {
 ///         for ip_address in v {
 ///             println!("{}", ip_address);
 ///         }
 ///     },
-///     Err(Error::ParseHttpResponse(_)) => println!("Failed to parse http response"),
-///     Err(Error::ParseJson(_)) => println!("Failed to parse json content"),
-///     Err(Error::ParseIpAddr(_)) => println!("Failed to parse ip address"),
+///     Err(Error::ParseHttpResponse(_)) => eprintln!("Failed to parse http response"),
+///     Err(Error::ParseJson(_)) => eprintln!("Failed to parse json content"),
+///     Err(Error::ParseIpAddr(_)) => eprintln!("Failed to parse ip address"),
 ///     Err(_) => unreachable!()
 /// };
 /// ```
@@ -71,28 +71,29 @@ pub struct User {
 /// # Examples
 ///
 /// Print the response that contains the name of the registered user.
-/// ```
+/// ```no_run
+/// use huelib::bridge;
 /// use std::net::{IpAddr, Ipv4Addr};
 ///
 /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// match huelib::bridge::register_user(bridge_ip, "huelib-rs example", false) {
+/// match bridge::register_user(bridge_ip, "huelib-rs example", false) {
 ///     Ok(v) => println!("Registered user with username: {}", v.name),
-///     Err(e) => println!("{}", e),
+///     Err(e) => eprintln!("{}", e),
 /// };
 /// ```
 ///
 /// Print the name of the registered user and handle errors.
-/// ```
-/// use huelib::Error;
+/// ```no_run
+/// use huelib::{bridge, Error};
 /// use std::net::{IpAddr, Ipv4Addr};
 ///
 /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// match huelib::bridge::register_user(bridge_ip, "huelib-rs example", true) {
+/// match bridge::register_user(bridge_ip, "huelib-rs example", true) {
 ///     Ok(v) => println!("Registered user: {:?}", v),
-///     Err(Error::ParseHttpResponse(_)) => println!("Failed to parse http response"),
-///     Err(Error::ParseJson(_)) => println!("Failed to parse json content"),
-///     Err(Error::Response(e)) => println!("Error from the Philips Hue API: {}", e),
-///     Err(Error::GetUsername) => println!("Failed to get the username"),
+///     Err(Error::ParseHttpResponse(_)) => eprintln!("Failed to parse http response"),
+///     Err(Error::ParseJson(_)) => eprintln!("Failed to parse json content"),
+///     Err(Error::Response(e)) => eprintln!("Error from the Philips Hue API: {}", e),
+///     Err(Error::GetUsername) => eprintln!("Failed to get the username"),
 ///     Err(_) => unreachable!()
 /// };
 /// ```
@@ -151,11 +152,12 @@ impl Bridge {
     /// # Examples
     ///
     /// Create a bridge with an already registered user.
-    /// ```
+    /// ```no_run
+    /// use huelib::Bridge;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
     /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-    /// let bridge = huelib::Bridge::new(bridge_ip, "example-username");
+    /// let bridge = Bridge::new(bridge_ip, "example-username");
     /// ```
     pub fn new(ip_address: IpAddr, username: impl Into<String>) -> Self {
         let username = username.into();

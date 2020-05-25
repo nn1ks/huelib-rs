@@ -37,7 +37,7 @@ type ResponseModified = Response<response::Modified>;
 /// };
 /// ```
 pub fn discover() -> Result<Vec<IpAddr>> {
-    let http_response = ureq::get("https://www.meethue.com/api/nupnp").call();
+    let http_response = ureq::get("https://discovery.meethue.com").call();
     #[derive(Deserialize)]
     struct BridgeJson {
         #[serde(rename = "internalipaddress")]

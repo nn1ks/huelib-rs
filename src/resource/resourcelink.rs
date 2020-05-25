@@ -126,7 +126,7 @@ pub struct Creator {
     owner: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     kind: Option<Kind>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "classid")]
     class_id: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
     recycle: Option<bool>,
@@ -189,7 +189,7 @@ pub struct Modifier {
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     kind: Option<Kind>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "classid")]
     class_id: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
     links: Option<Vec<String>>,

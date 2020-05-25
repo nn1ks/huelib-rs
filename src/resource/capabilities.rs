@@ -89,5 +89,6 @@ pub struct StreamingInfo {
 /// List of timezones.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Timezones {
-    values: Vec<String>,
+    /// List of available timezones.
+    pub values: Vec<String>,
 }

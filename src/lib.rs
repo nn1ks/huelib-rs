@@ -1,5 +1,3 @@
-#![warn(missing_docs)]
-
 //! Rust bindings for the [Philips Hue API].
 //!
 //! ## About
@@ -65,6 +63,8 @@
 //!     Err(e) => eprintln!("Failed to create group: {}", e),
 //! };
 //! ```
+
+#![warn(missing_docs)]
 
 /// Module for managing bridges.
 pub mod bridge;

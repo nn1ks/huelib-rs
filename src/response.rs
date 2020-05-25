@@ -2,6 +2,7 @@ use serde::{de, Deserialize};
 use serde_json::Value as JsonValue;
 use serde_repr::Deserialize_repr;
 use std::fmt;
+use thiserror::Error as ThisError;
 
 /// A response that is returned from the Philips Hue API.
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -37,7 +38,7 @@ impl<T: fmt::Display> fmt::Display for Response<T> {
 /// View the [API documentation] for more information.
 ///
 /// [API documentation]: https://developers.meethue.com/develop/hue-api/error-messages
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, thiserror::Error)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, ThisError)]
 #[error("{description}")]
 pub struct Error {
     /// Kind of the error.

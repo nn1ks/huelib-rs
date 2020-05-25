@@ -1,5 +1,5 @@
-use std::num;
-use thiserror::Error;
+use std::num::ParseIntError;
+use thiserror::Error as ThisError;
 
 /// Struct for setting the color of a light.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -69,7 +69,7 @@ impl Color {
     /// let color = Color::from_hex("#F40").unwrap();
     /// assert_eq!(color, Color::from_hex("#ff4400").unwrap())
     /// ```
-    pub fn from_hex<S: AsRef<str>>(s: S) -> Result<Self, ParseHexError> {
+    pub fn from_hex(s: impl AsRef<str>) -> Result<Self, ParseHexError> {
         let s = s.as_ref();
         match s.len() {
             4 => {
@@ -93,12 +93,12 @@ impl Color {
 }
 
 /// Errors that can occur while parsing a hex string to a color.
-#[derive(Clone, Debug, Eq, PartialEq, Error)]
+#[derive(Clone, Debug, Eq, PartialEq, ThisError)]
 pub enum ParseHexError {
     /// Error that occurs when the length of the hex string is invalid.
     #[error("Invalid string length")]
     InvalidLenght,
     /// Error that can occur while parsing a int value.
     #[error("Failed to parse a int value")]
-    ParseInt(#[from] num::ParseIntError),
+    ParseInt(#[from] ParseIntError),
 }

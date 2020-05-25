@@ -70,18 +70,15 @@
 pub mod bridge;
 /// Module for generating colors.
 pub mod color;
-/// Errors that can occur while interacting with the Philips Hue API.
-pub mod error;
 /// Module for bridge resources.
 pub mod resource;
 /// Responses returned from the Philips Hue API.
 pub mod response;
 
+mod error;
 mod util;
 
 pub use bridge::Bridge;
 pub use color::Color;
-pub use error::Error;
+pub use error::{Error, Result};
 pub use response::Response;
-
-pub(crate) use error::Result;

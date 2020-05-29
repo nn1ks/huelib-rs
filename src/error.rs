@@ -1,6 +1,8 @@
-use crate::response;
+use crate::response::Error as ResponseError;
+use chrono::ParseError as ChronoParseError;
+use serde_json::Error as SerdeJsonError;
 use std::result::Result as StdResult;
-use std::{io, net, num};
+use std::{io::Error as IoError, net::AddrParseError};
 use thiserror::Error as ThisError;
 
 /// Alias for `Result<T, huelib::Error>`.
@@ -17,17 +19,17 @@ pub enum Error {
     GetCreatedId,
     /// Error that can occur while converting a string to a date.
     #[error("Failed to parse date: {0}")]
-    ParseDate(#[from] chrono::ParseError),
+    ParseDate(#[from] ChronoParseError),
     /// Error that can occur while converting a http response into a string.
     #[error("Failed to parse http response: {0}")]
-    ParseHttpResponse(#[from] io::Error),
+    ParseHttpResponse(#[from] IoError),
     /// Error that can occur while converting a string to an IP address.
     #[error("Failed to parse ip address: {0}")]
-    ParseIpAddr(#[from] net::AddrParseError),
+    ParseIpAddr(#[from] AddrParseError),
     /// Error that can occur while parsing json content.
     #[error("Failed to parse json content: {0}")]
-    ParseJson(#[from] serde_json::Error),
+    ParseJson(#[from] SerdeJsonError),
     /// Error that is returned by the Philips Hue API.
     #[error("Error returned from Philips Hue API: {0}")]
-    Response(#[from] response::Error),
+    Response(#[from] ResponseError),
 }

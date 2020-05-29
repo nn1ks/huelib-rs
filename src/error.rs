@@ -24,9 +24,6 @@ pub enum Error {
     /// Error that can occur while converting a string to an IP address.
     #[error("Failed to parse ip address: {0}")]
     ParseIpAddr(#[from] net::AddrParseError),
-    /// Error that can occur while converting a string to an integer.
-    #[error("Failed to parse integer: {0}")]
-    ParseInt(#[from] num::ParseIntError),
     /// Error that can occur while parsing json content.
     #[error("Failed to parse json content: {0}")]
     ParseJson(#[from] serde_json::Error),

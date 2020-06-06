@@ -3,9 +3,7 @@
 [![Build](https://img.shields.io/github/workflow/status/yuqio/huelib-rs/CI)](https://github.com/yuqio/huelib-rs/actions)
 [![Crate](https://img.shields.io/crates/v/huelib)](https://crates.io/crates/huelib)
 [![Docs](https://docs.rs/huelib/badge.svg)](https://docs.rs/huelib)
-[![License](https://img.shields.io/github/license/yuqio/huelib-rs)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)
-[![Code size](https://img.shields.io/github/languages/code-size/yuqio/huelib-rs)]()
-[![Lines of code](https://tokei.rs/b1/github/yuqio/huelib-rs?category=code)]()
+[![License](https://img.shields.io/crates/l/huelib?color=yellow)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)
 
 <!-- cargo-sync-readme start -->
 

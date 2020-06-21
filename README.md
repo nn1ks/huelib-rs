@@ -1,9 +1,10 @@
 # huelib-rs
 
-[![Build](https://img.shields.io/github/workflow/status/yuqio/huelib-rs/CI)](https://github.com/yuqio/huelib-rs/actions)
-[![Crate](https://img.shields.io/crates/v/huelib)](https://crates.io/crates/huelib)
-[![Docs](https://docs.rs/huelib/badge.svg)](https://docs.rs/huelib)
-[![License](https://img.shields.io/crates/l/huelib?color=yellow)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)
+[![Build](https://img.shields.io/github/workflow/status/yuqio/huelib-rs/CI?labelColor=4c566a&color=a3be8c&logo=github)](https://github.com/yuqio/huelib-rs/actions)
+[![Crate](https://img.shields.io/crates/v/huelib?labelColor=4c566a&color=81a1c1&logo=rust)](https://crates.io/crates/huelib)
+[![Docs](https://img.shields.io/badge/dynamic/json?url=https://crates.io/api/v1/crates/huelib/versions&query=$.versions.0.num&prefix=v&label=docs.rs&labelColor=4c566a&color=8fbcbb&logo=rust)](https://docs.rs/huelib)
+[![License](https://img.shields.io/crates/l/huelib?labelColor=4c566a&color=b48ead)](https://github.com/yuqio/huelib-rs/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/crates/d/huelib?labelColor=4c566a&color=5e81ac)](https://docs.rs/huelib)
 
 <!-- cargo-sync-readme start -->
 

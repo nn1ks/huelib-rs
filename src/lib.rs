@@ -64,7 +64,7 @@
 //! };
 //! ```
 
-#![warn(missing_docs)]
+#![deny(missing_docs, missing_debug_implementations, unreachable_pub, unsafe_code)]
 
 /// Module for managing bridges.
 pub mod bridge;

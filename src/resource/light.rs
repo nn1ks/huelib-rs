@@ -105,6 +105,8 @@ pub enum SoftwareUpdateState {
     NoUpdates,
     /// Device cannot be updated.
     NotUpdatable,
+    /// Device is ready to install new updates.
+    ReadyToInstall,
     // TODO: Add missing variants for states (https://github.com/yuqio/huelib-rs/issues/1)
 }
 

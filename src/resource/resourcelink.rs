@@ -1,6 +1,6 @@
 use crate::resource;
-use serde::{de, de::Error, Deserialize, Serialize};
-use std::fmt;
+use derive_setters::Setters;
+use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// A resourcelink to group resources in the bridge.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -52,7 +52,7 @@ pub struct Link {
 }
 
 impl<'de> Deserialize<'de> for Link {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value: String = Deserialize::deserialize(deserializer)?;
         let mut values: Vec<&str> = value.split('/').collect();
         let id_str = values
@@ -66,6 +66,15 @@ impl<'de> Deserialize<'de> for Link {
                 .ok_or_else(|| D::Error::custom(format!("invalid link type '{}'", kind_str)))?,
             id: id_str.to_owned(),
         })
+    }
+}
+
+impl Serialize for Link {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&format!("/{}/{}", self.kind.to_str(), self.id))
     }
 }
 
@@ -95,138 +104,91 @@ impl LinkKind {
             _ => None,
         }
     }
-}
 
-impl fmt::Display for LinkKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Group => "groups",
-                Self::Light => "lights",
-                Self::Resourcelink => "resourcelinks",
-                Self::Rule => "rules",
-                Self::Scene => "scenes",
-                Self::Schedule => "schedules",
-                Self::Sensor => "sensors",
-            }
-        )
+    fn to_str(&self) -> &str {
+        match self {
+            Self::Group => "groups",
+            Self::Light => "lights",
+            Self::Resourcelink => "resourcelinks",
+            Self::Rule => "rules",
+            Self::Scene => "scenes",
+            Self::Schedule => "schedules",
+            Self::Sensor => "sensors",
+        }
     }
 }
 
 /// Struct for creating a resourcelink.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Creator {
+    /// Sets the name of the resourcelink.
+    #[setters(skip)]
+    pub name: String,
+    /// Sets the description of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub description: Option<String>,
+    /// Sets the owner of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub owner: Option<String>,
+    /// Sets the kind of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    owner: Option<String>,
+    pub kind: Option<Kind>,
+    /// Sets the class id of the resourcelink.
+    #[serde(rename = "classid")]
+    #[setters(skip)]
+    pub class_id: u16,
+    /// Sets the whether to recycle the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    kind: Option<Kind>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "classid")]
-    class_id: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    recycle: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    links: Option<Vec<String>>,
+    pub recycle: Option<bool>,
+    /// Sets the links of the resourcelink.
+    #[setters(skip)]
+    pub links: Vec<Link>,
 }
 
 impl resource::Creator for Creator {}
 
 impl Creator {
-    /// Creates a new resourcelink creator.
-    pub fn new(name: impl Into<String>, class_id: u16) -> Self {
+    /// Creates a new [`Creator`].
+    pub fn new(name: String, class_id: u16, links: Vec<Link>) -> Self {
         Self {
-            name: Some(name.into()),
-            class_id: Some(class_id),
-            links: Some(Vec::new()),
-            ..Default::default()
+            name,
+            description: None,
+            owner: None,
+            kind: None,
+            class_id,
+            recycle: None,
+            links,
         }
-    }
-
-    /// Sets the description of the resourcelink.
-    pub fn description(mut self, value: impl Into<String>) -> Self {
-        self.description = Some(value.into());
-        self
-    }
-
-    /// Sets the owner of the resourcelink.
-    pub fn owner(mut self, value: impl Into<String>) -> Self {
-        self.owner = Some(value.into());
-        self
-    }
-
-    /// Sets the kind of the resourcelink.
-    pub fn kind(mut self, value: Kind) -> Self {
-        self.kind = Some(value);
-        self
-    }
-
-    /// Sets the whether to recycle the resourcelink.
-    pub fn recycle(mut self, value: bool) -> Self {
-        self.recycle = Some(value);
-        self
-    }
-
-    /// Adds a link to the resourcelink.
-    pub fn link(mut self, kind: LinkKind, id: impl AsRef<str>) -> Self {
-        let mut links = self.links.unwrap_or_default();
-        links.push(format!("/{}/{}", kind, id.as_ref()));
-        self.links = Some(links);
-        self
     }
 }
 
 /// Modifier for a resourcelink.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
+    /// Sets the name of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the description of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
+    /// Sets the class id of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    kind: Option<Kind>,
+    pub kind: Option<Kind>,
+    /// Sets the kind of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none", rename = "classid")]
-    class_id: Option<u16>,
+    pub class_id: Option<u16>,
+    /// Sets the links of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none")]
-    links: Option<Vec<String>>,
+    pub links: Option<Vec<Link>>,
 }
 
 impl resource::Modifier for Modifier {}
 
 impl Modifier {
-    /// Sets the name of the resourcelink.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the description of the resourcelink.
-    pub fn description(mut self, value: impl Into<String>) -> Self {
-        self.description = Some(value.into());
-        self
-    }
-
-    /// Sets the class id of the resourcelink.
-    pub fn class_id(mut self, value: u16) -> Self {
-        self.class_id = Some(value);
-        self
-    }
-
-    /// Sets the kind of the resourcelink.
-    pub fn kind(mut self, value: Kind) -> Self {
-        self.kind = Some(value);
-        self
-    }
-
-    /// Sets a link of the resourcelink.
-    pub fn link(mut self, kind: LinkKind, id: impl AsRef<str>) -> Self {
-        let mut links = self.links.unwrap_or_default();
-        links.push(format!("/{}/{}", kind, id.as_ref()));
-        self.links = Some(links);
-        self
+    /// Creates a new [`Modifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

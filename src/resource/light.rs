@@ -1,6 +1,9 @@
-use crate::resource::{self, Alert, ColorMode, Effect, ModifierType};
+#![allow(clippy::needless_update)]
+
+use crate::resource::{self, Adjuster, Alert, ColorMode, Effect};
 use crate::Color;
-use serde::{Deserialize, Serialize};
+use derive_setters::Setters;
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 
 /// A light.
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -185,130 +188,158 @@ pub struct StreamingCapabilities {
 }
 
 /// Modifier for light attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
+    /// Sets the name of the light.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
 }
 
 impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
-    /// Changes the name of the light.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
+    /// Creates a new [`AttributeModifier`].
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+/// Static modifier for the light state.
+///
+/// In comparison to [`StateModifier`], this modifier cannot increment/decrement any attributes or
+/// change the alert effect.
+///
+/// This modifier is used in [`scene::Modifier`] and [`scene::Creator`].
+///
+/// [`scene::Modifier`]: super::scene::Modifier
+/// [`scene::Creator`]: super::scene::Creator
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
+pub struct StaticStateModifier {
+    /// Turns the light on or off.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub on: Option<bool>,
+    /// Sets the brightness of the light.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "bri")]
+    pub brightness: Option<u8>,
+    /// Sets the hue of the light.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hue: Option<u16>,
+    /// Sets the saturation of a light.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "sat")]
+    pub saturation: Option<u8>,
+    /// Sets the color space coordinates of the light.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "xy")]
+    pub color_space_coordinates: Option<(f32, f32)>,
+    /// Sets the color temperature of a light.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "ct")]
+    pub color_temperature: Option<u16>,
+    /// Sets the dynamic effect of a light.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub effect: Option<Effect>,
+    /// Sets the transition duration of state changes.
+    ///
+    /// This is given as a multiple of 100ms.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "transitiontime")]
+    pub transition_time: Option<u16>,
+}
+
+impl resource::Modifier for StaticStateModifier {}
+
+impl StaticStateModifier {
+    /// Creates a new [`StaticStateModifier`].
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Convenient method to set the [`color_space_coordinates`] and [`brightness`] fields.
+    ///
+    /// [`color_space_coordinates`]: Self::color_space_coordinates
+    /// [`brightness`]: Self::brightness
+    pub fn with_color(self, value: Color) -> Self {
+        let mut modifier = Self {
+            color_space_coordinates: Some(value.space_coordinates),
+            ..self
+        };
+        if let Some(brightness) = value.brightness {
+            modifier.brightness = Some(brightness);
+        }
+        modifier
     }
 }
 
 /// Modifier for the light state.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct StateModifier {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    on: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "bri")]
-    brightness: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    hue: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "sat")]
-    saturation: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "xy")]
-    color_space_coordinates: Option<(f32, f32)>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "ct")]
-    color_temperature: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    alert: Option<Alert>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    effect: Option<Effect>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "transitiontime")]
-    transition_time: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "bri_inc")]
-    brightness_increment: Option<i16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "hue_inc")]
-    hue_increment: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "sat_inc")]
-    saturation_increment: Option<i16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "xy_inc")]
-    color_space_coordinates_increment: Option<(f32, f32)>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "ct_inc")]
-    color_temperature_increment: Option<i32>,
+    /// Turns the light on or off.
+    pub on: Option<bool>,
+    /// Sets the brightness of the light.
+    pub brightness: Option<Adjuster<u8>>,
+    /// Sets the hue of a light.
+    pub hue: Option<Adjuster<u16>>,
+    /// Sets the saturation of a light.
+    pub saturation: Option<Adjuster<u8>>,
+    /// Sets the color space coordinates of the light.
+    pub color_space_coordinates: Option<Adjuster<(f32, f32)>>,
+    /// Sets the color temperature of a light.
+    pub color_temperature: Option<Adjuster<u16>>,
+    /// Sets the alert effect of a light.
+    pub alert: Option<Alert>,
+    /// Sets the dynamic effect of a light.
+    pub effect: Option<Effect>,
+    /// Sets the transition duration of state changes.
+    ///
+    /// This is given as a multiple of 100ms.
+    pub transition_time: Option<u16>,
 }
 
 impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
-    /// Turns the light on or off.
-    pub fn on(mut self, value: bool) -> Self {
-        self.on = Some(value);
-        self
+    /// Creates a new [`StateModifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    /// Sets the brightness of the light.
-    pub fn brightness(mut self, modifier_type: ModifierType, value: u8) -> Self {
-        match modifier_type {
-            ModifierType::Override => self.brightness = Some(value),
-            ModifierType::Increment => self.brightness_increment = Some(value as i16),
-            ModifierType::Decrement => self.brightness_increment = Some(-(value as i16)),
-        };
-        self
-    }
-
-    /// Sets the hue of a light.
-    pub fn hue(mut self, modifier_type: ModifierType, value: u16) -> Self {
-        match modifier_type {
-            ModifierType::Override => self.hue = Some(value),
-            ModifierType::Increment => self.hue_increment = Some(value as i32),
-            ModifierType::Decrement => self.hue_increment = Some(-(value as i32)),
-        };
-        self
-    }
-
-    /// Sets the saturation of a light.
-    pub fn saturation(mut self, modifier_type: ModifierType, value: u8) -> Self {
-        match modifier_type {
-            ModifierType::Override => self.saturation = Some(value),
-            ModifierType::Increment => self.saturation_increment = Some(value as i16),
-            ModifierType::Decrement => self.saturation_increment = Some(-(value as i16)),
-        };
-        self
-    }
-
-    /// Sets the color (and brightness) of a light.
-    pub fn color(mut self, value: Color) -> Self {
-        self.color_space_coordinates = Some(value.space_coordinates);
-        if let Some(v) = value.brightness {
-            self.brightness = Some(v);
-        }
-        self
-    }
-
-    /// Sets the color temperature of a light.
-    pub fn color_temperature(mut self, modifier_type: ModifierType, value: u16) -> Self {
-        match modifier_type {
-            ModifierType::Override => self.color_temperature = Some(value),
-            ModifierType::Increment => self.color_temperature_increment = Some(value as i32),
-            ModifierType::Decrement => self.color_temperature_increment = Some(-(value as i32)),
-        };
-        self
-    }
-
-    /// Sets the alert effect of a light.
-    pub fn alert(mut self, value: Alert) -> Self {
-        self.alert = Some(value);
-        self
-    }
-
-    /// Sets the dynamic effect of a light.
-    pub fn effect(mut self, value: Effect) -> Self {
-        self.effect = Some(value);
-        self
-    }
-
-    /// Sets the transition duration of state changes.
+    /// Convenient method to set the [`color_space_coordinates`] and [`brightness`] fields.
     ///
-    /// This is given as a multiple of 100ms.
-    pub fn transition_time(mut self, value: u16) -> Self {
-        self.transition_time = Some(value);
-        self
+    /// [`color_space_coordinates`]: Self::color_space_coordinates
+    /// [`brightness`]: Self::brightness
+    pub fn with_color(self, value: Color) -> Self {
+        let mut modifier = Self {
+            color_space_coordinates: Some(Adjuster::Override(value.space_coordinates)),
+            ..self
+        };
+        if let Some(brightness) = value.brightness {
+            modifier.brightness = Some(Adjuster::Override(brightness));
+        }
+        modifier
+    }
+}
+
+impl Serialize for StateModifier {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        custom_serialize! {
+            serializer, "StateModifier";
+            on => (&self.on),
+            bri => (&self.brightness, to_override),
+            bri_inc => (&self.brightness, to_increment, i16),
+            hue => (&self.hue, to_override),
+            hue_inc => (&self.hue, to_increment, i32),
+            sat => (&self.saturation, to_override),
+            sat_inc => (&self.saturation, to_increment, i16),
+            xy => (&self.color_space_coordinates, to_override),
+            xy_inc => (&self.color_space_coordinates, to_increment_tuple, f32),
+            ct => (&self.color_temperature, to_override),
+            ct_inc => (&self.color_temperature, to_increment, i32),
+            alert => (&self.alert),
+            effect => (&self.effect),
+            transitiontime => (&self.transition_time),
+        }
     }
 }

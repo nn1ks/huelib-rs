@@ -1,4 +1,5 @@
 use crate::resource::{self, Action};
+use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
 /// Schedule of a resource.
@@ -47,120 +48,78 @@ pub enum Status {
 }
 
 /// Struct for creating a schedule.
-#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Creator {
+    /// Sets the name of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the description of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
+    /// Sets the action of the schedule.
+    #[setters(skip)]
+    pub action: Action,
+    /// Sets the local time of the schedule.
+    #[setters(skip)]
+    pub local_time: String,
+    /// Sets the status of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    action: Option<Action>,
+    pub status: Option<Status>,
+    /// Sets whether the schedule will be removed after it expires.
     #[serde(skip_serializing_if = "Option::is_none")]
-    localtime: Option<String>,
+    pub auto_delete: Option<bool>,
+    /// Sets whether resource is automatically deleted when not referenced anymore.
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<Status>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    auto_delete: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    recycle: Option<bool>,
+    pub recycle: Option<bool>,
 }
 
 impl resource::Creator for Creator {}
 
 impl Creator {
-    /// Creates a new schedule creator.
-    pub fn new(action: Action, localtime: String) -> Self {
+    /// Creates a new [`Creator`].
+    pub fn new(action: Action, local_time: String) -> Self {
         Self {
-            action: Some(action),
-            localtime: Some(localtime),
-            ..Default::default()
+            name: None,
+            description: None,
+            action,
+            local_time,
+            status: None,
+            auto_delete: None,
+            recycle: None,
         }
-    }
-
-    /// Sets the name of the schedule.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn description(mut self, value: impl Into<String>) -> Self {
-        self.description = Some(value.into());
-        self
-    }
-
-    /// Sets the status of the schedule.
-    pub fn status(mut self, value: Status) -> Self {
-        self.status = Some(value);
-        self
-    }
-
-    /// Sets whether the schedule will be removed after it expires.
-    pub fn auto_delete(mut self, value: bool) -> Self {
-        self.auto_delete = Some(value);
-        self
-    }
-
-    /// Sets whether resource is automatically deleted when not referenced anymore.
-    pub fn recycle(mut self, value: bool) -> Self {
-        self.recycle = Some(value);
-        self
     }
 }
 
 /// Struct for modifying attributes of a schedule.
-#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
+    /// Sets the name of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the description of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
+    /// Sets the action of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    action: Option<Action>,
+    pub action: Option<Action>,
+    /// Sets the local time of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    localtime: Option<String>,
+    pub local_time: Option<String>,
+    /// Sets the status of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<Status>,
+    pub status: Option<Status>,
+    /// Sets whether the schedule is removed after it expires.
     #[serde(skip_serializing_if = "Option::is_none", rename = "autodelete")]
-    auto_delete: Option<bool>,
+    pub auto_delete: Option<bool>,
 }
 
 impl resource::Modifier for Modifier {}
 
 impl Modifier {
-    /// Sets the name of the schedule.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn description(mut self, value: impl Into<String>) -> Self {
-        self.description = Some(value.into());
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn action(mut self, value: Action) -> Self {
-        self.action = Some(value);
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn localtime(mut self, value: impl Into<String>) -> Self {
-        self.localtime = Some(value.into());
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn status(mut self, value: Status) -> Self {
-        self.status = Some(value);
-        self
-    }
-
-    /// Sets the description of the schedule.
-    pub fn auto_delete(mut self, value: bool) -> Self {
-        self.auto_delete = Some(value);
-        self
+    /// Creates a new [`Modifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

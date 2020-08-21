@@ -1,6 +1,6 @@
 //! Modifies the state of a specific light.
 
-use huelib::resource::{light, Alert, Modifier, ModifierType};
+use huelib::resource::{light, Adjuster, Alert};
 use huelib::{bridge, Bridge};
 
 fn main() {
@@ -16,10 +16,10 @@ fn main() {
     // Creates a new light modifier to turn on the light, set the saturation to 10 and decrement
     // the brightness by 40.
     let light_modifier = light::StateModifier::new()
-        .on(true)
-        .saturation(ModifierType::Override, 10)
-        .alert(Alert::Select)
-        .brightness(ModifierType::Decrement, 40);
+        .with_on(true)
+        .with_saturation(Adjuster::Override(10))
+        .with_alert(Alert::Select)
+        .with_brightness(Adjuster::Decrement(40));
 
     // Modify the attributes declared in `light_modifier` on the light with the id 1.
     let response = bridge.set_light_state("1", &light_modifier).unwrap();

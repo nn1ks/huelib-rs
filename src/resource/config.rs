@@ -1,5 +1,6 @@
 use crate::{resource, util};
-use serde::{de, Deserialize, Serialize};
+use derive_setters::Setters;
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_repr::Deserialize_repr;
 use std::net::IpAddr;
 
@@ -90,7 +91,7 @@ pub struct Config {
 
 impl resource::Resource for Config {}
 
-fn deserialize_whitelist<'de, D: de::Deserializer<'de>>(
+fn deserialize_whitelist<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Vec<User>, D::Error> {
     let map: std::collections::HashMap<String, User> = Deserialize::deserialize(deserializer)?;
@@ -264,119 +265,62 @@ impl User {
 }
 
 /// Struct for modifying configuration attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
+    /// Sets the name of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the IP address of the bridge.
     #[serde(skip_serializing_if = "Option::is_none", rename = "ipaddress")]
-    ip_address: Option<IpAddr>,
+    pub ip_address: Option<IpAddr>,
+    /// Sets the network mask of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    netmask: Option<String>,
+    pub netmask: Option<String>,
+    /// Sets the gateway IP address of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    gateway: Option<IpAddr>,
+    pub gateway: Option<IpAddr>,
+    /// Sets whether the IP address of the bridge is obtained with DHCP.
     #[serde(skip_serializing_if = "Option::is_none")]
-    dhcp: Option<bool>,
+    pub dhcp: Option<bool>,
+    /// Sets the proxy port of the bridge.
+    ///
+    /// If set to 0 then a proxy is not being used.
     #[serde(skip_serializing_if = "Option::is_none", rename = "proxyport")]
-    proxy_port: Option<u16>,
+    pub proxy_port: Option<u16>,
+    /// Sets the proxy address of the bridge.
+    ///
+    /// If set to `None` then a proxy is not being used.
     #[serde(skip_serializing_if = "Option::is_none", rename = "proxyaddress")]
-    proxy_address: Option<String>,
+    pub proxy_address: Option<String>,
+    /// Indicates whether the link button has been pressed within the last 30 seconds.
+    ///
+    /// Writing is only allowed for portal access via cloud application_key.
     #[serde(skip_serializing_if = "Option::is_none")]
-    linkbutton: Option<bool>,
+    pub linkbutton: Option<bool>,
+    /// Starts a touchlink procedure which adds the closest lamp to the ZigBee network.
+    ///
+    /// You can then search for new lights and the lamp will show up in the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    touchlink: Option<bool>,
+    pub touchlink: Option<bool>,
+    /// Sets the wireless frequency channel used by the bridge.
+    ///
+    /// It can take values of 11, 15, 20 or 25.
     #[serde(skip_serializing_if = "Option::is_none", rename = "zigbeechannel")]
-    zigbee_channel: Option<u8>,
+    pub zigbee_channel: Option<u8>,
+    /// Sets the current time of the bridge in UTC.
     #[serde(skip_serializing_if = "Option::is_none", rename = "UTC")]
-    current_time: Option<String>,
+    pub current_time: Option<String>,
+    /// Sets the timezone of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    timezone: Option<String>,
+    pub timezone: Option<String>,
 }
 
 impl resource::Modifier for Modifier {}
 
 impl Modifier {
-    /// Sets the name of the bridge.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the ip address of the bridge.
-    pub fn ip_address(mut self, value: IpAddr) -> Self {
-        self.ip_address = Some(value);
-        self
-    }
-
-    /// Sets the network mask of the bridge.
-    pub fn netmask(mut self, value: impl Into<String>) -> Self {
-        self.netmask = Some(value.into());
-        self
-    }
-
-    /// Sets the gateway ip address of the bridge.
-    pub fn gateway(mut self, value: IpAddr) -> Self {
-        self.gateway = Some(value);
-        self
-    }
-
-    /// Sets whether the ip address of the bridge is obtained with DHCP.
-    pub fn dhcp(mut self, value: bool) -> Self {
-        self.dhcp = Some(value);
-        self
-    }
-
-    /// Sets the proxy port of the bridge.
-    ///
-    /// If set to 0 then a proxy is not being used.
-    pub fn proxy_port(mut self, value: u16) -> Self {
-        self.proxy_port = Some(value);
-        self
-    }
-
-    /// Sets the proxy address of the bridge.
-    ///
-    /// If set to `None` then a proxy is not being used.
-    pub fn proxy_address(mut self, value: Option<IpAddr>) -> Self {
-        self.proxy_address = Some(match value {
-            Some(v) => v.to_string(),
-            None => "none".to_owned(),
-        });
-        self
-    }
-
-    /// Indicates whether the link button has been pressed within the last 30 seconds.
-    ///
-    /// Writing is only allowed for portal access via cloud application_key.
-    pub fn linkbutton(mut self, value: bool) -> Self {
-        self.linkbutton = Some(value);
-        self
-    }
-
-    /// Starts a touchlink procedure which adds the closest lamp to the ZigBee network.
-    ///
-    /// You can then search for new lights and the lamp will show up in the bridge.
-    pub fn touchlink(mut self) -> Self {
-        self.touchlink = Some(true);
-        self
-    }
-
-    /// Sets the wireless frequency channel used by the bridge.
-    ///
-    /// It can take values of 11, 15, 20 or 25.
-    pub fn zigbee_channel(mut self, value: u8) -> Self {
-        self.zigbee_channel = Some(value);
-        self
-    }
-
-    /// Sets the current time of the bridge in UTC.
-    pub fn current_time(mut self, value: impl Into<String>) -> Self {
-        self.current_time = Some(value.into());
-        self
-    }
-
-    /// Sets the timezone of the bridge.
-    pub fn timezone(mut self, value: impl Into<String>) -> Self {
-        self.timezone = Some(value.into());
-        self
+    /// Creates a new [`Modifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

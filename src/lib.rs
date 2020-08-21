@@ -16,7 +16,7 @@
 //! Modifies the state of a light on a specific bridge:
 //!
 //! ```rust,no_run
-//! use huelib::resource::{light, Modifier, ModifierType};
+//! use huelib::resource::{light, Modifier, Adjuster};
 //! use huelib::Bridge;
 //! use std::net::{IpAddr, Ipv4Addr};
 //!
@@ -25,8 +25,8 @@
 //!
 //! // Create a state modifier that increments the brightness by 40 and sets the saturation to 200.
 //! let modifier = light::StateModifier::new()
-//!     .brightness(ModifierType::Increment, 40)
-//!     .saturation(ModifierType::Override, 200);
+//!     .with_brightness(Adjuster::Increment(40))
+//!     .with_saturation(Adjuster::Override(200));
 //!
 //! // Set attributes of the light with index '1' from the modifier and print the responses.
 //! match bridge.set_light_state("1", &modifier) {
@@ -55,7 +55,8 @@
 //!
 //! // Create a group creator that sets the name to 'group1', adds the lights with the index '1'
 //! // and '2' to the group and sets the class to 'Office'.
-//! let creator = group::Creator::new("group1", ["1", "2"].to_vec()).class(group::Class::Office);
+//! let creator = group::Creator::new("group1".into(), vec!["1".into(), "2".into()])
+//!     .with_class(group::Class::Office);
 //!
 //! // Create the group and print the identifier of the new group.
 //! match bridge.create_group(&creator) {
@@ -66,6 +67,10 @@
 
 #![deny(missing_docs, missing_debug_implementations, unreachable_pub, unsafe_code)]
 
+#[macro_use]
+mod util;
+mod error;
+
 /// Module for managing bridges.
 pub mod bridge;
 /// Module for generating colors.
@@ -74,9 +79,6 @@ pub mod color;
 pub mod resource;
 /// Responses returned from the Philips Hue API.
 pub mod response;
-
-mod error;
-mod util;
 
 pub use bridge::Bridge;
 pub use color::Color;

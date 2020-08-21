@@ -1,5 +1,6 @@
 use crate::resource::{self, Action};
 use crate::util;
+use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
 /// A rule for resources on a bridge.
@@ -100,80 +101,60 @@ pub enum ConditionOperator {
 }
 
 /// Struct for creating a rule.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Creator {
+    /// Sets the name of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the status of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<Status>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    conditions: Option<Vec<Condition>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    actions: Option<Vec<Action>>,
+    pub status: Option<Status>,
+    /// Sets the conditions of the rule.
+    #[setters(skip)]
+    pub conditions: Vec<Condition>,
+    /// Sets the actions of the rule.
+    #[setters(skip)]
+    pub actions: Vec<Action>,
 }
 
 impl resource::Creator for Creator {}
 
 impl Creator {
-    /// Creates a new rule creator.
+    /// Creates a new [`Creator`].
     pub fn new(conditions: Vec<Condition>, actions: Vec<Action>) -> Self {
         Self {
-            conditions: Some(conditions),
-            actions: Some(actions),
-            ..Default::default()
+            name: None,
+            status: None,
+            conditions,
+            actions,
         }
-    }
-
-    /// Sets the name of the rule.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the status of the rule.
-    pub fn status(mut self, value: Status) -> Self {
-        self.status = Some(value);
-        self
     }
 }
 
 /// Struct for modifying a rule.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
+    /// Sets the name of the modifier.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the status of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<Status>,
+    pub status: Option<Status>,
+    /// Sets the conditions of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    conditions: Option<Vec<Condition>>,
+    pub conditions: Option<Vec<Condition>>,
+    /// Sets the actions of the rule.
     #[serde(skip_serializing_if = "Option::is_none")]
-    actions: Option<Vec<Action>>,
+    pub actions: Option<Vec<Action>>,
 }
 
 impl resource::Modifier for Modifier {}
 
 impl Modifier {
-    /// Sets the name of the rule.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the status of the rule.
-    pub fn status(mut self, value: Status) -> Self {
-        self.status = Some(value);
-        self
-    }
-
-    /// Sets the conditions of the rule.
-    pub fn conditions(mut self, value: Vec<Condition>) -> Self {
-        self.conditions = Some(value);
-        self
-    }
-
-    /// Sets the actions of the rule.
-    pub fn actions(mut self, value: Vec<Action>) -> Self {
-        self.actions = Some(value);
-        self
+    /// Returns a new [`Modifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

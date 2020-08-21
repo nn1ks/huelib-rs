@@ -1,4 +1,7 @@
+#![allow(clippy::needless_update)]
+
 use crate::{resource, util};
+use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
 /// A sensor.
@@ -71,52 +74,55 @@ pub struct Config {
 }
 
 /// Modifier for sensor attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
+    /// Sets the name of the sensor.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
 }
 
 impl resource::Modifier for AttributeModifier {}
 
 impl AttributeModifier {
-    /// Changes the name of the sensor.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
+    /// Creates a new [`AttributeModifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
 /// Modifier for the sensor state.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct StateModifier {
+    /// Sets the presence of the sensor.
     #[serde(skip_serializing_if = "Option::is_none")]
-    presence: Option<bool>,
+    pub presence: Option<bool>,
 }
 
 impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
-    /// Sets the presence of the sensor.
-    pub fn presence(mut self, value: bool) -> Self {
-        self.presence = Some(value);
-        self
+    /// Creates a new [`StateModifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
 /// Modifier for the sensor configuration.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct ConfigModifier {
+    /// Sets whether the sensor is on.
     #[serde(skip_serializing_if = "Option::is_none")]
-    on: Option<bool>,
+    pub on: Option<bool>,
 }
 
 impl resource::Modifier for ConfigModifier {}
 
 impl ConfigModifier {
-    /// Sets whether the sensor is on.
-    pub fn on(mut self, value: bool) -> Self {
-        self.on = Some(value);
-        self
+    /// Creates a new [`ConfigModifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

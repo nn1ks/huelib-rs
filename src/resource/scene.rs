@@ -1,5 +1,6 @@
-use crate::resource::{self, Effect};
-use crate::{util, Color};
+use crate::resource::{self, light};
+use crate::util;
+use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
@@ -85,181 +86,66 @@ pub enum Version {
 }
 
 /// Struct for creating a scene.
-#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Creator {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    lights: Option<Vec<String>>,
+    /// Sets the name of the scene.
+    #[setters(skip)]
+    pub name: String,
+    /// Sets the light identifiers of the scene.
+    #[setters(skip)]
+    pub lights: Vec<String>,
+    /// Sets the type of the scene.
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
-    kind: Option<Kind>,
+    pub kind: Option<Kind>,
+    /// Sets the app data of the scene.
     #[serde(skip_serializing_if = "Option::is_none")]
-    app_data: Option<AppData>,
+    pub app_data: Option<AppData>,
+    /// Sets the state of specific lights.
     #[serde(skip_serializing_if = "Option::is_none", rename = "lightstates")]
-    light_states: Option<HashMap<String, LightStateModifier>>,
+    pub light_states: Option<HashMap<String, light::StaticStateModifier>>,
 }
 
 impl resource::Creator for Creator {}
 
 impl Creator {
-    /// Creates a new scene creator.
-    pub fn new(name: impl Into<String>, lights: Vec<impl Into<String>>) -> Self {
+    /// Creates a new [`Creator`].
+    pub fn new(name: String, lights: Vec<String>) -> Self {
         Self {
-            name: Some(name.into()),
-            lights: Some(lights.into_iter().map(|v| v.into()).collect()),
-            ..Default::default()
+            name,
+            lights,
+            kind: None,
+            app_data: None,
+            light_states: None,
         }
-    }
-
-    /// Sets the type of the scene.
-    pub fn kind(mut self, value: Kind) -> Self {
-        self.kind = Some(value);
-        self
-    }
-
-    /// Sets the data of the app data.
-    pub fn app_data(mut self, value: impl Into<String>) -> Self {
-        self.app_data = Some(AppData {
-            data: Some(value.into()),
-            version: self.app_data.unwrap_or_default().version,
-        });
-        self
-    }
-
-    /// Sets the version of the app data.
-    pub fn app_version(mut self, value: i8) -> Self {
-        self.app_data = Some(AppData {
-            data: self.app_data.unwrap_or_default().data,
-            version: Some(value),
-        });
-        self
-    }
-
-    /// Sets the state of a light.
-    pub fn light_state(mut self, id: impl Into<String>, modifier: LightStateModifier) -> Self {
-        let mut light_states = self.light_states.unwrap_or_default();
-        light_states.insert(id.into(), modifier);
-        self.light_states = Some(light_states);
-        self
-    }
-}
-
-/// Struct for modifying the state of a light.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize)]
-pub struct LightStateModifier {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    on: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "bri")]
-    brightness: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    hue: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "sat")]
-    saturation: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "xy")]
-    color_space_coordinates: Option<(f32, f32)>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "ct")]
-    color_temperature: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    effect: Option<Effect>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "transitiontime")]
-    transition_time: Option<u16>,
-}
-
-impl resource::Modifier for LightStateModifier {}
-
-impl LightStateModifier {
-    /// Turns the lights on or off.
-    pub fn on(mut self, value: bool) -> Self {
-        self.on = Some(value);
-        self
-    }
-
-    /// Sets the brightness of the lights.
-    pub fn brightness(mut self, value: u8) -> Self {
-        self.brightness = Some(value);
-        self
-    }
-
-    /// Sets the hue of the lights.
-    pub fn hue(mut self, value: u16) -> Self {
-        self.hue = Some(value);
-        self
-    }
-
-    /// Sets the saturation of the lights.
-    pub fn saturation(mut self, value: u8) -> Self {
-        self.saturation = Some(value);
-        self
-    }
-
-    /// Sets the color (and brightness) of the lights.
-    pub fn color(mut self, value: Color) -> Self {
-        self.color_space_coordinates = Some(value.space_coordinates);
-        if let Some(v) = value.brightness {
-            self.brightness = Some(v);
-        }
-        self
-    }
-
-    /// Sets the colot temperature of the lights.
-    pub fn color_temperature(mut self, value: u16) -> Self {
-        self.color_temperature = Some(value);
-        self
-    }
-
-    /// Sets the effect of the lights.
-    pub fn effect(mut self, value: Effect) -> Self {
-        self.effect = Some(value);
-        self
-    }
-
-    /// Sets the transition time of the lights.
-    pub fn transition_time(mut self, value: u16) -> Self {
-        self.transition_time = Some(value);
-        self
     }
 }
 
 /// Struct for modifying a scene.
-#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
+    /// Sets the name of the scene.
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
+    /// Sets the indentifiers of the lights that are in this scene.
     #[serde(skip_serializing_if = "Option::is_none")]
-    lights: Option<Vec<String>>,
+    pub lights: Option<Vec<String>>,
+    /// Sets the state of specific lights.
+    ///
+    /// The keys of the HashMap are the light identifiers.
     #[serde(skip_serializing_if = "Option::is_none", rename = "lightstates")]
-    light_states: Option<HashMap<String, LightStateModifier>>,
+    pub light_states: Option<HashMap<String, light::StaticStateModifier>>,
+    /// Sets whether the state of the lights will be overwritten by the current state of the lights.
     #[serde(skip_serializing_if = "Option::is_none", rename = "storelightstate")]
-    store_light_state: Option<bool>,
+    pub store_light_state: Option<bool>,
 }
 
 impl resource::Modifier for Modifier {}
 
 impl Modifier {
-    /// Sets the name of the scene.
-    pub fn name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets the indentifiers of the lights that are in this scene.
-    pub fn lights(mut self, value: Vec<impl Into<String>>) -> Self {
-        self.lights = Some(value.into_iter().map(|v| v.into()).collect());
-        self
-    }
-
-    /// Sets the state of a light.
-    pub fn light_state(mut self, id: impl Into<String>, modifier: LightStateModifier) -> Self {
-        let mut light_states = self.light_states.unwrap_or_default();
-        light_states.insert(id.into(), modifier);
-        self.light_states = Some(light_states);
-        self
-    }
-
-    /// Sets whether the state of the lights will be overwritten by the current state of the
-    /// lights.
-    pub fn store_light_state(mut self, value: bool) -> Self {
-        self.store_light_state = Some(value);
-        self
+    /// Creates a new [`Modifier`].
+    pub fn new() -> Self {
+        Self::default()
     }
 }

@@ -45,7 +45,7 @@ pub use scene::Scene;
 pub use schedule::Schedule;
 pub use sensor::Sensor;
 
-use serde::{de, de::Error as DeError, Deserialize, Serialize};
+use serde::{de, de::Error as _, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, fmt};
 
@@ -207,32 +207,22 @@ pub struct ScanResource {
     pub name: String,
 }
 
-/// Type of a modifier.
+/// Enum for adjusting an attribute of a modifier or creator.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ModifierType {
-    /// Override the current value with the given value.
-    Override,
-    /// Add the given value to the current value.
-    Increment,
-    /// Subtract the given value to the current value.
-    Decrement,
+pub enum Adjuster<T> {
+    /// Overrides the current value.
+    Override(T),
+    /// Adds the value to the current value.
+    Increment(T),
+    /// Subtracts the value to the current value.
+    Decrement(T),
 }
 
 /// Trait for resources.
 pub trait Resource {}
 
 /// Trait for modifiers.
-pub trait Modifier: Default + PartialEq {
-    /// Creates a new modifier.
-    fn new() -> Self {
-        Default::default()
-    }
-
-    /// Whether the modifier will not modify anything.
-    fn is_empty(&self) -> bool {
-        self == &Default::default()
-    }
-}
+pub trait Modifier {}
 
 /// Trait for creators.
 pub trait Creator {}

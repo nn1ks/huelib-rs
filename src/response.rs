@@ -25,7 +25,7 @@ impl<T> Response<T> {
 }
 
 impl<T: fmt::Display> fmt::Display for Response<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Response::Success(v) => write!(f, "Success: {}", v),
             Response::Error(e) => write!(f, "Error: {}", e),
@@ -106,7 +106,7 @@ pub struct Modified {
 }
 
 impl fmt::Display for Modified {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Set '{}' to {}", self.address, self.value)
     }
 }
@@ -118,7 +118,7 @@ impl<'de> de::Deserialize<'de> for Modified {
         impl<'de> de::Visitor<'de> for ModifiedVisitor {
             type Value = Modified;
 
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("struct Modified")
             }
 

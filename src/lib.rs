@@ -65,7 +65,8 @@
 //! };
 //! ```
 
-#![deny(missing_docs, missing_debug_implementations, unreachable_pub, unsafe_code)]
+#![forbid(unsafe_code)]
+#![warn(rust_2018_idioms, missing_docs, missing_debug_implementations)]
 
 #[macro_use]
 mod util;

@@ -138,7 +138,7 @@ impl<'de> Deserialize<'de> for Scan {
         impl<'de> de::Visitor<'de> for ScanVisitor {
             type Value = Scan;
 
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("struct Scan")
             }
 

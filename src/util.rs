@@ -74,3 +74,56 @@ macro_rules! custom_serialize {
         })
     };
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+    use serde_json::json;
+
+    #[test]
+    fn deserialize_option_string() {
+        let json = json!("none");
+        let value = super::deserialize_option_string(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!(null);
+        let value = super::deserialize_option_string(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!("test");
+        let value = super::deserialize_option_string(json).unwrap();
+        assert_eq!(value, Some("test".to_owned()));
+    }
+
+    #[test]
+    fn deserialize_option_date_time() {
+        let json = json!("none");
+        let value = super::deserialize_option_date_time(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!(null);
+        let value = super::deserialize_option_date_time(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!("2020-01-01T01:30:00");
+        let value = super::deserialize_option_date_time(json).unwrap();
+        let date = NaiveDate::from_ymd(2020, 1, 1);
+        let time = NaiveTime::from_hms(1, 30, 0);
+        assert_eq!(value, Some(NaiveDateTime::new(date, time)));
+    }
+
+    #[test]
+    fn deserialize_option_time() {
+        let json = json!("none");
+        let value = super::deserialize_option_time(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!(null);
+        let value = super::deserialize_option_time(json).unwrap();
+        assert_eq!(value, None);
+
+        let json = json!("T02:00:20");
+        let value = super::deserialize_option_time(json).unwrap();
+        assert_eq!(value, Some(NaiveTime::from_hms(2, 0, 20)));
+    }
+}

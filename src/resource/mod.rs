@@ -45,6 +45,7 @@ pub use scene::Scene;
 pub use schedule::Schedule;
 pub use sensor::Sensor;
 
+use chrono::NaiveDateTime;
 use serde::{de, de::Error as _, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, fmt};
@@ -143,6 +144,10 @@ impl<'de> Deserialize<'de> for Scan {
             }
 
             fn visit_map<V: de::MapAccess<'de>>(self, mut map: V) -> Result<Scan, V::Error> {
+                #[derive(Deserialize)]
+                struct ResourceInfo {
+                    name: String,
+                };
                 let mut resources = Vec::new();
                 let mut last_scan = None;
                 while let Some(key) = map.next_key()? {
@@ -152,9 +157,10 @@ impl<'de> Deserialize<'de> for Scan {
                                 .map_err(V::Error::custom)?
                         }
                         Field::ResourceId(v) => {
+                            let info: ResourceInfo = map.next_value()?;
                             let resource = ScanResource {
                                 id: v,
-                                name: map.next_value()?,
+                                name: info.name,
                             };
                             resources.push(resource);
                         }
@@ -177,7 +183,7 @@ impl<'de> Deserialize<'de> for Scan {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LastScan {
     /// Date and time of the last scan.
-    DateTime(chrono::NaiveDateTime),
+    DateTime(NaiveDateTime),
     /// The bridge is currently scanning.
     Active,
     /// The bridge did not scan since it was powered on.
@@ -191,8 +197,7 @@ impl<'de> Deserialize<'de> for LastScan {
             "active" => LastScan::Active,
             "none" => LastScan::None,
             v => LastScan::DateTime(
-                chrono::NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S")
-                    .map_err(D::Error::custom)?,
+                NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S").map_err(D::Error::custom)?,
             ),
         })
     }

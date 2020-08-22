@@ -348,3 +348,106 @@ impl Serialize for StateModifier {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn serialize_attribute_modifier() {
+        let modifier = AttributeModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = AttributeModifier {
+            name: Some("test".into()),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({"name": "test"});
+        assert_eq!(modifier_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_static_state_modifier() {
+        let modifier = StaticStateModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = StaticStateModifier {
+            on: Some(true),
+            brightness: Some(1),
+            hue: Some(2),
+            saturation: Some(3),
+            color_space_coordinates: None,
+            color_temperature: Some(4),
+            effect: Some(Effect::Colorloop),
+            transition_time: Some(4),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "on": true,
+            "bri": 1,
+            "hue": 2,
+            "sat": 3,
+            "ct": 4,
+            "effect": "colorloop",
+            "transitiontime": 4,
+        });
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = StaticStateModifier::new()
+            .with_brightness(1)
+            .with_color(Color::from_rgb(0, 0, 0));
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "bri": 0,
+            "xy": [0.0, 0.0]
+        });
+        assert_eq!(modifier_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_state_modifier() {
+        let modifier = StateModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = StateModifier {
+            on: Some(true),
+            brightness: Some(Adjuster::Increment(1)),
+            hue: Some(Adjuster::Override(2)),
+            saturation: Some(Adjuster::Decrement(3)),
+            color_space_coordinates: None,
+            color_temperature: Some(Adjuster::Override(4)),
+            alert: Some(Alert::None),
+            effect: Some(Effect::Colorloop),
+            transition_time: Some(4),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "on": true,
+            "bri_inc": 1,
+            "hue": 2,
+            "sat_inc": -3,
+            "ct": 4,
+            "alert": "none",
+            "effect": "colorloop",
+            "transitiontime": 4,
+        });
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = StateModifier::new()
+            .with_brightness(Adjuster::Increment(1))
+            .with_color(Color::from_rgb(0, 0, 0));
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "bri": 0,
+            "xy": [0.0, 0.0]
+        });
+        assert_eq!(modifier_json, expected_json);
+    }
+}

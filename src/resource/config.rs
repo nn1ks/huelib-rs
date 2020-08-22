@@ -324,3 +324,49 @@ impl Modifier {
         Self::default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use std::net::Ipv4Addr;
+
+    #[test]
+    fn serialize_modifier() {
+        let modifier = Modifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = Modifier {
+            name: Some("test".into()),
+            ip_address: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2))),
+            netmask: Some("255.255.255.0".into()),
+            gateway: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))),
+            dhcp: Some(true),
+            proxy_port: Some(0),
+            proxy_address: Some("192.168.2.1".into()),
+            linkbutton: Some(false),
+            touchlink: Some(false),
+            zigbee_channel: Some(1),
+            current_time: Some("2020-01-01T00:00:00".into()),
+            timezone: Some("Europe/Berlin".into()),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "ipaddress": "192.168.1.2",
+            "netmask": "255.255.255.0",
+            "gateway": "192.168.1.1",
+            "dhcp": true,
+            "proxyport": 0,
+            "proxyaddress": "192.168.2.1",
+            "linkbutton": false,
+            "touchlink": false,
+            "zigbeechannel": 1,
+            "UTC": "2020-01-01T00:00:00",
+            "timezone": "Europe/Berlin"
+        });
+        assert_eq!(modifier_json, expected_json);
+    }
+}

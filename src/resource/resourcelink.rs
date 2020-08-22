@@ -132,7 +132,7 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<String>,
     /// Sets the kind of the resourcelink.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<Kind>,
     /// Sets the class id of the resourcelink.
     #[serde(rename = "classid")]
@@ -174,7 +174,7 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// Sets the class id of the resourcelink.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<Kind>,
     /// Sets the kind of the resourcelink.
     #[serde(skip_serializing_if = "Option::is_none", rename = "classid")]
@@ -190,5 +190,89 @@ impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn serialize_creator() {
+        let links = vec![
+            Link {
+                kind: LinkKind::Sensor,
+                id: "1".into(),
+            },
+            Link {
+                kind: LinkKind::Schedule,
+                id: "2".into(),
+            },
+        ];
+
+        let creator = Creator::new("test".into(), 1, links.clone());
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "classid": 1,
+            "links": ["/sensors/1", "/schedules/2"],
+        });
+        assert_eq!(creator_json, expected_json);
+
+        let creator = Creator {
+            name: "test".into(),
+            description: Some("description test".into()),
+            owner: Some("owner test".into()),
+            kind: Some(Kind::Link),
+            class_id: 1,
+            recycle: Some(true),
+            links,
+        };
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "description": "description test",
+            "owner": "owner test",
+            "type": "Link",
+            "classid": 1,
+            "recycle": true,
+            "links": ["/sensors/1", "/schedules/2"]
+        });
+        assert_eq!(creator_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_modifier() {
+        let modifier = Modifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = Modifier {
+            name: Some("test".into()),
+            description: Some("description test".into()),
+            kind: Some(Kind::Link),
+            class_id: Some(1),
+            links: Some(vec![
+                Link {
+                    kind: LinkKind::Group,
+                    id: "1".into(),
+                },
+                Link {
+                    kind: LinkKind::Scene,
+                    id: "2".into(),
+                },
+            ]),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "description": "description test",
+            "type": "Link",
+            "classid": 1,
+            "links": ["/groups/1", "/scenes/2"]
+        });
+        assert_eq!(modifier_json, expected_json);
     }
 }

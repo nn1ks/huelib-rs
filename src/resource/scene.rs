@@ -99,7 +99,7 @@ pub struct Creator {
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     pub kind: Option<Kind>,
     /// Sets the app data of the scene.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "appdata")]
     pub app_data: Option<AppData>,
     /// Sets the state of specific lights.
     #[serde(skip_serializing_if = "Option::is_none", rename = "lightstates")]
@@ -147,5 +147,68 @@ impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn serialize_creator() {
+        let creator = Creator::new("test".into(), vec!["1".into()]);
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "lights": ["1"]
+        });
+        assert_eq!(creator_json, expected_json);
+
+        let creator = Creator {
+            name: "test".into(),
+            lights: vec!["1".into()],
+            kind: Some(Kind::GroupScene),
+            app_data: Some(AppData {
+                version: Some(2),
+                data: Some("data test".into()),
+            }),
+            light_states: Some(HashMap::new()),
+        };
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "lights": ["1"],
+            "type": "GroupScene",
+            "appdata": {
+                "version": 2,
+                "data": "data test"
+            },
+            "lightstates": {}
+        });
+        assert_eq!(creator_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_modifier() {
+        let modifier = Modifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = Modifier {
+            name: Some("test".into()),
+            lights: Some(vec!["1".into(), "2".into()]),
+            light_states: Some(HashMap::new()),
+            store_light_state: Some(true),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "lights": ["1", "2"],
+            "lightstates": {},
+            "storelightstate": true
+        });
+        assert_eq!(modifier_json, expected_json);
     }
 }

@@ -231,3 +231,51 @@ pub trait Modifier {}
 
 /// Marker trait for creators.
 pub trait Creator {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{NaiveDate, NaiveTime};
+    use serde_json::json;
+
+    #[test]
+    fn deserialize_last_scan() {
+        let json = json!("none");
+        let value: LastScan = serde_json::from_value(json).unwrap();
+        assert_eq!(value, LastScan::None);
+
+        let json = json!("active");
+        let value: LastScan = serde_json::from_value(json).unwrap();
+        assert_eq!(value, LastScan::Active);
+
+        let json = json!("2020-01-01T00:10:00");
+        let value: LastScan = serde_json::from_value(json).unwrap();
+        let date = NaiveDate::from_ymd(2020, 01, 01);
+        let time = NaiveTime::from_hms(0, 10, 0);
+        assert_eq!(value, LastScan::DateTime(NaiveDateTime::new(date, time)))
+    }
+
+    #[test]
+    fn deserialize_scan() {
+        let json = json!({
+            "lastscan": "active",
+            "1": {"name": "light one"},
+            "2": {"name": "light two"}
+        });
+        let value: Scan = serde_json::from_value(json).unwrap();
+        let scan = Scan {
+            last_scan: LastScan::Active,
+            resources: vec![
+                ScanResource {
+                    id: "1".to_owned(),
+                    name: "light one".to_owned(),
+                },
+                ScanResource {
+                    id: "2".to_owned(),
+                    name: "light two".to_owned(),
+                },
+            ],
+        };
+        assert_eq!(value, scan);
+    }
+}

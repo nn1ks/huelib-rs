@@ -1,5 +1,6 @@
 use crate::resource::{self, Action};
 use crate::util;
+use chrono::NaiveDateTime;
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
@@ -19,12 +20,12 @@ pub struct Rule {
         rename = "lasttriggered",
         deserialize_with = "util::deserialize_option_date_time"
     )]
-    pub last_triggered: Option<chrono::NaiveDateTime>,
+    pub last_triggered: Option<NaiveDateTime>,
     /// How often the rule was triggered.
     #[serde(rename = "timestriggered")]
     pub times_triggered: usize,
     /// When the rule was created.
-    pub created: chrono::NaiveDateTime,
+    pub created: NaiveDateTime,
     /// Status of the rule.
     pub status: Status,
     /// Conditions of the rule.
@@ -66,6 +67,7 @@ pub struct Condition {
     /// The resource attribute is compared to this value using the given operator. The value is
     /// casted to the data type of the resource attribute. If the cast fails or the operator does
     /// not support the data type the value is casted to the rule is rejected.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
 }
 /// Condition operator of a rule.
@@ -156,5 +158,94 @@ impl Modifier {
     /// Returns a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use std::collections::HashMap;
+
+    #[test]
+    fn serialize_creator() {
+        let conditions = vec![Condition {
+            address: "/sensors/2/state/lastupdated".into(),
+            operator: ConditionOperator::Dx,
+            value: None,
+        }];
+        let actions = vec![Action {
+            address: "/lights/1/state".into(),
+            request_type: resource::ActionRequestType::Post,
+            body: HashMap::new(),
+        }];
+
+        let creator = Creator::new(conditions.clone(), actions.clone());
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "conditions": [
+                {
+                    "address": "/sensors/2/state/lastupdated",
+                    "operator": "dx"
+                }
+            ],
+            "actions": [
+                {
+                    "address": "/lights/1/state",
+                    "method": "POST",
+                    "body": {}
+                }
+            ],
+        });
+        assert_eq!(creator_json, expected_json);
+
+        let creator = Creator {
+            name: Some("test".into()),
+            status: Some(Status::Enabled),
+            conditions,
+            actions,
+        };
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "status": "enabled",
+            "conditions": [
+                {
+                    "address": "/sensors/2/state/lastupdated",
+                    "operator": "dx"
+                }
+            ],
+            "actions": [
+                {
+                    "address": "/lights/1/state",
+                    "method": "POST",
+                    "body": {}
+                }
+            ],
+        });
+        assert_eq!(creator_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_modifier() {
+        let modifier = Modifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = Modifier {
+            name: Some("test".into()),
+            status: Some(Status::Disabled),
+            conditions: Some(vec![]),
+            actions: Some(vec![]),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "status": "disabled",
+            "conditions": [],
+            "actions": []
+        });
+        assert_eq!(modifier_json, expected_json);
     }
 }

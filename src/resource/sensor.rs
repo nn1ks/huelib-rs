@@ -126,3 +126,52 @@ impl ConfigModifier {
         Self::default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn serialize_attribute_modifier() {
+        let modifier = AttributeModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = AttributeModifier {
+            name: Some("test".into()),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({"name": "test"});
+        assert_eq!(modifier_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_state_modifier() {
+        let modifier = StateModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = StateModifier {
+            presence: Some(true),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({"presence": true});
+        assert_eq!(modifier_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_config_modifier() {
+        let modifier = ConfigModifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let modifier = ConfigModifier { on: Some(true) };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({"on": true});
+        assert_eq!(modifier_json, expected_json);
+    }
+}

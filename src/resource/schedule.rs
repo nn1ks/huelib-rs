@@ -59,15 +59,17 @@ pub struct Creator {
     pub description: Option<String>,
     /// Sets the action of the schedule.
     #[setters(skip)]
+    #[serde(rename = "command")]
     pub action: Action,
     /// Sets the local time of the schedule.
+    #[serde(rename = "localtime")]
     #[setters(skip)]
     pub local_time: String,
     /// Sets the status of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<Status>,
     /// Sets whether the schedule will be removed after it expires.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "autodelete")]
     pub auto_delete: Option<bool>,
     /// Sets whether resource is automatically deleted when not referenced anymore.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -102,10 +104,10 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// Sets the action of the schedule.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "command")]
     pub action: Option<Action>,
     /// Sets the local time of the schedule.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "localtime")]
     pub local_time: Option<String>,
     /// Sets the status of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -121,5 +123,103 @@ impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use std::collections::HashMap;
+
+    #[test]
+    fn serialize_creator() {
+        let mut action_body = HashMap::new();
+        action_body.insert("scene".to_owned(), json!("02b12e930-off-0"));
+        let action = Action {
+            address: "/api/user/groups/0/action".into(),
+            request_type: resource::ActionRequestType::Put,
+            body: action_body,
+        };
+
+        let creator = Creator::new(action.clone(), "2020-01-01T00:00:00".into());
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "command": {
+                "address": "/api/user/groups/0/action",
+                "method": "PUT",
+                "body": {
+                    "scene": "02b12e930-off-0"
+                }
+            },
+            "localtime": "2020-01-01T00:00:00"
+        });
+        assert_eq!(creator_json, expected_json);
+
+        let creator = Creator {
+            name: Some("test".into()),
+            description: Some("description test".into()),
+            action,
+            local_time: "2020-01-01T00:00:00".into(),
+            status: Some(Status::Enabled),
+            auto_delete: Some(false),
+            recycle: Some(true),
+        };
+        let creator_json = serde_json::to_value(creator).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "description": "description test",
+            "command": {
+                "address": "/api/user/groups/0/action",
+                "method": "PUT",
+                "body": {
+                    "scene": "02b12e930-off-0"
+                }
+            },
+            "localtime": "2020-01-01T00:00:00",
+            "status": "enabled",
+            "autodelete": false,
+            "recycle": true
+        });
+        assert_eq!(creator_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_modifier() {
+        let modifier = Modifier::new();
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({});
+        assert_eq!(modifier_json, expected_json);
+
+        let mut action_body = HashMap::new();
+        action_body.insert("scene".to_owned(), json!("02b12e930-off-0"));
+        let modifier = Modifier {
+            name: Some("test".into()),
+            description: Some("description test".into()),
+            action: Some(Action {
+                address: "/api/user/groups/0/action".into(),
+                request_type: resource::ActionRequestType::Put,
+                body: action_body,
+            }),
+            local_time: Some("2020-01-01T00:00:00".into()),
+            status: Some(Status::Disabled),
+            auto_delete: Some(true),
+        };
+        let modifier_json = serde_json::to_value(modifier).unwrap();
+        let expected_json = json!({
+            "name": "test",
+            "description": "description test",
+            "command": {
+                "address": "/api/user/groups/0/action",
+                "method": "PUT",
+                "body": {
+                    "scene": "02b12e930-off-0"
+                }
+            },
+            "localtime": "2020-01-01T00:00:00",
+            "status": "disabled",
+            "autodelete": true
+        });
+        assert_eq!(modifier_json, expected_json);
     }
 }

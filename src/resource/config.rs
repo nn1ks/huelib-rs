@@ -1,8 +1,9 @@
 use crate::{resource, util};
+use chrono::{NaiveDateTime, NaiveTime};
 use derive_setters::Setters;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_repr::Deserialize_repr;
-use std::net::IpAddr;
+use std::{collections::HashMap, net::IpAddr};
 
 /// Configuration for a bridge.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -47,13 +48,13 @@ pub struct Config {
     pub internet_services: InternetServices,
     /// Current time stored on the bridge.
     #[serde(rename = "UTC")]
-    pub current_time: chrono::NaiveDateTime,
+    pub current_time: NaiveDateTime,
     /// Local time of the bridge.
     #[serde(
         rename = "localtime",
         deserialize_with = "util::deserialize_option_date_time"
     )]
-    pub local_time: Option<chrono::NaiveDateTime>,
+    pub local_time: Option<NaiveDateTime>,
     /// Timezone of the bridge as OlsenIDs.
     #[serde(deserialize_with = "util::deserialize_option_string")]
     pub timezone: Option<String>,
@@ -94,7 +95,7 @@ impl resource::Resource for Config {}
 fn deserialize_whitelist<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Vec<User>, D::Error> {
-    let map: std::collections::HashMap<String, User> = Deserialize::deserialize(deserializer)?;
+    let map: HashMap<String, User> = Deserialize::deserialize(deserializer)?;
     let mut users = Vec::new();
     for (id, user) in map {
         users.push(user.with_id(&id));
@@ -115,10 +116,10 @@ pub struct SoftwareUpdate {
     pub auto_install: SoftwareUpdateAutoInstall,
     /// Time of last change in system configuration.
     #[serde(rename = "lastchange")]
-    pub last_change: Option<chrono::NaiveDateTime>,
+    pub last_change: Option<NaiveDateTime>,
     /// Time of last software update.
     #[serde(rename = "lastinstall")]
-    pub last_install: Option<chrono::NaiveDateTime>,
+    pub last_install: Option<NaiveDateTime>,
 }
 
 /// State of software updates.
@@ -149,7 +150,7 @@ pub struct SoftwareUpdateAutoInstall {
         rename = "updatetime",
         deserialize_with = "util::deserialize_option_time"
     )]
-    pub update_time: Option<chrono::NaiveTime>,
+    pub update_time: Option<NaiveTime>,
 }
 
 /// Portal state of the bridge.
@@ -251,10 +252,10 @@ pub struct User {
     pub name: String,
     /// Date of the last use of the user.
     #[serde(rename = "last use date")]
-    pub last_use_date: chrono::NaiveDateTime,
+    pub last_use_date: NaiveDateTime,
     /// Date when the user was created.
     #[serde(rename = "create date")]
-    pub create_date: chrono::NaiveDateTime,
+    pub create_date: NaiveDateTime,
 }
 
 impl User {

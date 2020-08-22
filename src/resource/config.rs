@@ -28,7 +28,7 @@ pub struct Config {
     #[serde(rename = "mac")]
     pub mac_address: String,
     /// Network mask of the bridge.
-    pub netmask: String,
+    pub netmask: IpAddr,
     /// Gateway IP address of the bridge.
     pub gateway: IpAddr,
     /// Whether the IP address of the bridge is obtained with DHCP.
@@ -276,7 +276,7 @@ pub struct Modifier {
     pub ip_address: Option<IpAddr>,
     /// Sets the network mask of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub netmask: Option<String>,
+    pub netmask: Option<IpAddr>,
     /// Sets the gateway IP address of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gateway: Option<IpAddr>,
@@ -341,7 +341,7 @@ mod tests {
         let modifier = Modifier {
             name: Some("test".into()),
             ip_address: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2))),
-            netmask: Some("255.255.255.0".into()),
+            netmask: Some(IpAddr::V4(Ipv4Addr::new(255, 255, 255, 0))),
             gateway: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))),
             dhcp: Some(true),
             proxy_port: Some(0),

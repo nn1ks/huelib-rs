@@ -101,6 +101,11 @@ pub struct SoftwareUpdate {
 }
 
 /// State of a software update.
+///
+/// See [this issue] for the reason why this enum is marked as `non_exhaustive`.
+///
+/// [this issue]: https://github.com/yuqio/huelib-rs/issues/1
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
@@ -112,7 +117,7 @@ pub enum SoftwareUpdateState {
     Transferring,
     /// Device is ready to install new updates.
     ReadyToInstall,
-    // TODO: Add missing variants for states (https://github.com/yuqio/huelib-rs/issues/1)
+    // FIXME: Add missing variants for states (https://github.com/yuqio/huelib-rs/issues/1)
 }
 
 /// Configuration of a light.

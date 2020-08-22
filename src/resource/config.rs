@@ -292,7 +292,7 @@ pub struct Modifier {
     ///
     /// If set to `None` then a proxy is not being used.
     #[serde(skip_serializing_if = "Option::is_none", rename = "proxyaddress")]
-    pub proxy_address: Option<String>,
+    pub proxy_address: Option<IpAddr>,
     /// Indicates whether the link button has been pressed within the last 30 seconds.
     ///
     /// Writing is only allowed for portal access via cloud application_key.
@@ -345,7 +345,7 @@ mod tests {
             gateway: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))),
             dhcp: Some(true),
             proxy_port: Some(0),
-            proxy_address: Some("192.168.2.1".into()),
+            proxy_address: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 2, 1))),
             linkbutton: Some(false),
             touchlink: Some(false),
             zigbee_channel: Some(1),

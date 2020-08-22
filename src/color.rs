@@ -102,3 +102,76 @@ pub enum ParseHexError {
     #[error("Failed to parse a int value")]
     ParseInt(#[from] ParseIntError),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn space_coordinates() {
+        let color = Color::from_space_coordinates(0.1, 0.2);
+        assert_eq!(color.space_coordinates, (0.1, 0.2));
+        assert_eq!(color.brightness, None);
+    }
+
+    #[test]
+    fn rgb_white() {
+        let color = Color::from_rgb(255, 255, 255);
+        assert_eq!(color.brightness, Some(255));
+    }
+
+    #[test]
+    fn rgb_black() {
+        let color = Color::from_rgb(0, 0, 0);
+        assert_eq!(color.brightness, Some(0));
+    }
+
+    #[test]
+    fn hex_white() {
+        let color = Color::from_hex("#FFFFFF").unwrap();
+        assert_eq!(color.brightness, Some(255));
+        let color = Color::from_hex("#ffffff").unwrap();
+        assert_eq!(color.brightness, Some(255));
+        let color = Color::from_hex("#FFF").unwrap();
+        assert_eq!(color.brightness, Some(255));
+        let color = Color::from_hex("#fff").unwrap();
+        assert_eq!(color.brightness, Some(255));
+    }
+
+    #[test]
+    fn hex_black() {
+        let color = Color::from_hex("#000000").unwrap();
+        assert_eq!(color.brightness, Some(0));
+        let color = Color::from_hex("#000").unwrap();
+        assert_eq!(color.brightness, Some(0));
+    }
+
+    #[test]
+    fn hex_short() {
+        let color = Color::from_hex("#FFF").unwrap();
+        assert_eq!(color, Color::from_hex("#FFFFFF").unwrap());
+        let color = Color::from_hex("#f00").unwrap();
+        assert_eq!(color, Color::from_hex("#FF0000").unwrap());
+        let color = Color::from_hex("#123").unwrap();
+        assert_eq!(color, Color::from_hex("#112233").unwrap());
+    }
+
+    #[test]
+    fn rgb_and_hex() {
+        let color1 = Color::from_hex("#fff").unwrap();
+        let color2 = Color::from_rgb(255, 255, 255);
+        assert_eq!(color1, color2);
+        let color1 = Color::from_hex("#000").unwrap();
+        let color2 = Color::from_rgb(0, 0, 0);
+        assert_eq!(color1, color2);
+        let color1 = Color::from_hex("#0F0").unwrap();
+        let color2 = Color::from_rgb(0, 255, 0);
+        assert_eq!(color1, color2);
+        let color1 = Color::from_hex("#100").unwrap();
+        let color2 = Color::from_rgb(17, 0, 0);
+        assert_eq!(color1, color2);
+        let color1 = Color::from_hex("#02F").unwrap();
+        let color2 = Color::from_rgb(0, 34, 255);
+        assert_eq!(color1, color2);
+    }
+}

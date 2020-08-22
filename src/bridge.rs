@@ -135,12 +135,12 @@ impl Bridge {
     /// # Examples
     ///
     /// Create a bridge with an already registered user:
-    /// ```no_run
+    /// ```
     /// use huelib::Bridge;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
-    /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-    /// let bridge = Bridge::new(bridge_ip, "example-username");
+    /// let ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
+    /// let bridge = Bridge::new(ip, "username example");
     /// ```
     pub fn new(ip_address: IpAddr, username: impl Into<String>) -> Self {
         let username = username.into();

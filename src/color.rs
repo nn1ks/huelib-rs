@@ -14,6 +14,16 @@ impl Color {
     /// Creates a new color from space coordinates.
     ///
     /// This only changes the color of a light and not the brightness.
+    ///
+    /// # Examples
+    ///
+    /// Generate a color and use it in a modifier:
+    /// ```
+    /// use huelib::{Color, resource::light};
+    ///
+    /// let color = Color::from_space_coordinates(0.1, 0.2);
+    /// let modifier = light::StateModifier::new().with_color(color);
+    /// ```
     pub fn from_space_coordinates(x: f32, y: f32) -> Self {
         Self {
             space_coordinates: (x, y),
@@ -24,6 +34,16 @@ impl Color {
     /// Creates a new color from rgb values.
     ///
     /// This changes the color and brightness of a light.
+    ///
+    /// # Examples
+    ///
+    /// Generate a color and use it in a modifier:
+    /// ```
+    /// use huelib::{Color, resource::light};
+    ///
+    /// let color = Color::from_rgb(255, 0, 0);
+    /// let modifier = light::StateModifier::new().with_color(color);
+    /// ```
     pub fn from_rgb(red: u8, green: u8, blue: u8) -> Self {
         // NOTE: More information: https://gist.github.com/popcorn245/30afa0f98eea1c2fd34d
         let gamma_correct = |v: f32| {
@@ -50,24 +70,29 @@ impl Color {
 
     /// Creates a new color from a hex value.
     ///
-    /// This changes the color and brightness of a light.
+    /// The string must begin with a `#` followed by either 3 or 6 hexadecimal digits.
     ///
-    /// The string must begin with a `#` followed by 3 or 6 hex values.
+    /// This changes the color and brightness of a light.
     ///
     /// # Examples
     ///
-    /// Generate a red color.
+    /// Generate a color and use it in a modifier:
     /// ```
-    /// # use huelib::Color;
-    /// let red = Color::from_hex("#FF0000").unwrap();
-    /// assert_eq!(red, Color::from_rgb(255, 0, 0));
+    /// use huelib::{Color, resource::light};
+    ///
+    /// # fn main() -> Result<(), huelib::color::ParseHexError> {
+    /// let red = Color::from_hex("#FF0000")?;
+    /// let modifier = light::StateModifier::new().with_color(red);
+    /// # Ok(())
+    /// # }
     /// ```
     ///
-    /// Use shorter version with 3 hex values to generate a color.
+    /// Generate a color using the short version:
     /// ```
-    /// # use huelib::Color;
-    /// let color = Color::from_hex("#F40").unwrap();
-    /// assert_eq!(color, Color::from_hex("#ff4400").unwrap())
+    /// # fn main() -> Result<(), huelib::color::ParseHexError> {
+    /// let color = huelib::Color::from_hex("#02B")?;
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn from_hex(s: impl AsRef<str>) -> Result<Self, ParseHexError> {
         let s = s.as_ref();

@@ -15,7 +15,7 @@ pub enum Response<T> {
 }
 
 impl<T> Response<T> {
-    /// Converts the response into an error.
+    /// Converts the response into a result.
     pub fn into_result(self) -> Result<T, Error> {
         match self {
             Self::Success(v) => Ok(v),
@@ -137,5 +137,54 @@ impl<'de> de::Deserialize<'de> for Modified {
 
         const FIELDS: &[&str] = &["address", "value"];
         deserializer.deserialize_struct("Modified", FIELDS, ModifiedVisitor)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::{json, Number as JsonNumber};
+
+    #[test]
+    fn deserialize_response_success() {
+        let json = json!({"success": "test"});
+        let response: Response<String> = serde_json::from_value(json).unwrap();
+        assert_eq!(response, Response::Success("test".to_owned()));
+        let json = json!({"success": 0});
+        let response: Response<i32> = serde_json::from_value(json).unwrap();
+        assert_eq!(response, Response::Success(0));
+    }
+
+    #[test]
+    fn deserialize_response_error() {
+        let json = json!({
+            "error": {
+                "type": 1,
+                "address": "/address/123",
+                "description": "description test",
+            }
+        });
+        let response: Response<String> = serde_json::from_value(json).unwrap();
+        let error = Error {
+            kind: ErrorKind::UnauthorizedUser,
+            address: "/address/123".to_owned(),
+            description: "description test".to_owned(),
+        };
+        assert_eq!(response, Response::Error(error));
+    }
+
+    #[test]
+    fn deserialize_response_modifier() {
+        let json = json!({
+            "success": {
+                "/light/1": 0.1,
+            }
+        });
+        let response: Response<Modified> = serde_json::from_value(json).unwrap();
+        let modified = Modified {
+            address: "/light/1".to_owned(),
+            value: JsonValue::Number(JsonNumber::from_f64(0.1).unwrap()),
+        };
+        assert_eq!(response, Response::Success(modified));
     }
 }

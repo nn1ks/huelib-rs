@@ -223,11 +223,11 @@ pub enum Adjuster<T> {
     Decrement(T),
 }
 
-/// Trait for resources.
+/// Marker trait for resources.
 pub trait Resource {}
 
-/// Trait for modifiers.
+/// Marker trait for modifiers.
 pub trait Modifier {}
 
-/// Trait for creators.
+/// Marker trait for creators.
 pub trait Creator {}

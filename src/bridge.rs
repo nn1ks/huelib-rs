@@ -140,12 +140,11 @@ impl Bridge {
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
     /// let ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-    /// let bridge = Bridge::new(ip, "username example");
+    /// let bridge = Bridge::new(ip, "username".into());
     /// ```
-    pub fn new(ip_address: IpAddr, username: impl Into<String>) -> Self {
-        let username = username.into();
+    pub fn new(ip_address: IpAddr, username: String) -> Self {
         Bridge {
-            api_url: format!("http://{}/api/{}", ip_address, &username),
+            api_url: format!("http://{}/api/{}", ip_address, username),
             username,
             ip_address,
         }

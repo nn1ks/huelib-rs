@@ -21,7 +21,7 @@
 //! use std::net::{IpAddr, Ipv4Addr};
 //!
 //! // Create a bridge with IP address and username.
-//! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username");
+//! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username".into());
 //!
 //! // Create a state modifier that increments the brightness by 40 and sets the saturation to 200.
 //! let modifier = light::StateModifier::new()

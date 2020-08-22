@@ -1,34 +1,35 @@
+use chrono::{NaiveDateTime, NaiveTime};
 use serde::de::{Deserialize, Deserializer, Error};
 
 pub(crate) fn deserialize_option_string<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<String>, D::Error> {
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(value),
+    let value: Option<String> = Deserialize::deserialize(deserializer)?;
+    Ok(match value.as_deref() {
+        Some("none") | None => None,
+        Some(_) => value,
     })
 }
 
 pub(crate) fn deserialize_option_date_time<'de, D: Deserializer<'de>>(
     deserializer: D,
-) -> Result<Option<chrono::NaiveDateTime>, D::Error> {
-    use std::str::FromStr;
-    let value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.as_ref() {
-        "none" => None,
-        _ => Some(chrono::NaiveDateTime::from_str(&value).map_err(D::Error::custom)?),
+) -> Result<Option<NaiveDateTime>, D::Error> {
+    let value: Option<String> = Deserialize::deserialize(deserializer)?;
+    Ok(match value.as_deref() {
+        Some("none") | None => None,
+        Some(v) => {
+            Some(NaiveDateTime::parse_from_str(v, "%Y-%m-%dT%H:%M:%S").map_err(D::Error::custom)?)
+        }
     })
 }
 
 pub(crate) fn deserialize_option_time<'de, D: Deserializer<'de>>(
     deserializer: D,
-) -> Result<Option<chrono::NaiveTime>, D::Error> {
-    use std::str::FromStr;
-    let mut value: String = Deserialize::deserialize(deserializer)?;
-    Ok(match value.remove(0) {
-        'T' => Some(chrono::NaiveTime::from_str(&value).map_err(D::Error::custom)?),
-        _ => None,
+) -> Result<Option<NaiveTime>, D::Error> {
+    let value: Option<String> = Deserialize::deserialize(deserializer)?;
+    Ok(match value.as_deref() {
+        Some("none") | None => None,
+        Some(v) => Some(NaiveTime::parse_from_str(v, "T%H:%M:%S").map_err(D::Error::custom)?),
     })
 }
 

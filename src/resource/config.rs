@@ -311,7 +311,7 @@ pub struct Modifier {
     pub zigbee_channel: Option<u8>,
     /// Sets the current time of the bridge in UTC.
     #[serde(skip_serializing_if = "Option::is_none", rename = "UTC")]
-    pub current_time: Option<String>,
+    pub current_time: Option<NaiveDateTime>,
     /// Sets the timezone of the bridge.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timezone: Option<String>,
@@ -329,6 +329,7 @@ impl Modifier {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::NaiveDate;
     use serde_json::json;
     use std::net::Ipv4Addr;
 
@@ -350,7 +351,10 @@ mod tests {
             linkbutton: Some(false),
             touchlink: Some(false),
             zigbee_channel: Some(1),
-            current_time: Some("2020-01-01T00:00:00".into()),
+            current_time: Some(NaiveDateTime::new(
+                NaiveDate::from_ymd(2020, 1, 1),
+                NaiveTime::from_hms(0, 0, 0),
+            )),
             timezone: Some("Europe/Berlin".into()),
         };
         let modifier_json = serde_json::to_value(modifier).unwrap();

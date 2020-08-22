@@ -8,33 +8,31 @@ type ResponseModified = Response<response::Modified>;
 
 /// Discovers bridges in the local netowork.
 ///
-/// This will send a HTTP GET request to [https://discovery.meethue.com], to get IP addresses
-/// of bridges that are in the local network.
+/// This sends a HTTP GET request to [https://discovery.meethue.com], to get IP addresses of bridges
+/// that are in the local network.
 ///
 /// [https://discovery.meethue.com]: https://discovery.meethue.com
 ///
 /// # Examples
 ///
-/// Save the ip addresses of the discovered bridges into a variable.
+/// Get the IP addresses of all discovered bridges:
 /// ```no_run
-/// let ip_addresses = huelib::bridge::discover().unwrap();
+/// # fn main() -> Result<(), huelib::Error> {
+/// let ip_addresses = huelib::bridge::discover()?;
+/// # Ok(())
+/// # }
 /// ```
 ///
-/// Print the ip addresses of the discovered bridges and handle errors.
+/// Register a user on the bridge that was first discovered:
 /// ```no_run
-/// use huelib::{bridge, Error};
+/// use huelib::bridge;
 ///
-/// match bridge::discover() {
-///     Ok(v) => {
-///         for ip_address in v {
-///             println!("{}", ip_address);
-///         }
-///     },
-///     Err(Error::ParseHttpResponse(_)) => eprintln!("Failed to parse http response"),
-///     Err(Error::ParseJson(_)) => eprintln!("Failed to parse json content"),
-///     Err(Error::ParseIpAddr(_)) => eprintln!("Failed to parse ip address"),
-///     Err(_) => unreachable!()
-/// };
+/// # fn main() -> Result<(), huelib::Error> {
+/// let ip = bridge::discover()?.pop().expect("found no bridges");
+/// let user = bridge::register_user(ip, "huelib-rs example", false)?;
+/// println!("Registered user: {}", user.name);
+/// # Ok(())
+/// # }
 /// ```
 pub fn discover() -> Result<Vec<IpAddr>> {
     let http_response = ureq::get("https://discovery.meethue.com").call();
@@ -63,39 +61,24 @@ pub struct User {
 
 /// Registers a new user on a bridge.
 ///
-/// This will send a HTTP POST request with `devicetype` and `generate_clientkey` as body to the
-/// bridge with the specified IP address. The value of `devicetype` usally contains the app and
-/// device name. If `generate_clientkey` is set to true the returned user will contain a random
+/// This sends a HTTP POST request with `devicetype` and `generate_clientkey` as body to the bridge
+/// with the specified IP address. The value of `devicetype` usally contains the app and device
+/// name. If `generate_clientkey` is set to true the returned user will contain a random
 /// generated 16 byte clientkey encoded as ASCII string of length 32.
 ///
 /// # Examples
 ///
-/// Print the response that contains the name of the registered user.
+/// Register a user and print the username:
 /// ```no_run
 /// use huelib::bridge;
 /// use std::net::{IpAddr, Ipv4Addr};
 ///
+/// # fn main() -> Result<(), huelib::Error> {
 /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// match bridge::register_user(bridge_ip, "huelib-rs example", false) {
-///     Ok(v) => println!("Registered user with username: {}", v.name),
-///     Err(e) => eprintln!("{}", e),
-/// };
-/// ```
-///
-/// Print the name of the registered user and handle errors.
-/// ```no_run
-/// use huelib::{bridge, Error};
-/// use std::net::{IpAddr, Ipv4Addr};
-///
-/// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// match bridge::register_user(bridge_ip, "huelib-rs example", true) {
-///     Ok(v) => println!("Registered user: {:?}", v),
-///     Err(Error::ParseHttpResponse(_)) => eprintln!("Failed to parse http response"),
-///     Err(Error::ParseJson(_)) => eprintln!("Failed to parse json content"),
-///     Err(Error::Response(e)) => eprintln!("Error from the Philips Hue API: {}", e),
-///     Err(Error::GetUsername) => eprintln!("Failed to get the username"),
-///     Err(_) => unreachable!()
-/// };
+/// let user = bridge::register_user(bridge_ip, "huelib-rs example", false)?;
+/// println!("Registered user with username: {}", user.name);
+/// # Ok(())
+/// # }
 /// ```
 pub fn register_user(
     ip_address: IpAddr,
@@ -151,7 +134,7 @@ impl Bridge {
     ///
     /// # Examples
     ///
-    /// Create a bridge with an already registered user.
+    /// Create a bridge with an already registered user:
     /// ```no_run
     /// use huelib::Bridge;
     /// use std::net::{IpAddr, Ipv4Addr};

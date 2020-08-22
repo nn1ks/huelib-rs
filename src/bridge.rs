@@ -122,9 +122,9 @@ fn parse_response<T: DeserializeOwned>(response: JsonValue) -> Result<T> {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Bridge {
     /// Name of the user that is connected to the bridge.
-    pub username: String,
+    username: String,
     /// IP address of the bridge.
-    pub ip_address: IpAddr,
+    ip_address: IpAddr,
     /// Url to the Philips Hue API.
     api_url: String,
 }
@@ -149,6 +149,16 @@ impl Bridge {
             username,
             ip_address,
         }
+    }
+
+    /// Returns the name of the user that is connected to the bridge.
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+
+    /// Returns the IP address of the bridge
+    pub fn ip_address(&self) -> &IpAddr {
+        &self.ip_address
     }
 
     /// Sends a HTTP request to the Philips Hue API and returns the response.

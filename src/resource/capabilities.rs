@@ -27,7 +27,7 @@ pub struct Capabilities {
 impl resource::Resource for Capabilities {}
 
 /// Info about the capability of a resource.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Info {
     /// Number of currently available resources.
     pub available: usize,
@@ -36,7 +36,7 @@ pub struct Info {
 }
 
 /// Info about the capability of sensors.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct SensorsInfo {
     /// Number of currently available sensors.
     pub available: usize,
@@ -51,7 +51,7 @@ pub struct SensorsInfo {
 }
 
 /// Info about the capability of scenes.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct ScenesInfo {
     /// Number of currently available scenes.
     pub available: usize,
@@ -63,7 +63,7 @@ pub struct ScenesInfo {
 }
 
 /// Info about the capability of rules.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct RulesInfo {
     /// Number of currently available rules.
     pub available: usize,
@@ -76,7 +76,7 @@ pub struct RulesInfo {
 }
 
 /// Info about the capability of scenes.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct StreamingInfo {
     /// Number of currently available client streams.
     pub available: usize,

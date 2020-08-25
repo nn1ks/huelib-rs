@@ -54,7 +54,7 @@ impl Light {
 impl resource::Resource for Light {}
 
 /// State of a light.
-#[derive(Clone, Copy, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct State {
     /// Whether the light is on.
     pub on: Option<bool>,
@@ -174,7 +174,7 @@ pub struct ControlCapabilities {
 }
 
 /// Color temperature capabilities of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct ColorTemperatureCapabilities {
     /// Minimal color temperature.
     pub min: usize,
@@ -183,7 +183,7 @@ pub struct ColorTemperatureCapabilities {
 }
 
 /// Streaming capabilities of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct StreamingCapabilities {
     /// Whether a renderer is enabled.
     pub renderer: bool,
@@ -223,7 +223,7 @@ impl resource::Modifier for AttributeModifier {
 ///
 /// [`scene::Modifier`]: super::scene::Modifier
 /// [`scene::Creator`]: super::scene::Creator
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct StaticStateModifier {
     /// Turns the light on or off.
@@ -284,7 +284,7 @@ impl resource::Modifier for StaticStateModifier {
 }
 
 /// Modifier for the light state.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Setters)]
+#[derive(Clone, Debug, Default, PartialEq, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct StateModifier {
     /// Turns the light on or off.

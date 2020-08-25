@@ -160,7 +160,7 @@ pub enum Class {
 }
 
 /// State of a group.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct State {
     /// Whether any light in a group is on.
     pub any_on: bool,

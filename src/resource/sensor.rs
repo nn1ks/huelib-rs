@@ -210,4 +210,21 @@ mod tests {
         let expected_json = json!({"on": true});
         assert_eq!(modifier_json, expected_json);
     }
+
+    #[test]
+    fn serialize_scanner() {
+        let scanner = Scanner::new();
+        let scanner_json = serde_json::to_value(scanner).unwrap();
+        let expected_json = json!({});
+        assert_eq!(scanner_json, expected_json);
+
+        let scanner = Scanner {
+            device_ids: Some(vec!["1".into()]),
+        };
+        let scanner_json = serde_json::to_value(scanner).unwrap();
+        let expected_json = json!({
+            "deviceid": ["1"]
+        });
+        assert_eq!(scanner_json, expected_json);
+    }
 }

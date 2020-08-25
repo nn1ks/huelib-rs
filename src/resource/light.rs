@@ -368,7 +368,7 @@ impl Serialize for StateModifier {
 #[setters(strip_option, prefix = "with_")]
 pub struct Scanner {
     /// The device identifiers.
-    #[serde(rename = "deviceid")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "deviceid")]
     pub device_ids: Option<Vec<String>>,
 }
 
@@ -485,5 +485,22 @@ mod tests {
             "xy": [0.0, 0.0]
         });
         assert_eq!(modifier_json, expected_json);
+    }
+
+    #[test]
+    fn serialize_scanner() {
+        let scanner = Scanner::new();
+        let scanner_json = serde_json::to_value(scanner).unwrap();
+        let expected_json = json!({});
+        assert_eq!(scanner_json, expected_json);
+
+        let scanner = Scanner {
+            device_ids: Some(vec!["1".into()]),
+        };
+        let scanner_json = serde_json::to_value(scanner).unwrap();
+        let expected_json = json!({
+            "deviceid": ["1"]
+        });
+        assert_eq!(scanner_json, expected_json);
     }
 }

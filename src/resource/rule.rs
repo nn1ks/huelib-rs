@@ -242,6 +242,59 @@ mod tests {
     use serde_json::json;
 
     #[test]
+    fn serialize_action() {
+        let action = Action {
+            address: "/lights/1/state".into(),
+            request_method: ActionRequestMethod::Put,
+            body: json!({"on": true}),
+        };
+        let action_json = serde_json::to_value(action).unwrap();
+        let expected_json = json!({
+            "address": "/lights/1/state",
+            "method": "PUT",
+            "body": {
+                "on": true
+            }
+        });
+        assert_eq!(action_json, expected_json);
+
+        let creator = resource::group::Creator::new("test".into(), vec!["1".into()]);
+        let action = Action::from_creator(&creator).unwrap();
+        let action_json = serde_json::to_value(action).unwrap();
+        let expected_json = json!({
+            "address": "/groups",
+            "method": "POST",
+            "body": {
+                "name": "test",
+                "lights": ["1"]
+            }
+        });
+        assert_eq!(action_json, expected_json);
+
+        let modifier = resource::light::StateModifier::new().with_on(true);
+        let action = Action::from_modifier(&modifier, "1".into()).unwrap();
+        let action_json = serde_json::to_value(action).unwrap();
+        let expected_json = json!({
+            "address": "/lights/1/state",
+            "method": "PUT",
+            "body": {
+                "on": true
+            }
+        });
+        assert_eq!(action_json, expected_json);
+
+        let scanner = resource::light::Scanner::new();
+        let action = Action::from_scanner(&scanner).unwrap();
+        let action_json = serde_json::to_value(action).unwrap();
+        let expected_json = json!({
+            "address": "/lights",
+            "method": "POST",
+            "body": {}
+        });
+        assert_eq!(action_json, expected_json);
+    }
+
+    #[test]
     fn serialize_creator() {
         let conditions = vec![Condition {
             address: "/sensors/2/state/lastupdated".into(),

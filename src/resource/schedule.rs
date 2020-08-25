@@ -40,12 +40,12 @@ impl resource::Resource for Schedule {}
 /// Command of a schedule.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Command {
-    /// Address where the action will be executed.
+    /// Address where the command will be executed.
     pub address: String,
     /// The HTTP method used to send the body to the given address.
     #[serde(rename = "method")]
     pub request_method: CommandRequestMethod,
-    /// Body of the request that the action sends.
+    /// Body of the request that the command sends.
     pub body: JsonValue,
 }
 
@@ -126,7 +126,7 @@ pub struct Creator {
     /// Sets the description of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// Sets the action of the schedule.
+    /// Sets the command of the schedule.
     #[setters(skip)]
     pub command: Command,
     /// Sets the local time of the schedule.
@@ -175,7 +175,7 @@ pub struct Modifier {
     /// Sets the description of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// Sets the action of the schedule.
+    /// Sets the command of the schedule.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub command: Option<Command>,
     /// Sets the local time of the schedule.
@@ -207,6 +207,59 @@ impl resource::Modifier for Modifier {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn serialize_command() {
+        let command = Command {
+            address: "/api/user/lights/1/state".into(),
+            request_method: CommandRequestMethod::Put,
+            body: json!({"on": true}),
+        };
+        let command_json = serde_json::to_value(command).unwrap();
+        let expected_json = json!({
+            "address": "/api/user/lights/1/state",
+            "method": "PUT",
+            "body": {
+                "on": true
+            }
+        });
+        assert_eq!(command_json, expected_json);
+
+        let creator = resource::group::Creator::new("test".into(), vec!["1".into()]);
+        let command = Command::from_creator(&creator, "user").unwrap();
+        let command_json = serde_json::to_value(command).unwrap();
+        let expected_json = json!({
+            "address": "/api/user/groups",
+            "method": "POST",
+            "body": {
+                "name": "test",
+                "lights": ["1"]
+            }
+        });
+        assert_eq!(command_json, expected_json);
+
+        let modifier = resource::light::StateModifier::new().with_on(true);
+        let command = Command::from_modifier(&modifier, "1".into(), "user").unwrap();
+        let command_json = serde_json::to_value(command).unwrap();
+        let expected_json = json!({
+            "address": "/api/user/lights/1/state",
+            "method": "PUT",
+            "body": {
+                "on": true
+            }
+        });
+        assert_eq!(command_json, expected_json);
+
+        let scanner = resource::light::Scanner::new();
+        let command = Command::from_scanner(&scanner, "user").unwrap();
+        let command_json = serde_json::to_value(command).unwrap();
+        let expected_json = json!({
+            "address": "/api/user/lights",
+            "method": "POST",
+            "body": {}
+        });
+        assert_eq!(command_json, expected_json);
+    }
 
     #[test]
     fn serialize_creator() {

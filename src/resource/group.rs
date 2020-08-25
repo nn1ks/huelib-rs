@@ -1,4 +1,4 @@
-use crate::resource::{self, Adjuster, Alert, Effect};
+use crate::resource::{self, Adjust, Alert, Effect};
 use crate::Color;
 use derive_setters::Setters;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
@@ -42,14 +42,13 @@ pub struct Group {
     pub recycle: Option<bool>,
 }
 
-impl resource::Resource for Group {}
-
 impl Group {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
+
+impl resource::Resource for Group {}
 
 /// Kind of a group.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
@@ -193,8 +192,6 @@ pub struct Creator {
     pub recycle: Option<bool>,
 }
 
-impl resource::Creator for Creator {}
-
 impl Creator {
     /// Creates a new [`Creator`].
     pub fn new(name: String, lights: Vec<String>) -> Self {
@@ -206,6 +203,12 @@ impl Creator {
             class: None,
             recycle: None,
         }
+    }
+}
+
+impl resource::Creator for Creator {
+    fn url_suffix() -> String {
+        "groups".to_owned()
     }
 }
 
@@ -227,12 +230,17 @@ pub struct AttributeModifier {
     pub class: Option<Class>,
 }
 
-impl resource::Modifier for AttributeModifier {}
-
 impl AttributeModifier {
     /// Creates a new [`AttributeModifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for AttributeModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("groups/{}", id)
     }
 }
 
@@ -243,15 +251,15 @@ pub struct StateModifier {
     /// Turns the lights on or off.
     pub on: Option<bool>,
     /// Sets the brightness of the lights.
-    pub brightness: Option<Adjuster<u8>>,
+    pub brightness: Option<Adjust<u8>>,
     /// Sets the hue of the lights.
-    pub hue: Option<Adjuster<u16>>,
+    pub hue: Option<Adjust<u16>>,
     /// Sets the saturation of the lights.
-    pub saturation: Option<Adjuster<u8>>,
+    pub saturation: Option<Adjust<u8>>,
     /// Sets the color space coordinates of the lights.
-    pub color_space_coordinates: Option<Adjuster<(f32, f32)>>,
+    pub color_space_coordinates: Option<Adjust<(f32, f32)>>,
     /// Sets the color temperature of the lights.
-    pub color_temperature: Option<Adjuster<u16>>,
+    pub color_temperature: Option<Adjust<u16>>,
     /// Sets the alert effect of the lights.
     pub alert: Option<Alert>,
     /// Sets the dynamic effect of the lights.
@@ -263,8 +271,6 @@ pub struct StateModifier {
     /// Sets the scene identifier of the group.
     pub scene: Option<String>,
 }
-
-impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Creates a new [`StateModifier`].
@@ -278,13 +284,20 @@ impl StateModifier {
     /// [`brightness`]: Self::brightness
     pub fn with_color(self, value: Color) -> Self {
         let mut modifier = Self {
-            color_space_coordinates: Some(Adjuster::Override(value.space_coordinates)),
+            color_space_coordinates: Some(Adjust::Override(value.space_coordinates)),
             ..self
         };
         if let Some(brightness) = value.brightness {
-            modifier.brightness = Some(Adjuster::Override(brightness));
+            modifier.brightness = Some(Adjust::Override(brightness));
         }
         modifier
+    }
+}
+
+impl resource::Modifier for StateModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("groups/{}/action", id)
     }
 }
 
@@ -381,11 +394,11 @@ mod tests {
 
         let modifier = StateModifier {
             on: Some(true),
-            brightness: Some(Adjuster::Increment(1)),
-            hue: Some(Adjuster::Override(2)),
-            saturation: Some(Adjuster::Decrement(3)),
+            brightness: Some(Adjust::Increment(1)),
+            hue: Some(Adjust::Override(2)),
+            saturation: Some(Adjust::Decrement(3)),
             color_space_coordinates: None,
-            color_temperature: Some(Adjuster::Override(4)),
+            color_temperature: Some(Adjust::Override(4)),
             alert: Some(Alert::None),
             effect: Some(Effect::Colorloop),
             transition_time: Some(4),
@@ -406,7 +419,7 @@ mod tests {
         assert_eq!(modifier_json, expected_json);
 
         let modifier = StateModifier::new()
-            .with_brightness(Adjuster::Increment(1))
+            .with_brightness(Adjust::Increment(1))
             .with_color(Color::from_rgb(0, 0, 0));
         let modifier_json = serde_json::to_value(modifier).unwrap();
         let expected_json = json!({

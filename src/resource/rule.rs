@@ -1,8 +1,8 @@
-use crate::resource::{self, Action};
-use crate::util;
+use crate::{resource, util};
 use chrono::NaiveDateTime;
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
+use serde_json::{Error as JsonError, Value as JsonValue};
 
 /// A rule for resources on a bridge.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -34,14 +34,13 @@ pub struct Rule {
     pub actions: Vec<Action>,
 }
 
-impl resource::Resource for Rule {}
-
 impl Rule {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
+
+impl resource::Resource for Rule {}
 
 /// Status of a rule.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
@@ -70,6 +69,7 @@ pub struct Condition {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
 }
+
 /// Condition operator of a rule.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum ConditionOperator {
@@ -102,6 +102,72 @@ pub enum ConditionOperator {
     NotIn,
 }
 
+/// Action of a schedule or rule.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Action {
+    /// Address where the action will be executed.
+    pub address: String,
+    /// The HTTP method used to send the body to the given address.
+    #[serde(rename = "method")]
+    pub request_method: ActionRequestMethod,
+    /// Body of the request that the action sends.
+    pub body: JsonValue,
+}
+
+impl Action {
+    /// Creates a new action from a [`Creator`].
+    ///
+    /// [`Creator`]: resource::Creator
+    pub fn from_creator<C>(creator: &C) -> Result<Self, JsonError>
+    where
+        C: resource::Creator,
+    {
+        Ok(Self {
+            address: format!("/{}", C::url_suffix()),
+            request_method: ActionRequestMethod::Post,
+            body: serde_json::to_value(creator)?,
+        })
+    }
+
+    /// Creates a new action from a [`Modifier`].
+    ///
+    /// [`Modifier`]: resource::Modifier
+    pub fn from_modifier<M>(modifier: &M, id: M::Id) -> Result<Self, JsonError>
+    where
+        M: resource::Modifier,
+    {
+        Ok(Self {
+            address: format!("/{}", M::url_suffix(id)),
+            request_method: ActionRequestMethod::Put,
+            body: serde_json::to_value(modifier)?,
+        })
+    }
+
+    /// Creates a new action from a [`Scanner`].
+    ///
+    /// [`Scanner`]: resource::Scanner
+    pub fn from_scanner<S>(scanner: &S) -> Result<Self, JsonError>
+    where
+        S: resource::Scanner,
+    {
+        Ok(Self {
+            address: format!("/{}", S::url_suffix()),
+            request_method: ActionRequestMethod::Post,
+            body: serde_json::to_value(scanner)?,
+        })
+    }
+}
+
+/// Request method of an action.
+#[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum ActionRequestMethod {
+    Put,
+    Post,
+    Delete,
+}
+
 /// Struct for creating a rule.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
@@ -120,8 +186,6 @@ pub struct Creator {
     pub actions: Vec<Action>,
 }
 
-impl resource::Creator for Creator {}
-
 impl Creator {
     /// Creates a new [`Creator`].
     pub fn new(conditions: Vec<Condition>, actions: Vec<Action>) -> Self {
@@ -131,6 +195,12 @@ impl Creator {
             conditions,
             actions,
         }
+    }
+}
+
+impl resource::Creator for Creator {
+    fn url_suffix() -> String {
+        "rules".to_owned()
     }
 }
 
@@ -152,8 +222,6 @@ pub struct Modifier {
     pub actions: Option<Vec<Action>>,
 }
 
-impl resource::Modifier for Modifier {}
-
 impl Modifier {
     /// Returns a new [`Modifier`].
     pub fn new() -> Self {
@@ -161,11 +229,17 @@ impl Modifier {
     }
 }
 
+impl resource::Modifier for Modifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("rules/{}", id)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
-    use std::collections::HashMap;
 
     #[test]
     fn serialize_creator() {
@@ -176,8 +250,8 @@ mod tests {
         }];
         let actions = vec![Action {
             address: "/lights/1/state".into(),
-            request_type: resource::ActionRequestType::Post,
-            body: HashMap::new(),
+            request_method: ActionRequestMethod::Put,
+            body: json!({}),
         }];
 
         let creator = Creator::new(conditions.clone(), actions.clone());
@@ -192,7 +266,7 @@ mod tests {
             "actions": [
                 {
                     "address": "/lights/1/state",
-                    "method": "POST",
+                    "method": "PUT",
                     "body": {}
                 }
             ],
@@ -218,7 +292,7 @@ mod tests {
             "actions": [
                 {
                     "address": "/lights/1/state",
-                    "method": "POST",
+                    "method": "PUT",
                     "body": {}
                 }
             ],

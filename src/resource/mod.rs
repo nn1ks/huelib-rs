@@ -45,10 +45,11 @@ pub use scene::Scene;
 pub use schedule::Schedule;
 pub use sensor::Sensor;
 
+use crate::{response::Modified, Bridge, Error, Response};
 use chrono::NaiveDateTime;
 use serde::{de, de::Error as _, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-use std::{collections::HashMap, fmt};
+use std::fmt;
 
 /// Alert effect of a light.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
@@ -84,28 +85,6 @@ pub enum ColorMode {
     /// Uses x and y coordinates in the color space to set the color of a light.
     #[serde(rename = "xy")]
     ColorSpaceCoordinates,
-}
-
-/// Action of a schedule or rule.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub struct Action {
-    /// Address where the action will be executed.
-    pub address: String,
-    /// The HTTP method used to send the body to the given address.
-    #[serde(rename = "method")]
-    pub request_type: ActionRequestType,
-    /// Body of the request that the action sends.
-    pub body: HashMap<String, JsonValue>,
-}
-
-/// Request type of an action.
-#[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "UPPERCASE")]
-pub enum ActionRequestType {
-    Put,
-    Post,
-    Delete,
 }
 
 /// Struct for new resources that were scanned by the bridge.
@@ -214,7 +193,7 @@ pub struct ScanResource {
 
 /// Enum for adjusting an attribute of a modifier or creator.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Adjuster<T> {
+pub enum Adjust<T> {
     /// Overrides the current value.
     Override(T),
     /// Adds the value to the current value.
@@ -223,14 +202,80 @@ pub enum Adjuster<T> {
     Decrement(T),
 }
 
+/// Represents a HTTP method.
+#[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RequestMethod {
+    Put,
+    Post,
+    Get,
+    Delete,
+}
+
 /// Marker trait for resources.
 pub trait Resource {}
 
-/// Marker trait for modifiers.
-pub trait Modifier {}
+/// Trait for creating a resource.
+pub trait Creator: Serialize {
+    /// Returns the suffix of the API URL.
+    fn url_suffix() -> String;
 
-/// Marker trait for creators.
-pub trait Creator {}
+    /// Sends the request to create the resource.
+    fn execute(&self, bridge: &Bridge) -> crate::Result<String> {
+        #[derive(Deserialize)]
+        struct CreationInfo {
+            id: String,
+        }
+        let mut response: Vec<Response<CreationInfo>> = bridge.api_request(
+            Self::url_suffix(),
+            RequestMethod::Post,
+            Some(serde_json::to_value(self)?),
+        )?;
+        match response.pop() {
+            Some(v) => Ok(v.into_result()?.id),
+            None => Err(Error::GetCreatedId),
+        }
+    }
+}
+
+/// Trait for modifying a resource.
+pub trait Modifier: Serialize {
+    /// The type of the identifier.
+    ///
+    /// Set to `()` if only one resource of the same type exists.
+    type Id;
+
+    /// Returns the suffix of the API URL.
+    fn url_suffix(id: Self::Id) -> String;
+
+    /// Sends the request to modify the resource.
+    fn execute(&self, bridge: &Bridge, id: Self::Id) -> crate::Result<Vec<Response<Modified>>> {
+        bridge.api_request(
+            Self::url_suffix(id),
+            RequestMethod::Put,
+            Some(serde_json::to_value(self)?),
+        )
+    }
+}
+
+/// Trait for scanning new resources.
+pub trait Scanner: Serialize {
+    /// Returns the suffix of the API URL.
+    fn url_suffix() -> String;
+
+    /// Sends the request to scan for new resources.
+    fn execute(&self, bridge: &Bridge) -> crate::Result<()> {
+        let responses: Vec<Response<JsonValue>> = bridge.api_request(
+            Self::url_suffix(),
+            RequestMethod::Post,
+            Some(serde_json::to_value(self)?),
+        )?;
+        for response in responses {
+            response.into_result()?;
+        }
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {

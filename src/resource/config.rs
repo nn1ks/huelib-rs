@@ -96,11 +96,7 @@ fn deserialize_whitelist<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Vec<User>, D::Error> {
     let map: HashMap<String, User> = Deserialize::deserialize(deserializer)?;
-    let mut users = Vec::new();
-    for (id, user) in map {
-        users.push(user.with_id(&id));
-    }
-    Ok(users)
+    Ok(map.into_iter().map(|(id, user)| user.with_id(id)).collect())
 }
 
 /// Information about software updates.
@@ -259,9 +255,8 @@ pub struct User {
 }
 
 impl User {
-    fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
 
@@ -317,12 +312,17 @@ pub struct Modifier {
     pub timezone: Option<String>,
 }
 
-impl resource::Modifier for Modifier {}
-
 impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for Modifier {
+    type Id = ();
+    fn url_suffix(_id: Self::Id) -> String {
+        "config".to_owned()
     }
 }
 

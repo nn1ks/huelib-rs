@@ -26,19 +26,18 @@ pub struct Resourcelink {
     pub links: Vec<Link>,
 }
 
-impl resource::Resource for Resourcelink {}
-
 impl Resourcelink {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
 
+impl resource::Resource for Resourcelink {}
+
 /// Kind of a resourcelink.
+#[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum Kind {
-    /// The only variant.
     Link,
 }
 
@@ -146,8 +145,6 @@ pub struct Creator {
     pub links: Vec<Link>,
 }
 
-impl resource::Creator for Creator {}
-
 impl Creator {
     /// Creates a new [`Creator`].
     pub fn new(name: String, class_id: u16, links: Vec<Link>) -> Self {
@@ -160,6 +157,12 @@ impl Creator {
             recycle: None,
             links,
         }
+    }
+}
+
+impl resource::Creator for Creator {
+    fn url_suffix() -> String {
+        "resourcelinks".to_owned()
     }
 }
 
@@ -184,12 +187,17 @@ pub struct Modifier {
     pub links: Option<Vec<Link>>,
 }
 
-impl resource::Modifier for Modifier {}
-
 impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for Modifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("resourcelinks/{}", id)
     }
 }
 

@@ -54,22 +54,22 @@ macro_rules! custom_serialize {
         $v
     };
     (@VALUE $v:expr, to_override) => {
-        $v.and_then(|adjuster| match adjuster {
-            Adjuster::Override(v) => Some(v),
+        $v.and_then(|adjust| match adjust {
+            Adjust::Override(v) => Some(v),
             _ => None,
         })
     };
     (@VALUE $v:expr, to_increment, $t:ty) => {
-        $v.and_then(|adjuster| match adjuster {
-            Adjuster::Increment(v) => Some(v as $t),
-            Adjuster::Decrement(v) => Some(-(v as $t)),
+        $v.and_then(|adjust| match adjust {
+            Adjust::Increment(v) => Some(v as $t),
+            Adjust::Decrement(v) => Some(-(v as $t)),
             _ => None,
         })
     };
     (@VALUE $v:expr, to_increment_tuple, $t:ty) => {
-        $v.and_then(|adjuster| match adjuster {
-            Adjuster::Increment(v) => Some((v.0 as $t, v.1 as $t)),
-            Adjuster::Decrement(v) => Some((-(v.0 as $t), -(v.1 as $t))),
+        $v.and_then(|adjust| match adjust {
+            Adjust::Increment(v) => Some((v.0 as $t, v.1 as $t)),
+            Adjust::Decrement(v) => Some((-(v.0 as $t), -(v.1 as $t))),
             _ => None,
         })
     };

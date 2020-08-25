@@ -1,10 +1,10 @@
-use crate::{resource, response, Error, Response, Result};
+use crate::resource::{self, Creator, Modifier, RequestMethod, Scanner};
+use crate::{response::Modified, Error, Response, Result};
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value as JsonValue;
-use std::collections::HashMap;
-use std::net::IpAddr;
+use std::{collections::HashMap, net::IpAddr};
 
-type ResponseModified = Response<response::Modified>;
+type ResponsesModified = Vec<Response<Modified>>;
 
 /// Discovers bridges in the local netowork.
 ///
@@ -29,7 +29,7 @@ type ResponseModified = Response<response::Modified>;
 ///
 /// # fn main() -> Result<(), huelib::Error> {
 /// let ip = bridge::discover()?.pop().expect("found no bridges");
-/// let user = bridge::register_user(ip, "huelib-rs example", false)?;
+/// let user = bridge::register_user(ip, "example", false)?;
 /// println!("Registered user: {}", user.name);
 /// # Ok(())
 /// # }
@@ -75,7 +75,7 @@ pub struct User {
 ///
 /// # fn main() -> Result<(), huelib::Error> {
 /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// let user = bridge::register_user(bridge_ip, "huelib-rs example", false)?;
+/// let user = bridge::register_user(bridge_ip, "example", false)?;
 /// println!("Registered user with username: {}", user.name);
 /// # Ok(())
 /// # }
@@ -102,14 +102,10 @@ pub fn register_user(
     }
 }
 
-enum RequestType {
-    Put(JsonValue),
-    Post(JsonValue),
-    Get,
-    Delete,
-}
-
-fn parse_response<T: DeserializeOwned>(response: JsonValue) -> Result<T> {
+fn parse_response<T>(response: JsonValue) -> crate::Result<T>
+where
+    T: DeserializeOwned,
+{
     if let Ok(mut v) = serde_json::from_value::<Vec<Response<JsonValue>>>(response.clone()) {
         if let Some(v) = v.pop() {
             v.into_result()?;
@@ -155,81 +151,85 @@ impl Bridge {
         &self.username
     }
 
-    /// Returns the IP address of the bridge
+    /// Returns the IP address of the bridge.
     pub fn ip_address(&self) -> &IpAddr {
         &self.ip_address
     }
 
     /// Sends a HTTP request to the Philips Hue API and returns the response.
-    fn api_request<T: DeserializeOwned>(
+    pub(crate) fn api_request<S, T>(
         &self,
-        url_suffix: impl AsRef<str>,
-        request_type: RequestType,
-    ) -> Result<T> {
+        url_suffix: S,
+        request_method: RequestMethod,
+        body: Option<JsonValue>,
+    ) -> Result<T>
+    where
+        S: AsRef<str>,
+        T: DeserializeOwned,
+    {
         let url = format!("{}/{}", self.api_url, url_suffix.as_ref());
-        let response = match request_type {
-            RequestType::Put(v) => ureq::put(&url).send_json(v),
-            RequestType::Post(v) => ureq::post(&url).send_json(v),
-            RequestType::Get => ureq::get(&url).call(),
-            RequestType::Delete => ureq::delete(&url).call(),
+        let mut request = match request_method {
+            RequestMethod::Put => ureq::put(&url),
+            RequestMethod::Post => ureq::post(&url),
+            RequestMethod::Get => ureq::get(&url),
+            RequestMethod::Delete => ureq::delete(&url),
+        };
+        let response = match body {
+            Some(v) => request.send_json(v),
+            None => request.call(),
         };
         Ok(serde_json::from_value(response.into_json()?)?)
     }
 
-    /// Modifies the configuration of the bridge
-    pub fn set_config(
-        &self,
-        modifier: &resource::config::Modifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request("config", RequestType::Put(serde_json::to_value(modifier)?))
+    /// Modifies the configuration of the bridge.
+    pub fn set_config(&self, modifier: &resource::config::Modifier) -> Result<ResponsesModified> {
+        modifier.execute(self, ())
     }
 
     /// Returns the configuration of the bridge.
     pub fn get_config(&self) -> Result<resource::Config> {
-        parse_response(self.api_request("config", RequestType::Get)?)
+        parse_response(self.api_request("config", RequestMethod::Get, None)?)
     }
 
     /// Modifies attributes of a light.
-    pub fn set_light_attribute(
+    pub fn set_light_attribute<S>(
         &self,
-        id: impl AsRef<str>,
+        id: S,
         modifier: &resource::light::AttributeModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("lights/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified>
+    where
+        S: AsRef<str>,
+    {
+        modifier.execute(self, id.as_ref().to_owned())
     }
 
     /// Modifies the state of a light.
     pub fn set_light_state(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::light::StateModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("lights/{}/state", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a light.
-    pub fn get_light(&self, id: impl AsRef<str>) -> Result<resource::Light> {
-        let light: resource::Light = parse_response(
-            self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(light.with_id(id.as_ref()))
+    pub fn get_light(&self, id: String) -> Result<resource::Light> {
+        let light: resource::Light = parse_response(self.api_request(
+            format!("lights/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(light.with_id(id))
     }
 
     /// Returns all lights that are connected to the bridge.
     pub fn get_all_lights(&self) -> Result<Vec<resource::Light>> {
         let map: HashMap<String, resource::Light> =
-            parse_response(self.api_request("lights", RequestType::Get)?)?;
-        let mut lights = Vec::new();
-        for (id, light) in map {
-            lights.push(light.with_id(id));
-        }
-        Ok(lights)
+            parse_response(self.api_request("lights", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, light)| light.with_id(id))
+            .collect())
     }
 
     /// Starts searching for new lights.
@@ -244,28 +244,19 @@ impl Bridge {
     /// function.
     ///
     /// [`get_new_lights`]: #method.get_new_lights
-    pub fn search_new_lights(&self, device_ids: Option<&[&str]>) -> Result<()> {
-        let body = match device_ids {
-            Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
-            None => "".to_owned(),
-        };
-        let response: Vec<Response<JsonValue>> =
-            self.api_request("lights", RequestType::Post(serde_json::to_value(body)?))?;
-        for i in response {
-            i.into_result()?;
-        }
-        Ok(())
+    pub fn search_new_lights(&self, scanner: &resource::light::Scanner) -> Result<()> {
+        scanner.execute(self)
     }
 
     /// Returns discovered lights.
     pub fn get_new_lights(&self) -> Result<resource::Scan> {
-        parse_response(self.api_request("lights/new", RequestType::Get)?)
+        parse_response(self.api_request("lights/new", RequestMethod::Get, None)?)
     }
 
     /// Deletes a light from the bridge.
-    pub fn delete_light(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_light(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("lights/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("lights/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }
@@ -274,64 +265,51 @@ impl Bridge {
 
     /// Creates a new group.
     pub fn create_group(&self, creator: &resource::group::Creator) -> Result<String> {
-        let mut response: Vec<Response<HashMap<String, String>>> =
-            self.api_request("groups", RequestType::Post(serde_json::to_value(creator)?))?;
-        match response.pop() {
-            Some(v) => match v.into_result()?.get("id") {
-                Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetCreatedId),
-            },
-            None => Err(Error::GetCreatedId),
-        }
+        creator.execute(self)
     }
 
     /// Modifies attributes of a group.
     pub fn set_group_attribute(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::group::AttributeModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("groups/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Modifies the state of a group.
     pub fn set_group_state(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::group::StateModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("groups/{}/action", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a group.
-    pub fn get_group(&self, id: impl AsRef<str>) -> Result<resource::Group> {
-        let group: resource::Group = parse_response(
-            self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(group.with_id(id.as_ref()))
+    pub fn get_group(&self, id: String) -> Result<resource::Group> {
+        let group: resource::Group = parse_response(self.api_request(
+            format!("groups/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(group.with_id(id))
     }
 
     /// Returns all groups.
     pub fn get_all_groups(&self) -> Result<Vec<resource::Group>> {
         let map: HashMap<String, resource::Group> =
-            parse_response(self.api_request("groups", RequestType::Get)?)?;
-        let mut groups = Vec::new();
-        for (id, group) in map {
-            groups.push(group.with_id(id));
-        }
-        Ok(groups)
+            parse_response(self.api_request("groups", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, group)| group.with_id(id))
+            .collect())
     }
 
     /// Deletes a group from the bridge.
-    pub fn delete_group(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_group(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("groups/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("groups/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }
@@ -340,52 +318,42 @@ impl Bridge {
 
     /// Creates a new scene.
     pub fn create_scene(&self, creator: &resource::scene::Creator) -> Result<String> {
-        let mut response: Vec<Response<HashMap<String, String>>> =
-            self.api_request("scenes", RequestType::Post(serde_json::to_value(creator)?))?;
-        match response.pop() {
-            Some(v) => match v.into_result()?.get("id") {
-                Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetCreatedId),
-            },
-            None => Err(Error::GetCreatedId),
-        }
+        creator.execute(self)
     }
 
     /// Modifies the state and attributes of a scene.
     pub fn set_scene(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::scene::Modifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("scenes/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a scene.
-    pub fn get_scene(&self, id: impl AsRef<str>) -> Result<resource::Scene> {
-        let scene: resource::Scene = parse_response(
-            self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(scene.with_id(id.as_ref()))
+    pub fn get_scene(&self, id: String) -> Result<resource::Scene> {
+        let scene: resource::Scene = parse_response(self.api_request(
+            format!("scenes/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(scene.with_id(id))
     }
 
     /// Returns all scenes.
     pub fn get_all_scenes(&self) -> Result<Vec<resource::Scene>> {
         let map: HashMap<String, resource::Scene> =
-            parse_response(self.api_request("scenes", RequestType::Get)?)?;
-        let mut scenes = Vec::new();
-        for (id, scene) in map {
-            scenes.push(scene.with_id(id));
-        }
-        Ok(scenes)
+            parse_response(self.api_request("scenes", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, scene)| scene.with_id(id))
+            .collect())
     }
 
     /// Deletes a scene.
-    pub fn delete_scene(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_scene(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("scenes/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("scenes/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }
@@ -394,59 +362,47 @@ impl Bridge {
 
     /// Returns the capabilities of resources.
     pub fn get_capabilities(&self) -> Result<resource::Capabilities> {
-        parse_response(self.api_request("capabilities", RequestType::Get)?)
+        parse_response(self.api_request("capabilities", RequestMethod::Get, None)?)
     }
 
     /// Creates a new schedule and returns the identifier.
     pub fn create_schedule(&self, creator: &resource::schedule::Creator) -> Result<String> {
-        let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
-            "schedules",
-            RequestType::Post(serde_json::to_value(creator)?),
-        )?;
-        match response.pop() {
-            Some(v) => match v.into_result()?.get("id") {
-                Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetCreatedId),
-            },
-            None => Err(Error::GetCreatedId),
-        }
+        creator.execute(&self)
     }
 
     /// Modifies attributes of a schedule.
     pub fn set_schedule(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::schedule::Modifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("schedules/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a schedule.
-    pub fn get_schedule(&self, id: impl AsRef<str>) -> Result<resource::Schedule> {
-        let schedule: resource::Schedule = parse_response(
-            self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(schedule.with_id(id.as_ref()))
+    pub fn get_schedule(&self, id: String) -> Result<resource::Schedule> {
+        let schedule: resource::Schedule = parse_response(self.api_request(
+            format!("schedules/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(schedule.with_id(id))
     }
 
     /// Returns all schedules.
     pub fn get_all_schedules(&self) -> Result<Vec<resource::Schedule>> {
         let map: HashMap<String, resource::Schedule> =
-            parse_response(self.api_request("schedules", RequestType::Get)?)?;
-        let mut schedules = Vec::new();
-        for (id, schedule) in map {
-            schedules.push(schedule.with_id(id));
-        }
-        Ok(schedules)
+            parse_response(self.api_request("schedules", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, schedule)| schedule.with_id(id))
+            .collect())
     }
 
     /// Deletes a schedule.
-    pub fn delete_schedule(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_schedule(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("schedules/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("schedules/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }
@@ -455,55 +411,44 @@ impl Bridge {
 
     /// Creates a new resourcelink and returns the identifier.
     pub fn create_resourcelink(&self, creator: &resource::resourcelink::Creator) -> Result<String> {
-        let mut response: Vec<Response<HashMap<String, String>>> = self.api_request(
-            "resourcelinks",
-            RequestType::Post(serde_json::to_value(creator)?),
-        )?;
-        match response.pop() {
-            Some(v) => match v.into_result()?.get("id") {
-                Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetCreatedId),
-            },
-            None => Err(Error::GetCreatedId),
-        }
+        creator.execute(self)
     }
 
     /// Modifies attributes of a resourcelink.
     pub fn set_resourcelink(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::resourcelink::Modifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("resourcelinks/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a resourcelink.
-    pub fn get_resourcelink(&self, id: impl AsRef<str>) -> Result<resource::Resourcelink> {
-        let resourcelink: resource::Resourcelink = parse_response(
-            self.api_request(&format!("resourcelinks/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(resourcelink.with_id(id.as_ref()))
+    pub fn get_resourcelink(&self, id: String) -> Result<resource::Resourcelink> {
+        let resourcelink: resource::Resourcelink = parse_response(self.api_request(
+            format!("resourcelinks/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(resourcelink.with_id(id))
     }
 
     /// Returns all resourcelinks.
     pub fn get_all_resourcelinks(&self) -> Result<Vec<resource::Resourcelink>> {
         let map: HashMap<String, resource::Resourcelink> =
-            parse_response(self.api_request("resourcelinks", RequestType::Get)?)?;
-        let mut resourcelinks = Vec::new();
-        for (id, resourcelink) in map {
-            resourcelinks.push(resourcelink.with_id(id));
-        }
-        Ok(resourcelinks)
+            parse_response(self.api_request("resourcelinks", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, resourcelink)| resourcelink.with_id(id))
+            .collect())
     }
 
     /// Deletes a resourcelink.
-    pub fn delete_resourcelink(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_resourcelink(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> = self.api_request(
-            &format!("resourcelinks/{}", id.as_ref()),
-            RequestType::Delete,
+            &format!("resourcelinks/{}", id),
+            RequestMethod::Delete,
+            None,
         )?;
         for i in response {
             i.into_result()?;
@@ -514,56 +459,48 @@ impl Bridge {
     /// Modifies attributes of a sensor.
     pub fn set_sensor_attribute(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::sensor::AttributeModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("sensors/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Modifies the state of a sensor.
     pub fn set_sensor_state(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::sensor::StateModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("sensors/{}/state", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Modifies the configuration of a sensor.
     pub fn set_sensor_config(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::sensor::ConfigModifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("sensors/{}/config", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a sensor.
-    pub fn get_sensor(&self, id: impl AsRef<str>) -> Result<resource::Sensor> {
-        let sensor: resource::Sensor = parse_response(
-            self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Get)?,
-        )?;
-        Ok(sensor.with_id(id.as_ref()))
+    pub fn get_sensor(&self, id: String) -> Result<resource::Sensor> {
+        let sensor: resource::Sensor = parse_response(self.api_request(
+            format!("sensors/{}", id),
+            RequestMethod::Get,
+            None,
+        )?)?;
+        Ok(sensor.with_id(id))
     }
 
     /// Returns all sensors that are connected to the bridge.
     pub fn get_all_sensors(&self) -> Result<Vec<resource::Sensor>> {
         let map: HashMap<String, resource::Sensor> =
-            parse_response(self.api_request("sensors", RequestType::Get)?)?;
-        let mut sensors = Vec::new();
-        for (id, sensor) in map {
-            sensors.push(sensor.with_id(id));
-        }
-        Ok(sensors)
+            parse_response(self.api_request("sensors", RequestMethod::Get, None)?)?;
+        Ok(map
+            .into_iter()
+            .map(|(id, sensor)| sensor.with_id(id))
+            .collect())
     }
 
     /// Starts searching for new sensors.
@@ -578,28 +515,19 @@ impl Bridge {
     /// function.
     ///
     /// [`get_new_sensors`]: #method.get_new_sensors
-    pub fn search_new_sensors(&self, device_ids: Option<&[&str]>) -> Result<()> {
-        let body = match device_ids {
-            Some(v) => format!("{{\"deviceid\": {}}}", serde_json::to_string(v)?),
-            None => "".to_owned(),
-        };
-        let response: Vec<Response<JsonValue>> =
-            self.api_request("sensors", RequestType::Post(serde_json::to_value(body)?))?;
-        for i in response {
-            i.into_result()?;
-        }
-        Ok(())
+    pub fn search_new_sensors(&self, scanner: &resource::sensor::Scanner) -> Result<()> {
+        scanner.execute(self)
     }
 
     /// Returns discovered sensors.
     pub fn get_new_sensors(&self) -> Result<resource::Scan> {
-        parse_response(self.api_request("sensors/new", RequestType::Get)?)
+        parse_response(self.api_request("senors/new", RequestMethod::Get, None)?)
     }
 
     /// Deletes a sensor from the bridge.
-    pub fn delete_sensor(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_sensor(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("sensors/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("sensors/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }
@@ -608,51 +536,36 @@ impl Bridge {
 
     /// Creates a new rule.
     pub fn create_rule(&self, creator: &resource::rule::Creator) -> Result<String> {
-        let mut response: Vec<Response<HashMap<String, String>>> =
-            self.api_request("rules", RequestType::Post(serde_json::to_value(creator)?))?;
-        match response.pop() {
-            Some(v) => match v.into_result()?.get("id") {
-                Some(v) => Ok(v.to_string()),
-                None => Err(Error::GetCreatedId),
-            },
-            None => Err(Error::GetCreatedId),
-        }
+        creator.execute(self)
     }
 
     /// Modifies attributes of a rule.
     pub fn set_rule(
         &self,
-        id: impl AsRef<str>,
+        id: String,
         modifier: &resource::rule::Modifier,
-    ) -> Result<Vec<ResponseModified>> {
-        self.api_request(
-            &format!("rules/{}", id.as_ref()),
-            RequestType::Put(serde_json::to_value(modifier)?),
-        )
+    ) -> Result<ResponsesModified> {
+        modifier.execute(self, id)
     }
 
     /// Returns a rule.
-    pub fn get_rule(&self, id: impl AsRef<str>) -> Result<resource::Rule> {
+    pub fn get_rule(&self, id: String) -> Result<resource::Rule> {
         let rule: resource::Rule =
-            parse_response(self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Get)?)?;
-        Ok(rule.with_id(id.as_ref()))
+            parse_response(self.api_request(format!("rules/{}", id), RequestMethod::Get, None)?)?;
+        Ok(rule.with_id(id))
     }
 
     /// Returns all rules.
     pub fn get_all_rules(&self) -> Result<Vec<resource::Rule>> {
         let map: HashMap<String, resource::Rule> =
-            parse_response(self.api_request("rules", RequestType::Get)?)?;
-        let mut rules = Vec::new();
-        for (id, rule) in map {
-            rules.push(rule.with_id(id));
-        }
-        Ok(rules)
+            parse_response(self.api_request("rules", RequestMethod::Get, None)?)?;
+        Ok(map.into_iter().map(|(id, rule)| rule.with_id(id)).collect())
     }
 
     /// Deletes a rule.
-    pub fn delete_rule(&self, id: impl AsRef<str>) -> Result<()> {
+    pub fn delete_rule(&self, id: String) -> Result<()> {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("rules/{}", id.as_ref()), RequestType::Delete)?;
+            self.api_request(&format!("rules/{}", id), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }

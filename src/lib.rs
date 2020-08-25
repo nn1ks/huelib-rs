@@ -1,69 +1,201 @@
 //! Rust bindings for the [Philips Hue API].
 //!
-//! ## About
+//! [Philips Hue API]: https://developers.meethue.com/develop/hue-api
+//!
+//! # About
+//!
+//! The minimum supported API version is `1.37`.
 //!
 //! This library sends HTTP requests to the bridge using the [ureq] crate. The responses/requests
 //! are deserialized/serialized using the [serde], [serde_json] and [serde_repr] crates.
 //!
-//! [Philips Hue API]: https://developers.meethue.com/develop/hue-api
 //! [ureq]: https://github.com/algesten/ureq
 //! [serde]: https://github.com/serde-rs/serde
 //! [serde_json]: https://github.com/serde-rs/json
 //! [serde_repr]: https://github.com/dtolnay/serde-repr
 //!
-//! ## Examples
+//! # Connecting to a bridge
 //!
-//! Modifies the state of a light on a specific bridge:
+//! To connect to a bridge, the IP address of the bridge and the name of a registered user is
+//! needed. You can use the [`bridge::discover`] function to get the IP addresses of bridges that
+//! are in the local network and the [`bridge::register_user`] function to register a new user on a
+//! bridge.
 //!
-//! ```rust,no_run
-//! use huelib::resource::{light, Modifier, Adjuster};
+//! To able to send requests to the bridge, a [`Bridge`] must be created. For example:
+//! ```no_run
 //! use huelib::Bridge;
 //! use std::net::{IpAddr, Ipv4Addr};
 //!
-//! // Create a bridge with IP address and username.
 //! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username".into());
-//!
-//! // Create a state modifier that increments the brightness by 40 and sets the saturation to 200.
-//! let modifier = light::StateModifier::new()
-//!     .with_brightness(Adjuster::Increment(40))
-//!     .with_saturation(Adjuster::Override(200));
-//!
-//! // Set attributes of the light with index '1' from the modifier and print the responses.
-//! match bridge.set_light_state("1", &modifier) {
-//!     Ok(v) => v.iter().for_each(|response| println!("{}", response)),
-//!     Err(e) => eprintln!("Failed to modify the light state: {}", e),
-//! };
 //! ```
 //!
-//! Creates a group and registers a user on a discovered bridge:
+//! You can then send requests using either the methods of [`Bridge`] or the different traits
+//! ([`Creator`], [`Modifier`], etc.).
 //!
-//! ```rust,no_run
-//! use huelib::{bridge, resource::group, Bridge};
+//! # Sending requests using `Bridge` methods
 //!
-//! // Get the IP address of the bridge that was first discovered in the local network.
-//! let ip_address = bridge::discover()
-//!     .expect("Failed to discover bridges")
-//!     .pop()
-//!     .expect("No bridges found in the local network");
+//! The methods of [`Bridge`] can be used to send requests.
 //!
-//! // Register a user on the discovered bridge.
-//! let user = bridge::register_user(ip_address, "huelib-rs example", false)
-//!     .expect("Failed to register user");
+//! Methods beginning with `create`, `set`, and `search_new` take either a creator, modifier, or
+//! scanner as parameter which has to be constructed before sending the request. For example, you
+//! can construct a [`group::Creator`] with the `new` function and then pass it to the
+//! [`Bridge::create_group`] method as a parameter.
 //!
-//! // Create a bridge with IP address and username.
-//! let bridge = Bridge::new(ip_address, user.name);
+//! For a list of available methods, view the documentation of [`Bridge`].
 //!
-//! // Create a group creator that sets the name to 'group1', adds the lights with the index '1'
-//! // and '2' to the group and sets the class to 'Office'.
-//! let creator = group::Creator::new("group1".into(), vec!["1".into(), "2".into()])
-//!     .with_class(group::Class::Office);
+//! # Sending requests using trait methods
 //!
-//! // Create the group and print the identifier of the new group.
-//! match bridge.create_group(&creator) {
-//!     Ok(v) => println!("Created group with id '{}'", v),
-//!     Err(e) => eprintln!("Failed to create group: {}", e),
-//! };
+//! Some trait methods can be used to send requests instead of calling a [`Bridge`] method.
+//!
+//! - [`Creator::execute`]: Can be used instead of `Bridge::create_*` methods.
+//! - [`Modifier::execute`]: Can be used instead of `Bridge::set_*` methods.
+//! - [`Scanner::execute`]: Can be used instead of `Bridge::search_new_*` methods
+//!
+//! # Examples
+//!
+//! _Note: In the following examples the creation of `bridge` is abbreviated to reduce irrelevant
+//! code._
+//!
+//! ## Creating a group
+//!
+//! Creates a new group with the name `example` and puts the light with the identifier `1` into the
+//! group and sets the class to `Office`.
+//!
+//! - Using the [`Bridge::create_group`] method:
+//!
+//!     ```no_run
+//!     use huelib::resource::group;
+//!
+//!     # fn main() -> huelib::Result<()> {
+//!     # use huelib::Bridge;
+//!     # use std::net::{IpAddr, Ipv4Addr};
+//!     # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//!     // let bridge = Bridge::new(...);
+//!     let creator = group::Creator::new("example".into(), vec!["1".into()])
+//!         .with_class(group::Class::Office);
+//!     let id = bridge.create_group(&creator)?;
+//!     println!("Created group with id `{}`", id);
+//!     # Ok(())
+//!     # }
+//!     ```
+//!
+//! - Using the [`Creator::execute`] trait method:
+//!
+//!     ```no_run
+//!     // Note that the trait `Creator` has to be in scope because the `execute` method is called.
+//!     use huelib::resource::{group, Creator};
+//!
+//!     # fn main() -> huelib::Result<()> {
+//!     # use huelib::Bridge;
+//!     # use std::net::{IpAddr, Ipv4Addr};
+//!     # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//!     // let bridge = Bridge::new(...);
+//!     let id = group::Creator::new("example".into(), vec!["1".into()])
+//!         .with_class(group::Class::Office)
+//!         .execute(&bridge)?;
+//!     println!("Created group with id `{}`", id);
+//!     # Ok(())
+//!     # }
+//!     ```
+//!
+//! ## Modifying a light state
+//!
+//! Turns the light with the identifier `1` on and sets the color to red.
+//!
+//! - Using the [`Bridge::set_light_state`] method:
+//!
+//!     ```no_run
+//!     use huelib::{resource::light, Color};
+//!
+//!     # fn main() -> huelib::Result<()> {
+//!     # use huelib::Bridge;
+//!     # use std::net::{IpAddr, Ipv4Addr};
+//!     # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//!     // let bridge = Bridge::new(...);
+//!     let modifier = light::StateModifier::new()
+//!         .with_on(true)
+//!         .with_color(Color::from_rgb(255, 0, 0));
+//!     let responses = bridge.set_light_state("1".into(), &modifier)?;
+//!     # Ok(())
+//!     # }
+//!     ```
+//!
+//! - Using the [`Modifier::execute`] trait method:
+//!
+//!     ```no_run
+//!     // Note that the trait `Modifier` has to be in scope because the `execute` method is called.
+//!     use huelib::resource::{light, Modifier};
+//!     use huelib::Color;
+//!
+//!     # fn main() -> huelib::Result<()> {
+//!     # use huelib::Bridge;
+//!     # use std::net::{IpAddr, Ipv4Addr};
+//!     # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//!     // let bridge = Bridge::new(...);
+//!     let responses = light::StateModifier::new()
+//!         .with_on(true)
+//!         .with_color(Color::from_rgb(255, 0, 0))
+//!         .execute(&bridge, "1".into())?;
+//!     # Ok(())
+//!     # }
+//!     ```
+//!
+//! ## Getting a light
+//!
+//! Print the light with the identifier `1`:
+//!
+//! ```no_run
+//! # fn main() -> huelib::Result<()> {
+//! # use huelib::Bridge;
+//! # use std::net::{IpAddr, Ipv4Addr};
+//! # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//! // let bridge = Bridge::new(...);
+//! let light = bridge.get_light("1".into())?;
+//! println!("Light 1: {:?}", light);
+//! # Ok(())
+//! # }
 //! ```
+//!
+//! ## Searching for new sensors
+//!
+//! Start searching for new sensors:
+//!
+//! ```no_run
+//! use huelib::resource::sensor;
+//!
+//! # fn main() -> huelib::Result<()> {
+//! # use huelib::Bridge;
+//! # use std::net::{IpAddr, Ipv4Addr};
+//! # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//! // let bridge = Bridge::new(...);
+//! let scanner = sensor::Scanner::new();
+//! bridge.search_new_sensors(&scanner)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Print the discovered sensors:
+//!
+//! ```no_run
+//! # fn main() -> huelib::Result<()> {
+//! # use huelib::Bridge;
+//! # use std::net::{IpAddr, Ipv4Addr};
+//! # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
+//! // let bridge = Bridge::new(...);
+//! let scan = bridge.get_new_sensors()?;
+//! for resource in scan.resources {
+//!     println!("Discovered sensor `{}` with ID `{}`", resource.name, resource.id);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! [`Creator`]: resource::Creator
+//! [`Modifier`]: resource::Modifier
+//! [`Creator::execute`]: resource::Creator::execute
+//! [`Modifier::execute`]: resource::Modifier::execute
+//! [`Scanner::execute`]: resource::Scanner::execute
+//! [`group::Creator`]: resource::group::Creator
 
 #![forbid(unsafe_code)]
 #![warn(rust_2018_idioms, missing_docs, missing_debug_implementations)]

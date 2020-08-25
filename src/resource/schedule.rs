@@ -1,6 +1,8 @@
-use crate::resource::{self, Action};
+use crate::resource;
+use chrono::NaiveDateTime;
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
+use serde_json::{Error as JsonError, Value as JsonValue};
 
 /// Schedule of a resource.
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -13,14 +15,13 @@ pub struct Schedule {
     /// Description of the schedule.
     pub description: String,
     /// Action to execute when the scheduled event occurs.
-    #[serde(rename = "command")]
-    pub action: Action,
+    pub command: Command,
     /// Time when the scheduled event will occur.
     #[serde(rename = "localtime")]
     pub local_time: String,
     /// UTC time that the timer was started. Only provided for timers.
     #[serde(rename = "starttime")]
-    pub start_time: Option<chrono::NaiveDateTime>,
+    pub start_time: Option<NaiveDateTime>,
     /// Status of the schedule.
     pub status: Status,
     /// Whether the schedule will be removed after it expires.
@@ -28,13 +29,81 @@ pub struct Schedule {
     pub auto_delete: Option<bool>,
 }
 
+impl Schedule {
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
+    }
+}
+
 impl resource::Resource for Schedule {}
 
-impl Schedule {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+/// Command of a schedule.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Command {
+    /// Address where the action will be executed.
+    pub address: String,
+    /// The HTTP method used to send the body to the given address.
+    #[serde(rename = "method")]
+    pub request_method: CommandRequestMethod,
+    /// Body of the request that the action sends.
+    pub body: JsonValue,
+}
+
+impl Command {
+    /// Creates a new command from a [`Creator`].
+    ///
+    /// [`Creator`]: resource::Creator
+    pub fn from_creator<C, S>(creator: &C, username: S) -> Result<Self, JsonError>
+    where
+        C: resource::Creator,
+        S: AsRef<str>,
+    {
+        Ok(Self {
+            address: format!("/api/{}/{}", username.as_ref(), C::url_suffix()),
+            request_method: CommandRequestMethod::Post,
+            body: serde_json::to_value(creator)?,
+        })
     }
+
+    /// Creates a new command from a [`Modifier`].
+    ///
+    /// [`Modifier`]: resource::Modifier
+    pub fn from_modifier<M, S>(modifier: &M, id: M::Id, username: S) -> Result<Self, JsonError>
+    where
+        M: resource::Modifier,
+        S: AsRef<str>,
+    {
+        Ok(Self {
+            address: format!("/api/{}/{}", username.as_ref(), M::url_suffix(id)),
+            request_method: CommandRequestMethod::Put,
+            body: serde_json::to_value(modifier)?,
+        })
+    }
+
+    /// Creates a new command from a [`Scanner`].
+    ///
+    /// [`Scanner`]: resource::Scanner
+    pub fn from_scanner<T, S>(scanner: &T, username: S) -> Result<Self, JsonError>
+    where
+        T: resource::Scanner,
+        S: AsRef<str>,
+    {
+        Ok(Self {
+            address: format!("/api/{}/{}", username.as_ref(), T::url_suffix()),
+            request_method: CommandRequestMethod::Post,
+            body: serde_json::to_value(scanner)?,
+        })
+    }
+}
+
+/// Request method of an command.
+#[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum CommandRequestMethod {
+    Put,
+    Post,
+    Delete,
 }
 
 /// Status of a schedule.
@@ -59,8 +128,7 @@ pub struct Creator {
     pub description: Option<String>,
     /// Sets the action of the schedule.
     #[setters(skip)]
-    #[serde(rename = "command")]
-    pub action: Action,
+    pub command: Command,
     /// Sets the local time of the schedule.
     #[serde(rename = "localtime")]
     #[setters(skip)]
@@ -76,20 +144,24 @@ pub struct Creator {
     pub recycle: Option<bool>,
 }
 
-impl resource::Creator for Creator {}
-
 impl Creator {
     /// Creates a new [`Creator`].
-    pub fn new(action: Action, local_time: String) -> Self {
+    pub fn new(command: Command, local_time: String) -> Self {
         Self {
             name: None,
             description: None,
-            action,
+            command,
             local_time,
             status: None,
             auto_delete: None,
             recycle: None,
         }
+    }
+}
+
+impl resource::Creator for Creator {
+    fn url_suffix() -> String {
+        "schedules".to_owned()
     }
 }
 
@@ -104,8 +176,8 @@ pub struct Modifier {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// Sets the action of the schedule.
-    #[serde(skip_serializing_if = "Option::is_none", rename = "command")]
-    pub action: Option<Action>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub command: Option<Command>,
     /// Sets the local time of the schedule.
     #[serde(skip_serializing_if = "Option::is_none", rename = "localtime")]
     pub local_time: Option<String>,
@@ -117,8 +189,6 @@ pub struct Modifier {
     pub auto_delete: Option<bool>,
 }
 
-impl resource::Modifier for Modifier {}
-
 impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
@@ -126,30 +196,34 @@ impl Modifier {
     }
 }
 
+impl resource::Modifier for Modifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("schedules/{}", id)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
-    use std::collections::HashMap;
 
     #[test]
     fn serialize_creator() {
-        let mut action_body = HashMap::new();
-        action_body.insert("scene".to_owned(), json!("02b12e930-off-0"));
-        let action = Action {
-            address: "/api/user/groups/0/action".into(),
-            request_type: resource::ActionRequestType::Put,
-            body: action_body,
+        let command = Command {
+            address: "/api/user/lights/1/state".into(),
+            request_method: CommandRequestMethod::Put,
+            body: json!({"on": true}),
         };
 
-        let creator = Creator::new(action.clone(), "2020-01-01T00:00:00".into());
+        let creator = Creator::new(command.clone(), "2020-01-01T00:00:00".into());
         let creator_json = serde_json::to_value(creator).unwrap();
         let expected_json = json!({
             "command": {
-                "address": "/api/user/groups/0/action",
+                "address": "/api/user/lights/1/state",
                 "method": "PUT",
                 "body": {
-                    "scene": "02b12e930-off-0"
+                    "on": true
                 }
             },
             "localtime": "2020-01-01T00:00:00"
@@ -159,7 +233,7 @@ mod tests {
         let creator = Creator {
             name: Some("test".into()),
             description: Some("description test".into()),
-            action,
+            command,
             local_time: "2020-01-01T00:00:00".into(),
             status: Some(Status::Enabled),
             auto_delete: Some(false),
@@ -170,10 +244,10 @@ mod tests {
             "name": "test",
             "description": "description test",
             "command": {
-                "address": "/api/user/groups/0/action",
+                "address": "/api/user/lights/1/state",
                 "method": "PUT",
                 "body": {
-                    "scene": "02b12e930-off-0"
+                    "on": true
                 }
             },
             "localtime": "2020-01-01T00:00:00",
@@ -191,15 +265,13 @@ mod tests {
         let expected_json = json!({});
         assert_eq!(modifier_json, expected_json);
 
-        let mut action_body = HashMap::new();
-        action_body.insert("scene".to_owned(), json!("02b12e930-off-0"));
         let modifier = Modifier {
             name: Some("test".into()),
             description: Some("description test".into()),
-            action: Some(Action {
-                address: "/api/user/groups/0/action".into(),
-                request_type: resource::ActionRequestType::Put,
-                body: action_body,
+            command: Some(Command {
+                address: "/api/user/lights/1/state".into(),
+                request_method: CommandRequestMethod::Put,
+                body: json!({"on": true}),
             }),
             local_time: Some("2020-01-01T00:00:00".into()),
             status: Some(Status::Disabled),
@@ -210,10 +282,10 @@ mod tests {
             "name": "test",
             "description": "description test",
             "command": {
-                "address": "/api/user/groups/0/action",
+                "address": "/api/user/lights/1/state",
                 "method": "PUT",
                 "body": {
-                    "scene": "02b12e930-off-0"
+                    "on": true
                 }
             },
             "localtime": "2020-01-01T00:00:00",

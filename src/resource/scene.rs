@@ -46,14 +46,13 @@ pub struct Scene {
     pub version: Version,
 }
 
-impl resource::Resource for Scene {}
-
 impl Scene {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
+
+impl resource::Resource for Scene {}
 
 /// Kind of a scene.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
@@ -106,8 +105,6 @@ pub struct Creator {
     pub light_states: Option<HashMap<String, light::StaticStateModifier>>,
 }
 
-impl resource::Creator for Creator {}
-
 impl Creator {
     /// Creates a new [`Creator`].
     pub fn new(name: String, lights: Vec<String>) -> Self {
@@ -118,6 +115,12 @@ impl Creator {
             app_data: None,
             light_states: None,
         }
+    }
+}
+
+impl resource::Creator for Creator {
+    fn url_suffix() -> String {
+        "scenes".to_owned()
     }
 }
 
@@ -141,12 +144,17 @@ pub struct Modifier {
     pub store_light_state: Option<bool>,
 }
 
-impl resource::Modifier for Modifier {}
-
 impl Modifier {
     /// Creates a new [`Modifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for Modifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("scenes/{}", id)
     }
 }
 

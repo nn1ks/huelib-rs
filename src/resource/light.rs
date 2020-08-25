@@ -1,6 +1,6 @@
 #![allow(clippy::needless_update)]
 
-use crate::resource::{self, Adjuster, Alert, ColorMode, Effect};
+use crate::resource::{self, Adjust, Alert, ColorMode, Effect};
 use crate::Color;
 use derive_setters::Setters;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
@@ -45,14 +45,13 @@ pub struct Light {
     pub capabilities: Capabilities,
 }
 
-impl resource::Resource for Light {}
-
 impl Light {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
+
+impl resource::Resource for Light {}
 
 /// State of a light.
 #[derive(Clone, Copy, Debug, PartialEq, Deserialize)]
@@ -201,12 +200,17 @@ pub struct AttributeModifier {
     pub name: Option<String>,
 }
 
-impl resource::Modifier for AttributeModifier {}
-
 impl AttributeModifier {
     /// Creates a new [`AttributeModifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for AttributeModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("lights/{}", id)
     }
 }
 
@@ -250,8 +254,6 @@ pub struct StaticStateModifier {
     pub transition_time: Option<u16>,
 }
 
-impl resource::Modifier for StaticStateModifier {}
-
 impl StaticStateModifier {
     /// Creates a new [`StaticStateModifier`].
     pub fn new() -> Self {
@@ -274,6 +276,13 @@ impl StaticStateModifier {
     }
 }
 
+impl resource::Modifier for StaticStateModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("lights/{}/state", id)
+    }
+}
+
 /// Modifier for the light state.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Setters)]
 #[setters(strip_option, prefix = "with_")]
@@ -281,15 +290,15 @@ pub struct StateModifier {
     /// Turns the light on or off.
     pub on: Option<bool>,
     /// Sets the brightness of the light.
-    pub brightness: Option<Adjuster<u8>>,
+    pub brightness: Option<Adjust<u8>>,
     /// Sets the hue of a light.
-    pub hue: Option<Adjuster<u16>>,
+    pub hue: Option<Adjust<u16>>,
     /// Sets the saturation of a light.
-    pub saturation: Option<Adjuster<u8>>,
+    pub saturation: Option<Adjust<u8>>,
     /// Sets the color space coordinates of the light.
-    pub color_space_coordinates: Option<Adjuster<(f32, f32)>>,
+    pub color_space_coordinates: Option<Adjust<(f32, f32)>>,
     /// Sets the color temperature of a light.
-    pub color_temperature: Option<Adjuster<u16>>,
+    pub color_temperature: Option<Adjust<u16>>,
     /// Sets the alert effect of a light.
     pub alert: Option<Alert>,
     /// Sets the dynamic effect of a light.
@@ -299,8 +308,6 @@ pub struct StateModifier {
     /// This is given as a multiple of 100ms.
     pub transition_time: Option<u16>,
 }
-
-impl resource::Modifier for StateModifier {}
 
 impl StateModifier {
     /// Creates a new [`StateModifier`].
@@ -314,13 +321,20 @@ impl StateModifier {
     /// [`brightness`]: Self::brightness
     pub fn with_color(self, value: Color) -> Self {
         let mut modifier = Self {
-            color_space_coordinates: Some(Adjuster::Override(value.space_coordinates)),
+            color_space_coordinates: Some(Adjust::Override(value.space_coordinates)),
             ..self
         };
         if let Some(brightness) = value.brightness {
-            modifier.brightness = Some(Adjuster::Override(brightness));
+            modifier.brightness = Some(Adjust::Override(brightness));
         }
         modifier
+    }
+}
+
+impl resource::Modifier for StateModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("lights/{}/state", id)
     }
 }
 
@@ -346,6 +360,28 @@ impl Serialize for StateModifier {
             effect => (&self.effect),
             transitiontime => (&self.transition_time),
         }
+    }
+}
+
+/// Scanner for new lights.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
+pub struct Scanner {
+    /// The device identifiers.
+    #[serde(rename = "deviceid")]
+    pub device_ids: Option<Vec<String>>,
+}
+
+impl Scanner {
+    /// Creates a new [`Scanner`].
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl resource::Scanner for Scanner {
+    fn url_suffix() -> String {
+        "lights".to_owned()
     }
 }
 
@@ -418,11 +454,11 @@ mod tests {
 
         let modifier = StateModifier {
             on: Some(true),
-            brightness: Some(Adjuster::Increment(1)),
-            hue: Some(Adjuster::Override(2)),
-            saturation: Some(Adjuster::Decrement(3)),
+            brightness: Some(Adjust::Increment(1)),
+            hue: Some(Adjust::Override(2)),
+            saturation: Some(Adjust::Decrement(3)),
             color_space_coordinates: None,
-            color_temperature: Some(Adjuster::Override(4)),
+            color_temperature: Some(Adjust::Override(4)),
             alert: Some(Alert::None),
             effect: Some(Effect::Colorloop),
             transition_time: Some(4),
@@ -441,7 +477,7 @@ mod tests {
         assert_eq!(modifier_json, expected_json);
 
         let modifier = StateModifier::new()
-            .with_brightness(Adjuster::Increment(1))
+            .with_brightness(Adjust::Increment(1))
             .with_color(Color::from_rgb(0, 0, 0));
         let modifier_json = serde_json::to_value(modifier).unwrap();
         let expected_json = json!({

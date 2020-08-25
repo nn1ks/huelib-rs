@@ -35,14 +35,13 @@ pub struct Sensor {
     pub recycle: Option<bool>,
 }
 
-impl resource::Resource for Sensor {}
-
 impl Sensor {
-    pub(crate) fn with_id(mut self, id: impl Into<String>) -> Self {
-        self.id = id.into();
-        self
+    pub(crate) fn with_id(self, id: String) -> Self {
+        Self { id, ..self }
     }
 }
+
+impl resource::Resource for Sensor {}
 
 /// Current state of a sensor.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
@@ -82,12 +81,17 @@ pub struct AttributeModifier {
     pub name: Option<String>,
 }
 
-impl resource::Modifier for AttributeModifier {}
-
 impl AttributeModifier {
     /// Creates a new [`AttributeModifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for AttributeModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("sensors/{}", id)
     }
 }
 
@@ -100,12 +104,17 @@ pub struct StateModifier {
     pub presence: Option<bool>,
 }
 
-impl resource::Modifier for StateModifier {}
-
 impl StateModifier {
     /// Creates a new [`StateModifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for StateModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("sensors/{}/state", id)
     }
 }
 
@@ -118,12 +127,39 @@ pub struct ConfigModifier {
     pub on: Option<bool>,
 }
 
-impl resource::Modifier for ConfigModifier {}
-
 impl ConfigModifier {
     /// Creates a new [`ConfigModifier`].
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl resource::Modifier for ConfigModifier {
+    type Id = String;
+    fn url_suffix(id: Self::Id) -> String {
+        format!("sensors/{}/config", id)
+    }
+}
+
+/// Scanner for new lights.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[setters(strip_option, prefix = "with_")]
+pub struct Scanner {
+    /// The device identifiers.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "deviceid")]
+    pub device_ids: Option<Vec<String>>,
+}
+
+impl Scanner {
+    /// Creates a new [`Scanner`].
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl resource::Scanner for Scanner {
+    fn url_suffix() -> String {
+        "sensors".to_owned()
     }
 }
 

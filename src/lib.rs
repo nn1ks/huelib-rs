@@ -115,7 +115,7 @@
 //!     let modifier = light::StateModifier::new()
 //!         .with_on(true)
 //!         .with_color(Color::from_rgb(255, 0, 0));
-//!     let responses = bridge.set_light_state("1".into(), &modifier)?;
+//!     let responses = bridge.set_light_state("1", &modifier)?;
 //!     # Ok(())
 //!     # }
 //!     ```
@@ -150,7 +150,7 @@
 //! # use std::net::{IpAddr, Ipv4Addr};
 //! # let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), String::new());
 //! // let bridge = Bridge::new(...);
-//! let light = bridge.get_light("1".into())?;
+//! let light = bridge.get_light("1")?;
 //! println!("Light 1: {:?}", light);
 //! # Ok(())
 //! # }

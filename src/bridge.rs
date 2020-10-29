@@ -233,22 +233,29 @@ impl Bridge {
         modifier: &resource::light::AttributeModifier,
     ) -> Result<ResponsesModified>
     where
-        S: AsRef<str>,
+        S: Into<String>,
     {
-        modifier.execute(self, id.as_ref().to_owned())
+        modifier.execute(self, id.into())
     }
 
     /// Modifies the state of a light.
-    pub fn set_light_state(
+    pub fn set_light_state<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::light::StateModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a light.
-    pub fn get_light(&self, id: String) -> Result<resource::Light> {
+    pub fn get_light<S>(&self, id: S) -> Result<resource::Light>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let light: resource::Light = parse_response(self.api_request(
             format!("lights/{}", id),
             RequestMethod::Get,
@@ -289,9 +296,15 @@ impl Bridge {
     }
 
     /// Deletes a light from the bridge.
-    pub fn delete_light(&self, id: String) -> Result<()> {
-        let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("lights/{}", id), RequestMethod::Delete, None)?;
+    pub fn delete_light<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
+        let response: Vec<Response<JsonValue>> = self.api_request(
+            &format!("lights/{}", id.into()),
+            RequestMethod::Delete,
+            None,
+        )?;
         for i in response {
             i.into_result()?;
         }
@@ -304,25 +317,35 @@ impl Bridge {
     }
 
     /// Modifies attributes of a group.
-    pub fn set_group_attribute(
+    pub fn set_group_attribute<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::group::AttributeModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Modifies the state of a group.
-    pub fn set_group_state(
+    pub fn set_group_state<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::group::StateModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a group.
-    pub fn get_group(&self, id: String) -> Result<resource::Group> {
+    pub fn get_group<S>(&self, id: S) -> Result<resource::Group>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let group: resource::Group = parse_response(self.api_request(
             format!("groups/{}", id),
             RequestMethod::Get,
@@ -342,9 +365,15 @@ impl Bridge {
     }
 
     /// Deletes a group from the bridge.
-    pub fn delete_group(&self, id: String) -> Result<()> {
-        let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("groups/{}", id), RequestMethod::Delete, None)?;
+    pub fn delete_group<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
+        let response: Vec<Response<JsonValue>> = self.api_request(
+            &format!("groups/{}", id.into()),
+            RequestMethod::Delete,
+            None,
+        )?;
         for i in response {
             i.into_result()?;
         }
@@ -357,16 +386,23 @@ impl Bridge {
     }
 
     /// Modifies the state and attributes of a scene.
-    pub fn set_scene(
+    pub fn set_scene<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::scene::Modifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a scene.
-    pub fn get_scene(&self, id: String) -> Result<resource::Scene> {
+    pub fn get_scene<S>(&self, id: S) -> Result<resource::Scene>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let scene: resource::Scene = parse_response(self.api_request(
             format!("scenes/{}", id),
             RequestMethod::Get,
@@ -386,9 +422,15 @@ impl Bridge {
     }
 
     /// Deletes a scene.
-    pub fn delete_scene(&self, id: String) -> Result<()> {
-        let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("scenes/{}", id), RequestMethod::Delete, None)?;
+    pub fn delete_scene<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
+        let response: Vec<Response<JsonValue>> = self.api_request(
+            &format!("scenes/{}", id.into()),
+            RequestMethod::Delete,
+            None,
+        )?;
         for i in response {
             i.into_result()?;
         }
@@ -406,16 +448,23 @@ impl Bridge {
     }
 
     /// Modifies attributes of a schedule.
-    pub fn set_schedule(
+    pub fn set_schedule<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::schedule::Modifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a schedule.
-    pub fn get_schedule(&self, id: String) -> Result<resource::Schedule> {
+    pub fn get_schedule<S>(&self, id: S) -> Result<resource::Schedule>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let schedule: resource::Schedule = parse_response(self.api_request(
             format!("schedules/{}", id),
             RequestMethod::Get,
@@ -435,9 +484,15 @@ impl Bridge {
     }
 
     /// Deletes a schedule.
-    pub fn delete_schedule(&self, id: String) -> Result<()> {
-        let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("schedules/{}", id), RequestMethod::Delete, None)?;
+    pub fn delete_schedule<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
+        let response: Vec<Response<JsonValue>> = self.api_request(
+            &format!("schedules/{}", id.into()),
+            RequestMethod::Delete,
+            None,
+        )?;
         for i in response {
             i.into_result()?;
         }
@@ -450,16 +505,23 @@ impl Bridge {
     }
 
     /// Modifies attributes of a resourcelink.
-    pub fn set_resourcelink(
+    pub fn set_resourcelink<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::resourcelink::Modifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a resourcelink.
-    pub fn get_resourcelink(&self, id: String) -> Result<resource::Resourcelink> {
+    pub fn get_resourcelink<S>(&self, id: S) -> Result<resource::Resourcelink>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let resourcelink: resource::Resourcelink = parse_response(self.api_request(
             format!("resourcelinks/{}", id),
             RequestMethod::Get,
@@ -479,9 +541,12 @@ impl Bridge {
     }
 
     /// Deletes a resourcelink.
-    pub fn delete_resourcelink(&self, id: String) -> Result<()> {
+    pub fn delete_resourcelink<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
         let response: Vec<Response<JsonValue>> = self.api_request(
-            &format!("resourcelinks/{}", id),
+            &format!("resourcelinks/{}", id.into()),
             RequestMethod::Delete,
             None,
         )?;
@@ -492,34 +557,47 @@ impl Bridge {
     }
 
     /// Modifies attributes of a sensor.
-    pub fn set_sensor_attribute(
+    pub fn set_sensor_attribute<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::sensor::AttributeModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Modifies the state of a sensor.
-    pub fn set_sensor_state(
+    pub fn set_sensor_state<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::sensor::StateModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Modifies the configuration of a sensor.
-    pub fn set_sensor_config(
+    pub fn set_sensor_config<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::sensor::ConfigModifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a sensor.
-    pub fn get_sensor(&self, id: String) -> Result<resource::Sensor> {
+    pub fn get_sensor<S>(&self, id: S) -> Result<resource::Sensor>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let sensor: resource::Sensor = parse_response(self.api_request(
             format!("sensors/{}", id),
             RequestMethod::Get,
@@ -560,9 +638,15 @@ impl Bridge {
     }
 
     /// Deletes a sensor from the bridge.
-    pub fn delete_sensor(&self, id: String) -> Result<()> {
-        let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("sensors/{}", id), RequestMethod::Delete, None)?;
+    pub fn delete_sensor<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
+        let response: Vec<Response<JsonValue>> = self.api_request(
+            &format!("sensors/{}", id.into()),
+            RequestMethod::Delete,
+            None,
+        )?;
         for i in response {
             i.into_result()?;
         }
@@ -575,16 +659,23 @@ impl Bridge {
     }
 
     /// Modifies attributes of a rule.
-    pub fn set_rule(
+    pub fn set_rule<S>(
         &self,
-        id: String,
+        id: S,
         modifier: &resource::rule::Modifier,
-    ) -> Result<ResponsesModified> {
-        modifier.execute(self, id)
+    ) -> Result<ResponsesModified>
+    where
+        S: Into<String>,
+    {
+        modifier.execute(self, id.into())
     }
 
     /// Returns a rule.
-    pub fn get_rule(&self, id: String) -> Result<resource::Rule> {
+    pub fn get_rule<S>(&self, id: S) -> Result<resource::Rule>
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
         let rule: resource::Rule =
             parse_response(self.api_request(format!("rules/{}", id), RequestMethod::Get, None)?)?;
         Ok(rule.with_id(id))
@@ -598,9 +689,12 @@ impl Bridge {
     }
 
     /// Deletes a rule.
-    pub fn delete_rule(&self, id: String) -> Result<()> {
+    pub fn delete_rule<S>(&self, id: S) -> Result<()>
+    where
+        S: Into<String>,
+    {
         let response: Vec<Response<JsonValue>> =
-            self.api_request(&format!("rules/{}", id), RequestMethod::Delete, None)?;
+            self.api_request(&format!("rules/{}", id.into()), RequestMethod::Delete, None)?;
         for i in response {
             i.into_result()?;
         }

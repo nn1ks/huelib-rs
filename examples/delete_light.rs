@@ -13,7 +13,7 @@ fn main() {
     let bridge = Bridge::new(bridge_ip, username);
 
     // Deletes the light with the id 1.
-    match bridge.delete_light("1".into()) {
+    match bridge.delete_light("1") {
         Ok(_) => println!("Deleted light"),
         Err(e) => println!("Failed to delete light: {}", e),
     };

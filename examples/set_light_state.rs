@@ -22,6 +22,6 @@ fn main() {
         .with_brightness(Adjust::Decrement(40));
 
     // Modify the attributes declared in `light_modifier` on the light with the id 1.
-    let response = bridge.set_light_state("1".into(), &light_modifier).unwrap();
+    let response = bridge.set_light_state("1", &light_modifier).unwrap();
     println!("{:?}", response);
 }

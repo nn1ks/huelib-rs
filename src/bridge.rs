@@ -29,8 +29,8 @@ type ResponsesModified = Vec<Response<Modified>>;
 ///
 /// # fn main() -> Result<(), huelib::Error> {
 /// let ip = bridge::discover()?.pop().expect("found no bridges");
-/// let user = bridge::register_user(ip, "example", false)?;
-/// println!("Registered user: {}", user.name);
+/// let username = bridge::register_user(ip, "example")?;
+/// println!("Registered user: {}", username);
 /// # Ok(())
 /// # }
 /// ```
@@ -49,22 +49,10 @@ pub fn discover() -> Result<Vec<IpAddr>> {
     Ok(ip_addresses)
 }
 
-/// A user on a bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
-pub struct User {
-    /// Name of the user.
-    #[serde(rename = "username")]
-    pub name: String,
-    /// Generated clientkey of the user.
-    pub clientkey: Option<String>,
-}
-
 /// Registers a new user on a bridge.
 ///
-/// This sends a HTTP POST request with `devicetype` and `generate_clientkey` as body to the bridge
-/// with the specified IP address. The value of `devicetype` usally contains the app and device
-/// name. If `generate_clientkey` is set to true the returned user will contain a random
-/// generated 16 byte clientkey encoded as ASCII string of length 32.
+/// This function returns the new username. See the [`register_user_with_clientkey`] function if you
+/// also want to generate a clientkey.
 ///
 /// # Examples
 ///
@@ -75,29 +63,76 @@ pub struct User {
 ///
 /// # fn main() -> Result<(), huelib::Error> {
 /// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
-/// let user = bridge::register_user(bridge_ip, "example", false)?;
-/// println!("Registered user with username: {}", user.name);
+/// let username = bridge::register_user(bridge_ip, "example")?;
+/// println!("Registered user with username `{}`", username);
 /// # Ok(())
 /// # }
 /// ```
-pub fn register_user(
-    ip_address: IpAddr,
-    devicetype: impl AsRef<str>,
-    generate_clientkey: bool,
-) -> Result<User> {
+pub fn register_user<S>(ip_address: IpAddr, devicetype: S) -> Result<String>
+where
+    S: AsRef<str>,
+{
     let url = format!("http://{}/api", ip_address);
-    let body = if generate_clientkey {
-        format!(
-            "{{\"devicetype\": \"{}\", \"generateclientkey\": true}}",
-            devicetype.as_ref()
-        )
-    } else {
-        format!("{{\"devicetype\": \"{}\"}}", devicetype.as_ref())
-    };
+    let body = format!("{{\"devicetype\":\"{}\"}}", devicetype.as_ref());
     let http_response = ureq::post(&url).send_string(&body);
+    #[derive(Deserialize)]
+    struct User {
+        username: String,
+    }
     let mut responses: Vec<Response<User>> = serde_json::from_value(http_response.into_json()?)?;
     match responses.pop() {
-        Some(v) => v.into_result().map_err(Error::Response),
+        Some(v) => match v.into_result() {
+            Ok(user) => Ok(user.username),
+            Err(e) => Err(Error::Response(e)),
+        },
+        None => Err(Error::GetUsername),
+    }
+}
+
+/// Registers a new user on a bridge with a clientkey.
+///
+/// This function returns the new username and a random generated 16 byte clientkey encoded as ASCII
+/// string of length 32. See the [`register_user`] function if you don't want to generate a
+/// clientkey.
+///
+/// # Examples
+///
+/// Register a user and print the username and clientkey:
+/// ```no_run
+/// use huelib::bridge;
+/// use std::net::{IpAddr, Ipv4Addr};
+///
+/// # fn main() -> Result<(), huelib::Error> {
+/// let bridge_ip = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2));
+/// let (username, clientkey) = bridge::register_user_with_clientkey(bridge_ip, "example")?;
+/// println!("Registered user with username `{}` and clientkey `{}`", username, clientkey);
+/// # Ok(())
+/// # }
+/// ```
+pub fn register_user_with_clientkey<S>(
+    ip_address: IpAddr,
+    devicetype: S,
+) -> Result<(String, String)>
+where
+    S: AsRef<str>,
+{
+    let url = format!("http://{}/api", ip_address);
+    let body = format!(
+        "{{\"devicetype\":\"{}\",\"generateclientkey\":true}}",
+        devicetype.as_ref()
+    );
+    let http_response = ureq::post(&url).send_string(&body);
+    #[derive(Deserialize)]
+    struct User {
+        username: String,
+        clientkey: String,
+    }
+    let mut responses: Vec<Response<User>> = serde_json::from_value(http_response.into_json()?)?;
+    match responses.pop() {
+        Some(v) => match v.into_result() {
+            Ok(user) => Ok((user.username, user.clientkey)),
+            Err(e) => Err(Error::Response(e)),
+        },
         None => Err(Error::GetUsername),
     }
 }

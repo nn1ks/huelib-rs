@@ -7,8 +7,6 @@ fn main() {
     let bridge_ip = bridge::discover().unwrap().pop().unwrap();
 
     // Register a new user.
-    match bridge::register_user(bridge_ip, "huelib-rs example", false) {
-        Ok(v) => println!("Registered a new user with username: {}", v.name),
-        Err(e) => println!("Failed to register user: {}", e),
-    }
+    let username = bridge::register_user(bridge_ip, "huelib-rs example").unwrap();
+    println!("Registered a new user with username: {}", username);
 }

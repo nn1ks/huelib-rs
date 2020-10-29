@@ -8,10 +8,10 @@ fn main() {
     let bridge_ip = bridge::discover().unwrap().pop().unwrap();
 
     // Register a new user.
-    let user = bridge::register_user(bridge_ip, "huelib-rs example", false).unwrap();
+    let username = bridge::register_user(bridge_ip, "huelib-rs example").unwrap();
 
     // Create a new bridge.
-    let bridge = Bridge::new(bridge_ip, user.name);
+    let bridge = Bridge::new(bridge_ip, username);
 
     // Creates a new light modifier to turn on the light, set the saturation to 10 and decrement
     // the brightness by 40.

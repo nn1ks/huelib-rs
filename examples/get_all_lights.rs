@@ -7,10 +7,10 @@ fn main() {
     let bridge_ip = bridge::discover().unwrap().pop().unwrap();
 
     // Register a new user.
-    let user = bridge::register_user(bridge_ip, "huelib-rs example", false).unwrap();
+    let username = bridge::register_user(bridge_ip, "huelib-rs example").unwrap();
 
     // Create a new bridge.
-    let bridge = Bridge::new(bridge_ip, user.name);
+    let bridge = Bridge::new(bridge_ip, username);
 
     // Print out every light that is connected to the bridge.
     let lights = bridge.get_all_lights().unwrap();

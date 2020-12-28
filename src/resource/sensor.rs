@@ -62,6 +62,9 @@ pub struct State {
         deserialize_with = "util::deserialize_option_date_time"
     )]
     pub last_updated: Option<chrono::NaiveDateTime>,
+    /// Button id that was pressed last.
+    #[serde(rename = "buttonevent")]
+    pub button_event: Option<u32>,
     // TODO: Add missing attributes (https://github.com/yuqio/huelib-rs/issues/2)
 }
 

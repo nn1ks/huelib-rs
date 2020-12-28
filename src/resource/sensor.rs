@@ -65,6 +65,15 @@ pub struct State {
     /// Button id that was pressed last.
     #[serde(rename = "buttonevent")]
     pub button_event: Option<u32>,
+    /// The temperature in centigrades.
+    pub temperature: Option<u32>,
+    /// The light level in centiluxes.
+    #[serde(rename = "lightlevel")]
+    pub light_level: Option<u32>,
+    /// Whether it's dark according to the sensor's sensitivity.
+    pub dark: Option<bool>,
+    /// Whether it's daytime according to the sensor's sensitivity.
+    pub daylight: Option<bool>,
     // TODO: Add missing attributes (https://github.com/yuqio/huelib-rs/issues/2)
 }
 

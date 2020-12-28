@@ -26,7 +26,7 @@ pub struct Sensor {
     pub manufacturer_name: Option<String>,
     /// Software version of the sensor.
     #[serde(rename = "swversion")]
-    pub software_verion: String,
+    pub software_version: Option<String>,
     /// Current state of the sensor.
     pub state: State,
     /// Configuration of the sensor.

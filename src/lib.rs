@@ -26,7 +26,7 @@
 //! use huelib::Bridge;
 //! use std::net::{IpAddr, Ipv4Addr};
 //!
-//! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username".into());
+//! let bridge = Bridge::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 2)), "username");
 //! ```
 //!
 //! You can then send requests using either the methods of [`Bridge`] or the different traits

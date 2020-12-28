@@ -27,6 +27,9 @@ pub struct Sensor {
     /// The product name.
     #[serde(rename = "productname")]
     pub product_name: Option<String>,
+    /// Some proprietary id as seen on https://www.senic.com/friends-of-hue-smart-switch.
+    #[serde(rename = "diversityid")]
+    pub diversity_id: Option<String>,
     /// Software version of the sensor.
     #[serde(rename = "swversion")]
     pub software_version: Option<String>,

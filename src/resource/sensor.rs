@@ -24,6 +24,9 @@ pub struct Sensor {
     /// Manufacturer name of the sensor.
     #[serde(rename = "manufacturername")]
     pub manufacturer_name: Option<String>,
+    /// The product name.
+    #[serde(rename = "productname")]
+    pub product_name: Option<String>,
     /// Software version of the sensor.
     #[serde(rename = "swversion")]
     pub software_version: Option<String>,

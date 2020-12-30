@@ -24,9 +24,15 @@ pub struct Sensor {
     /// Manufacturer name of the sensor.
     #[serde(rename = "manufacturername")]
     pub manufacturer_name: Option<String>,
+    /// The product name.
+    #[serde(rename = "productname")]
+    pub product_name: Option<String>,
+    /// Some proprietary id as seen on https://www.senic.com/friends-of-hue-smart-switch.
+    #[serde(rename = "diversityid")]
+    pub diversity_id: Option<String>,
     /// Software version of the sensor.
     #[serde(rename = "swversion")]
-    pub software_verion: String,
+    pub software_version: Option<String>,
     /// Current state of the sensor.
     pub state: State,
     /// Configuration of the sensor.
@@ -56,6 +62,18 @@ pub struct State {
         deserialize_with = "util::deserialize_option_date_time"
     )]
     pub last_updated: Option<chrono::NaiveDateTime>,
+    /// Button id that was pressed last.
+    #[serde(rename = "buttonevent")]
+    pub button_event: Option<u32>,
+    /// The temperature in centigrades.
+    pub temperature: Option<u32>,
+    /// The light level in centiluxes.
+    #[serde(rename = "lightlevel")]
+    pub light_level: Option<u32>,
+    /// Whether it's dark according to the sensor's sensitivity.
+    pub dark: Option<bool>,
+    /// Whether it's daytime according to the sensor's sensitivity.
+    pub daylight: Option<bool>,
     // TODO: Add missing attributes (https://github.com/yuqio/huelib-rs/issues/2)
 }
 

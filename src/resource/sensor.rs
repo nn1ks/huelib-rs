@@ -66,7 +66,7 @@ pub struct State {
     #[serde(rename = "buttonevent")]
     pub button_event: Option<u32>,
     /// The temperature in centigrades.
-    pub temperature: Option<u32>,
+    pub temperature: Option<i32>,
     /// The light level in centiluxes.
     #[serde(rename = "lightlevel")]
     pub light_level: Option<u32>,

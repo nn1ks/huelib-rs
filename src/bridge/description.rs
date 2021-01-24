@@ -29,7 +29,7 @@ impl Description {
     /// the descriptor file.
     pub fn get(ip_address: IpAddr) -> crate::Result<Self> {
         let url = format!("http://{}/description.xml", ip_address);
-        let http_response = ureq::get(&url).call();
+        let http_response = ureq::get(&url).call()?;
         Ok(serde_xml_rs::from_reader(http_response.into_reader())?)
     }
 }

@@ -31,13 +31,13 @@ use std::net::IpAddr;
 /// # }
 /// ```
 pub fn discover_nupnp() -> Result<Vec<IpAddr>> {
-    let http_response = ureq::get("https://discovery.meethue.com").call();
+    let http_response = ureq::get("https://discovery.meethue.com").call()?;
     #[derive(Deserialize)]
     struct BridgeJson {
         #[serde(rename = "internalipaddress")]
         ip_address: String,
     }
-    let bridges: Vec<BridgeJson> = serde_json::from_value(http_response.into_json()?)?;
+    let bridges: Vec<BridgeJson> = http_response.into_json()?;
     let mut ip_addresses = Vec::<IpAddr>::new();
     for b in bridges {
         ip_addresses.push(b.ip_address.parse()?);

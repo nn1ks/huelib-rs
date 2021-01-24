@@ -88,17 +88,17 @@ impl Bridge {
         T: DeserializeOwned,
     {
         let url = format!("{}/{}", self.api_url, url_suffix.as_ref());
-        let mut request = match request_method {
+        let request = match request_method {
             RequestMethod::Put => ureq::put(&url),
             RequestMethod::Post => ureq::post(&url),
             RequestMethod::Get => ureq::get(&url),
             RequestMethod::Delete => ureq::delete(&url),
         };
         let response = match body {
-            Some(v) => request.send_json(v),
-            None => request.call(),
+            Some(v) => request.send_json(v)?,
+            None => request.call()?,
         };
-        Ok(serde_json::from_value(response.into_json()?)?)
+        Ok(response.into_json()?)
     }
 
     /// Modifies the configuration of the bridge.

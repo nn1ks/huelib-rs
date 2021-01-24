@@ -27,12 +27,12 @@ where
 {
     let url = format!("http://{}/api", ip_address);
     let body = format!("{{\"devicetype\":\"{}\"}}", devicetype.as_ref());
-    let http_response = ureq::post(&url).send_string(&body);
+    let http_response = ureq::post(&url).send_string(&body)?;
     #[derive(Deserialize)]
     struct User {
         username: String,
     }
-    let mut responses: Vec<Response<User>> = serde_json::from_value(http_response.into_json()?)?;
+    let mut responses: Vec<Response<User>> = http_response.into_json()?;
     match responses.pop() {
         Some(v) => match v.into_result() {
             Ok(user) => Ok(user.username),
@@ -74,13 +74,13 @@ where
         "{{\"devicetype\":\"{}\",\"generateclientkey\":true}}",
         devicetype.as_ref()
     );
-    let http_response = ureq::post(&url).send_string(&body);
+    let http_response = ureq::post(&url).send_string(&body)?;
     #[derive(Deserialize)]
     struct User {
         username: String,
         clientkey: String,
     }
-    let mut responses: Vec<Response<User>> = serde_json::from_value(http_response.into_json()?)?;
+    let mut responses: Vec<Response<User>> = http_response.into_json()?;
     match responses.pop() {
         Some(v) => match v.into_result() {
             Ok(user) => Ok((user.username, user.clientkey)),

@@ -6,6 +6,7 @@ use serde_xml_rs::Error as SerdeXmlError;
 use std::result::Result as StdResult;
 use std::{io::Error as IoError, net::AddrParseError};
 use thiserror::Error as ThisError;
+use ureq::Error as UreqError;
 
 /// Alias for `Result<T, huelib::Error>`.
 pub type Result<T> = StdResult<T, Error>;
@@ -31,6 +32,9 @@ pub enum Error {
     /// Error that can occur while parsing json content.
     #[error("Failed to parse json content: {0}")]
     ParseJson(#[from] SerdeJsonError),
+    /// Error that can occur when sending HTTP requests.
+    #[error("Failed to send HTTP request: {0}")]
+    Request(#[from] Box<UreqError>),
     /// Error that can occur when deserializing [`Description`].
     ///
     /// [`Description`]: crate::bridge::Description
@@ -40,4 +44,10 @@ pub enum Error {
     /// Error that is returned by the Philips Hue API.
     #[error("Error returned from Philips Hue API: {0}")]
     Response(#[from] ResponseError),
+}
+
+impl From<UreqError> for Error {
+    fn from(ureq_error: UreqError) -> Self {
+        Self::Request(Box::new(ureq_error))
+    }
 }

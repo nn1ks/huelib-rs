@@ -13,7 +13,7 @@ mod register;
 pub use description::{
     description, Description, DescriptionDevice, DescriptionIcon, DescriptionSpecVersion,
 };
-pub use discover::discover;
+pub use discover::discover_nupnp;
 pub use register::{register_user, register_user_with_clientkey};
 
 type ResponsesModified = Vec<Response<Modified>>;

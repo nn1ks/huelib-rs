@@ -2,7 +2,7 @@ use crate::Result;
 use serde::Deserialize;
 use std::net::IpAddr;
 
-/// Discovers bridges in the local netowork.
+/// Discovers bridges in the local netowork using N-UPnP.
 ///
 /// This sends a HTTP GET request to [https://discovery.meethue.com], to get IP addresses of bridges
 /// that are in the local network.
@@ -14,7 +14,7 @@ use std::net::IpAddr;
 /// Get the IP addresses of all discovered bridges:
 /// ```no_run
 /// # fn main() -> Result<(), huelib::Error> {
-/// let ip_addresses = huelib::bridge::discover()?;
+/// let ip_addresses = huelib::bridge::discover_nupnp()?;
 /// # Ok(())
 /// # }
 /// ```
@@ -24,13 +24,13 @@ use std::net::IpAddr;
 /// use huelib::bridge;
 ///
 /// # fn main() -> Result<(), huelib::Error> {
-/// let ip = bridge::discover()?.pop().expect("found no bridges");
+/// let ip = bridge::discover_nupnp()?.pop().expect("found no bridges");
 /// let username = bridge::register_user(ip, "example")?;
 /// println!("Registered user: {}", username);
 /// # Ok(())
 /// # }
 /// ```
-pub fn discover() -> Result<Vec<IpAddr>> {
+pub fn discover_nupnp() -> Result<Vec<IpAddr>> {
     let http_response = ureq::get("https://discovery.meethue.com").call();
     #[derive(Deserialize)]
     struct BridgeJson {

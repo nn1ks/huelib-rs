@@ -17,9 +17,9 @@
 //! # Connecting to a bridge
 //!
 //! To connect to a bridge, the IP address of the bridge and the name of a registered user is
-//! needed. You can use the [`bridge::discover`] function to get the IP addresses of bridges that
-//! are in the local network and the [`bridge::register_user`] function to register a new user on a
-//! bridge.
+//! needed. You can use the [`bridge::discover_nupnp`] function to get the IP addresses of bridges
+//! that are in the local network and the [`bridge::register_user`] function to register a new user
+//! on a bridge.
 //!
 //! To able to send requests to the bridge, a [`Bridge`] must be created. For example:
 //! ```no_run

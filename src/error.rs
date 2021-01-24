@@ -1,6 +1,8 @@
 use crate::response::Error as ResponseError;
 use chrono::ParseError as ChronoParseError;
 use serde_json::Error as SerdeJsonError;
+#[cfg(feature = "upnp-description")]
+use serde_xml_rs::Error as SerdeXmlError;
 use std::result::Result as StdResult;
 use std::{io::Error as IoError, net::AddrParseError};
 use thiserror::Error as ThisError;
@@ -29,6 +31,12 @@ pub enum Error {
     /// Error that can occur while parsing json content.
     #[error("Failed to parse json content: {0}")]
     ParseJson(#[from] SerdeJsonError),
+    /// Error that can occur when deserializing [`Description`].
+    ///
+    /// [`Description`]: crate::bridge::Description
+    #[cfg(feature = "upnp-description")]
+    #[error("Failed to parse description: {0}")]
+    ParseDescription(#[from] SerdeXmlError),
     /// Error that is returned by the Philips Hue API.
     #[error("Error returned from Philips Hue API: {0}")]
     Response(#[from] ResponseError),

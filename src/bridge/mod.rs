@@ -4,9 +4,15 @@ use serde::de::DeserializeOwned;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, net::IpAddr};
 
+#[cfg(feature = "upnp-description")]
+mod description;
 mod discover;
 mod register;
 
+#[cfg(feature = "upnp-description")]
+pub use description::{
+    description, Description, DescriptionDevice, DescriptionIcon, DescriptionSpecVersion,
+};
 pub use discover::discover;
 pub use register::{register_user, register_user_with_clientkey};
 

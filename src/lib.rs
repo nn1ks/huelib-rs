@@ -14,6 +14,11 @@
 //! [serde_json]: https://github.com/serde-rs/json
 //! [serde_repr]: https://github.com/dtolnay/serde-repr
 //!
+//! # Features
+//!
+//! - `upnp-description`: Adds support for accessing the UPnP description of a bridge. See the
+//! [`bridge::Description`] struct for more information.
+//!
 //! # Connecting to a bridge
 //!
 //! To connect to a bridge, the IP address of the bridge and the name of a registered user is

@@ -204,6 +204,7 @@
 
 #![forbid(unsafe_code)]
 #![warn(rust_2018_idioms, missing_docs, missing_debug_implementations)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[macro_use]
 mod util;

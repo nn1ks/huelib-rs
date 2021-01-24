@@ -27,3 +27,6 @@ mime = { version = "0.3", optional = true }
 
 [features]
 upnp-description = ["serde-xml-rs", "url", "uuid", "mime"]
+
+[package.metadata.docs.rs]
+all-features = true

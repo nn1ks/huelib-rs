@@ -7,11 +7,13 @@ use uuid::Uuid;
 /// Returns the description of the bridge with the given IP address.
 ///
 /// This method internally calls [`Description::get`].
+#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 pub fn description(ip_address: IpAddr) -> crate::Result<Description> {
     Description::get(ip_address)
 }
 
 /// Description of a bridge.
+#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -35,6 +37,7 @@ impl Description {
 }
 
 /// Spec version type of a description.
+#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct DescriptionSpecVersion {
     /// The major version.
@@ -44,6 +47,7 @@ pub struct DescriptionSpecVersion {
 }
 
 /// Device type of a description.
+#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -76,6 +80,7 @@ where
 }
 
 /// Icon type of a description.
+#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(from = "deserialize::DescriptionIconWrapper")]

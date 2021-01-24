@@ -10,7 +10,6 @@ mod discover;
 mod register;
 
 #[cfg(feature = "upnp-description")]
-#[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 pub use description::{
     description, Description, DescriptionDevice, DescriptionIcon, DescriptionSpecVersion,
 };

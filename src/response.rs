@@ -66,7 +66,7 @@ pub enum ErrorKind {
     TooManyItemsInList = 11,
     PortalConnectionRequired = 12,
     LinkButtonNotPressed = 101,
-    DHCPCannotBeDisabled = 110,
+    DhcpCannotBeDisabled = 110,
     InvalidUpdateState = 111,
     DeviceIsSetToOff = 201,
     CommissionableLightListIsFull = 203,

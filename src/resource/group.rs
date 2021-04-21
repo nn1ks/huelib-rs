@@ -4,7 +4,7 @@ use derive_setters::Setters;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 
 /// A group of lights.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Group {
     /// Identifier of the group.
     #[serde(skip)]
@@ -51,7 +51,7 @@ impl Group {
 impl resource::Resource for Group {}
 
 /// Kind of a group.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(untagged)]
 pub enum Kind {
     /// Kind of a group that can be manually created.
@@ -61,7 +61,7 @@ pub enum Kind {
 }
 
 /// Kind of a group that can be manually created.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum CreatableKind {
     /// A group of lights that can be controlled together.
     ///
@@ -87,7 +87,7 @@ pub enum CreatableKind {
 }
 
 /// Kind of a group that is automatically created by the bridge and cannot be manually created.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub enum ImmutableKind {
     /// A special group containing all lights in the system.
     ///
@@ -108,7 +108,7 @@ pub enum ImmutableKind {
 
 /// Class of a group.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum Class {
     Attic,
     Balcony,
@@ -160,7 +160,7 @@ pub enum Class {
 }
 
 /// State of a group.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct State {
     /// Whether any light in a group is on.
     pub any_on: bool,
@@ -169,7 +169,7 @@ pub struct State {
 }
 
 /// Struct for creating a group.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Creator {
     /// Sets the name of the group.
@@ -213,7 +213,7 @@ impl resource::Creator for Creator {
 }
 
 /// Struct for modifying group attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
     /// Sets the name of the group.

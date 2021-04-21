@@ -6,7 +6,7 @@ use serde_repr::Deserialize_repr;
 use std::{collections::HashMap, net::IpAddr};
 
 /// Configuration for a bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Config {
     /// Name of the bridge.
     pub name: String,
@@ -100,7 +100,7 @@ fn deserialize_whitelist<'de, D: Deserializer<'de>>(
 }
 
 /// Information about software updates.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct SoftwareUpdate {
     /// State of software updates.
     pub state: SoftwareUpdateState,
@@ -119,7 +119,7 @@ pub struct SoftwareUpdate {
 }
 
 /// State of software updates.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
     /// System does not know if new updates are available.
@@ -137,7 +137,7 @@ pub enum SoftwareUpdateState {
 }
 
 /// Configuration for automatically updating.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct SoftwareUpdateAutoInstall {
     /// Whether automatic updates are activated.
     pub on: bool,
@@ -150,7 +150,7 @@ pub struct SoftwareUpdateAutoInstall {
 }
 
 /// Portal state of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct PortalState {
     /// Signedon.
     pub signedon: bool,
@@ -163,7 +163,7 @@ pub struct PortalState {
 }
 
 /// Internet services of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct InternetServices {
     /// Whether the bridge is connected to the internet.
     pub internet: ServiceStatus,
@@ -178,7 +178,7 @@ pub struct InternetServices {
 }
 
 /// Status of a service.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ServiceStatus {
     /// The serivce is connected.
@@ -188,7 +188,7 @@ pub enum ServiceStatus {
 }
 
 /// Backup information about the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Backup {
     /// Status of backup/restore.
     pub status: BackupStatus,
@@ -200,7 +200,7 @@ pub struct Backup {
 }
 
 /// Status of backup/restore.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub enum BackupStatus {
     /// No backup or restore ongoing.
     #[serde(rename = "idle")]
@@ -227,7 +227,7 @@ pub enum BackupStatus {
 }
 
 /// Backup error of the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize_repr)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize_repr)]
 #[repr(u8)]
 pub enum BackupError {
     /// The backup has not detected an internal error.
@@ -239,7 +239,7 @@ pub enum BackupError {
 }
 
 /// User of a bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct User {
     /// Identifier of the user.
     #[serde(skip)]
@@ -261,7 +261,7 @@ impl User {
 }
 
 /// Struct for modifying configuration attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
     /// Sets the name of the bridge.

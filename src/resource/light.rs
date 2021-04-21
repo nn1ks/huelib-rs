@@ -90,7 +90,7 @@ pub struct State {
 }
 
 /// Information about software updates of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct SoftwareUpdate {
     /// State of software updates.
     pub state: SoftwareUpdateState,
@@ -105,7 +105,7 @@ pub struct SoftwareUpdate {
 ///
 /// [this issue]: https://github.com/yuqio/huelib-rs/issues/1
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
     /// No updates are available.
@@ -120,7 +120,7 @@ pub enum SoftwareUpdateState {
 }
 
 /// Configuration of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Config {
     /// Arche type of the light.
     #[serde(rename = "archetype")]
@@ -134,7 +134,7 @@ pub struct Config {
 }
 
 /// Startup configuration of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct StartupConfig {
     /// Mode of the startup.
     pub mode: String,
@@ -174,7 +174,7 @@ pub struct ControlCapabilities {
 }
 
 /// Color temperature capabilities of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct ColorTemperatureCapabilities {
     /// Minimal color temperature.
     pub min: usize,
@@ -183,7 +183,7 @@ pub struct ColorTemperatureCapabilities {
 }
 
 /// Streaming capabilities of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct StreamingCapabilities {
     /// Whether a renderer is enabled.
     pub renderer: bool,
@@ -192,7 +192,7 @@ pub struct StreamingCapabilities {
 }
 
 /// Modifier for light attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
     /// Sets the name of the light.
@@ -364,7 +364,7 @@ impl Serialize for StateModifier {
 }
 
 /// Scanner for new lights.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Scanner {
     /// The device identifiers.

@@ -52,7 +52,7 @@ use serde_json::Value as JsonValue;
 use std::fmt;
 
 /// Alert effect of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Alert {
     /// Performs one breathe cycle.
@@ -64,7 +64,7 @@ pub enum Alert {
 }
 
 /// Dynamic effect of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Effect {
     /// Cycles through all hues with the current brightness and saturation.
@@ -74,7 +74,7 @@ pub enum Effect {
 }
 
 /// Color mode of a light.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub enum ColorMode {
     /// Uses a color temperatue to set the color of a light.
     #[serde(rename = "ct")]
@@ -88,7 +88,7 @@ pub enum ColorMode {
 }
 
 /// Struct for new resources that were scanned by the bridge.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Scan {
     /// When the bridge last scanned for new resources.
     pub last_scan: LastScan,
@@ -159,7 +159,7 @@ impl<'de> Deserialize<'de> for Scan {
 }
 
 /// Status of the last scan for a new resource type.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum LastScan {
     /// Date and time of the last scan.
     DateTime(NaiveDateTime),
@@ -183,7 +183,7 @@ impl<'de> Deserialize<'de> for LastScan {
 }
 
 /// Information about a resource that is returned from a scan.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ScanResource {
     /// Identifier of the resource.
     pub id: String,
@@ -192,7 +192,7 @@ pub struct ScanResource {
 }
 
 /// Enum for adjusting an attribute of a modifier or creator.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Adjust<T> {
     /// Overrides the current value.
     Override(T),
@@ -204,7 +204,7 @@ pub enum Adjust<T> {
 
 /// Represents a HTTP method.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum RequestMethod {
     Put,
     Post,

@@ -43,7 +43,7 @@ impl Rule {
 impl resource::Resource for Rule {}
 
 /// Status of a rule.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Status {
     /// The rule is enabled.
@@ -55,7 +55,7 @@ pub enum Status {
 }
 
 /// Condition of a rule.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct Condition {
     /// Address of an attribute of a sensor resource.
     pub address: String,
@@ -71,7 +71,7 @@ pub struct Condition {
 }
 
 /// Condition operator of a rule.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum ConditionOperator {
     /// Less than an int value.
     #[serde(rename = "lt")]
@@ -160,7 +160,7 @@ impl Action {
 
 /// Request method of an action.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ActionRequestMethod {
     Put,

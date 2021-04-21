@@ -5,7 +5,7 @@ use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
 /// A sensor.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Sensor {
     /// Identifier of the sensor.
     #[serde(skip)]
@@ -50,7 +50,7 @@ impl Sensor {
 impl resource::Resource for Sensor {}
 
 /// Current state of a sensor.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct State {
     /// Whether the sensor is present.
     pub presence: Option<bool>,
@@ -78,7 +78,7 @@ pub struct State {
 }
 
 /// Configuration of a sensor.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Config {
     /// Whether the sensor is on.
     pub on: bool,
@@ -91,7 +91,7 @@ pub struct Config {
 }
 
 /// Modifier for sensor attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
     /// Sets the name of the sensor.
@@ -114,7 +114,7 @@ impl resource::Modifier for AttributeModifier {
 }
 
 /// Modifier for the sensor state.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct StateModifier {
     /// Sets the presence of the sensor.
@@ -137,7 +137,7 @@ impl resource::Modifier for StateModifier {
 }
 
 /// Modifier for the sensor configuration.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct ConfigModifier {
     /// Sets whether the sensor is on.
@@ -160,7 +160,7 @@ impl resource::Modifier for ConfigModifier {
 }
 
 /// Scanner for new lights.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Scanner {
     /// The device identifiers.

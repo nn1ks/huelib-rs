@@ -15,7 +15,7 @@ pub fn description(ip_address: IpAddr) -> crate::Result<Description> {
 /// Description of a bridge.
 #[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Description {
     pub spec_version: DescriptionSpecVersion,
@@ -38,7 +38,7 @@ impl Description {
 
 /// Spec version type of a description.
 #[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct DescriptionSpecVersion {
     /// The major version.
     pub major: usize,
@@ -49,7 +49,7 @@ pub struct DescriptionSpecVersion {
 /// Device type of a description.
 #[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DescriptionDevice {
     pub device_type: String,
@@ -82,7 +82,7 @@ where
 /// Icon type of a description.
 #[cfg_attr(docsrs, doc(cfg(feature = "upnp-description")))]
 #[allow(missing_docs)]
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(from = "deserialize::DescriptionIconWrapper")]
 pub struct DescriptionIcon {
     pub mimetype: Mime,

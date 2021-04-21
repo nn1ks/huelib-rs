@@ -3,7 +3,7 @@ use derive_setters::Setters;
 use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// A resourcelink to group resources in the bridge.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Resourcelink {
     /// Identifier of the resourcelink.
     #[serde(skip)]
@@ -36,13 +36,13 @@ impl resource::Resource for Resourcelink {}
 
 /// Kind of a resourcelink.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum Kind {
     Link,
 }
 
 /// A reference to a resource.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Link {
     /// Kind of the resource.
     pub kind: LinkKind,
@@ -79,7 +79,7 @@ impl Serialize for Link {
 
 /// Kind of a link.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum LinkKind {
     Group,
     Light,
@@ -118,7 +118,7 @@ impl LinkKind {
 }
 
 /// Struct for creating a resourcelink.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Creator {
     /// Sets the name of the resourcelink.
@@ -167,7 +167,7 @@ impl resource::Creator for Creator {
 }
 
 /// Modifier for a resourcelink.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
     /// Sets the name of the resourcelink.

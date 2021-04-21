@@ -31,7 +31,7 @@ where
 }
 
 /// A bridge with IP address and username.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Bridge {
     /// Name of the user that is connected to the bridge.
     username: String,

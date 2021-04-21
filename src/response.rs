@@ -5,7 +5,7 @@ use std::fmt;
 use thiserror::Error as ThisError;
 
 /// A response that is returned from the Philips Hue API.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Response<T> {
     /// The response from the API if the request succeeded.
@@ -38,7 +38,7 @@ impl<T: fmt::Display> fmt::Display for Response<T> {
 /// View the [API documentation] for more information.
 ///
 /// [API documentation]: https://developers.meethue.com/develop/hue-api/error-messages
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, ThisError)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, ThisError)]
 #[error("{description}")]
 pub struct Error {
     /// Kind of the error.
@@ -52,7 +52,7 @@ pub struct Error {
 
 /// Kind of an error from a response.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Deserialize_repr)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Deserialize_repr)]
 #[repr(u16)]
 pub enum ErrorKind {
     UnauthorizedUser = 1,

@@ -6,7 +6,7 @@ use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
 
 /// A scene.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
 pub struct Scene {
     /// Identifier of the scene.
     #[serde(skip_deserializing)]
@@ -55,7 +55,7 @@ impl Scene {
 impl resource::Resource for Scene {}
 
 /// Kind of a scene.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub enum Kind {
     /// Represents a scene with lights.
     LightScene,
@@ -64,7 +64,7 @@ pub enum Kind {
 }
 
 /// Version of a scene document.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct AppData {
     /// App specific version of the data field.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -75,7 +75,7 @@ pub struct AppData {
 }
 
 /// Version of a scene document.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize_repr)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize_repr)]
 #[repr(i32)]
 pub enum Version {
     /// Scene was created with a PUT request.

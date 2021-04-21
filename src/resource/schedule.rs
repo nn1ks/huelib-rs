@@ -98,7 +98,7 @@ impl Command {
 
 /// Request method of an command.
 #[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum CommandRequestMethod {
     Put,
@@ -107,7 +107,7 @@ pub enum CommandRequestMethod {
 }
 
 /// Status of a schedule.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Status {
     /// The schedule is enabled.

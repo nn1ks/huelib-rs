@@ -364,7 +364,7 @@ impl Serialize for StateModifier {
 }
 
 /// Scanner for new lights.
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Scanner {
     /// The device identifiers.

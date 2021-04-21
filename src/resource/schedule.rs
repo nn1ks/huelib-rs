@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Error as JsonError, Value as JsonValue};
 
 /// Schedule of a resource.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct Schedule {
     /// Identifier of the schedule.
     #[serde(skip)]
@@ -117,7 +117,7 @@ pub enum Status {
 }
 
 /// Struct for creating a schedule.
-#[derive(Clone, Debug, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Creator {
     /// Sets the name of the schedule.
@@ -166,7 +166,7 @@ impl resource::Creator for Creator {
 }
 
 /// Struct for modifying attributes of a schedule.
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct Modifier {
     /// Sets the name of the schedule.

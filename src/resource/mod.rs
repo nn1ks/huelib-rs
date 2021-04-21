@@ -126,7 +126,7 @@ impl<'de> Deserialize<'de> for Scan {
                 #[derive(Deserialize)]
                 struct ResourceInfo {
                     name: String,
-                };
+                }
                 let mut resources = Vec::new();
                 let mut last_scan = None;
                 while let Some(key) = map.next_key()? {

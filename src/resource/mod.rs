@@ -88,7 +88,7 @@ pub enum ColorMode {
 }
 
 /// Struct for new resources that were scanned by the bridge.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Scan {
     /// When the bridge last scanned for new resources.
     pub last_scan: LastScan,

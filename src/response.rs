@@ -5,7 +5,7 @@ use std::fmt;
 use thiserror::Error as ThisError;
 
 /// A response that is returned from the Philips Hue API.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Response<T> {
     /// The response from the API if the request succeeded.
@@ -97,7 +97,7 @@ pub enum ErrorKind {
 }
 
 /// A response type that is used when modifying a resource.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Modified {
     /// Address of the changed attribute.
     pub address: String,

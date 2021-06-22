@@ -147,8 +147,8 @@ impl<'de> Deserialize<'de> for Scan {
                 }
                 let last_scan = last_scan.ok_or_else(|| de::Error::missing_field("lastscan"))?;
                 Ok(Scan {
-                    resources,
                     last_scan,
+                    resources,
                 })
             }
         }

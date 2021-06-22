@@ -73,7 +73,7 @@ impl Serialize for Link {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!("/{}/{}", self.kind.to_str(), self.id))
+        serializer.serialize_str(&format!("/{}/{}", self.kind.as_str(), self.id))
     }
 }
 
@@ -104,7 +104,7 @@ impl LinkKind {
         }
     }
 
-    fn to_str(&self) -> &str {
+    fn as_str(&self) -> &str {
         match self {
             Self::Group => "groups",
             Self::Light => "lights",

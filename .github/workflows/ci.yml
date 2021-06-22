@@ -12,17 +12,14 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [linux, macos, windows]
         version: [stable, nightly]
-        features: ["''", "upnp-description"]
+        features: [default, upnp-description]
         include:
-        - os: linux
-          runs-on: ubuntu-latest
-        - os: macos
-          runs-on: macos-latest
-        - os: windows
-          runs-on: windows-latest
-    runs-on: ${{ matrix.runs-on }}
+        - features: default
+          cargo-features: "''"
+        - features: upnp-description
+          cargo-features: "'upnp-description'"
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
@@ -33,7 +30,7 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --verbose --features ${{ matrix.features }}
+        args: --verbose --features ${{ matrix.cargo-features }}
   format:
     runs-on: ubuntu-latest
     steps:

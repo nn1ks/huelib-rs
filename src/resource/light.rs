@@ -37,12 +37,15 @@ pub struct Light {
     #[serde(rename = "swversion")]
     pub software_version: String,
     /// Information about software updates of the light.
+    #[cfg(not(feature = "old-api"))]
     #[serde(rename = "swupdate")]
-    pub software_update: Option<SoftwareUpdate>,
+    pub software_update: SoftwareUpdate,
     /// Configuration of the light.
-    pub config: Option<Config>,
+    #[cfg(not(feature = "old-api"))]
+    pub config: Config,
     /// Capabilities of the light.
-    pub capabilities: Option<Capabilities>,
+    #[cfg(not(feature = "old-api"))]
+    pub capabilities: Capabilities,
 }
 
 impl Light {

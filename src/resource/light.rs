@@ -38,11 +38,11 @@ pub struct Light {
     pub software_version: String,
     /// Information about software updates of the light.
     #[serde(rename = "swupdate")]
-    pub software_update: SoftwareUpdate,
+    pub software_update: Option<SoftwareUpdate>,
     /// Configuration of the light.
-    pub config: Config,
+    pub config: Option<Config>,
     /// Capabilities of the light.
-    pub capabilities: Capabilities,
+    pub capabilities: Option<Capabilities>,
 }
 
 impl Light {

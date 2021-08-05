@@ -329,7 +329,7 @@ impl Bridge {
 
     /// Creates a new schedule and returns the identifier.
     pub fn create_schedule(&self, creator: &resource::schedule::Creator) -> Result<String> {
-        creator.execute(&self)
+        creator.execute(self)
     }
 
     /// Modifies attributes of a schedule.

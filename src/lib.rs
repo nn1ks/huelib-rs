@@ -18,7 +18,7 @@
 //!
 //! - `upnp-description`: Adds support for accessing the UPnP description of a bridge. See the
 //! [`bridge::Description`] struct for more information.
-//! - `old-api`: minimal effort support for older api versions. Usefull for users of the no longer
+//! - `old-api`: Minimal effort support for older api versions. Useful for users of the no longer
 //! supported Hue v1 bridge. This lowers the supported API version to `1.16` not all features 
 //! are guarenteed to work.
 //!

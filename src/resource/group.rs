@@ -151,6 +151,7 @@ pub enum Class {
     Staircase,
     Storage,
     Studio,
+    #[serde(rename = "TV")]
     Tv,
     Terrace,
     Toilet,

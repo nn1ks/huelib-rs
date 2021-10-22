@@ -214,7 +214,7 @@ impl resource::Creator for Creator {
 }
 
 /// Struct for modifying group attributes.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters, Deserialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Hash, Serialize, Setters)]
 #[setters(strip_option, prefix = "with_")]
 pub struct AttributeModifier {
     /// Sets the name of the group.

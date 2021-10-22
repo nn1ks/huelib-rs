@@ -151,7 +151,8 @@ pub enum Class {
     Staircase,
     Storage,
     Studio,
-    TV,
+    #[serde(rename = "TV")]
+    Tv,
     Terrace,
     Toilet,
     #[serde(rename = "Top floor")]
@@ -383,23 +384,6 @@ mod tests {
             "class": "Office"
         });
         assert_eq!(modifier_json, expected_json);
-    }
-
-
-    #[test]
-    fn deserialize_attribute_modifier_tv() {
-
-        let modifier_json_tv = json!({
-            "name": "test",
-            "lights": ["1", "2"],
-            "sensors": ["3"],
-            "class": "TV"
-        });
-
-        let modifier: AttributeModifier  = serde_json::from_value(modifier_json_tv).unwrap();
-
-        let modifier_class_string = format!("{:?}", modifier.class.unwrap());
-        assert_eq!(modifier_class_string, "TV");
     }
 
     #[test]

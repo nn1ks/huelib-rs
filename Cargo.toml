@@ -11,14 +11,14 @@ categories = ["api-bindings"]
 keywords = ["philips", "hue", "light"]
 
 [dependencies]
-ureq = { version = "2.1.1", features = ["json"] }
-serde = { version = "1.0.127", features = ["derive"] }
+ureq = { version = "2.3.0", features = ["json"] }
+serde = { version = "1.0.130", features = ["derive"] }
 serde_repr = "0.1.7"
-serde_json = "1.0.66"
+serde_json = "1.0.68"
 chrono = { version = "0.4.19", features = ["serde"] }
-thiserror = "1.0.26"
+thiserror = "1.0.30"
 derive_setters = "0.1.5"
-serde-xml-rs = { version = "0.5.0", optional = true }
+serde-xml-rs = { version = "0.5.1", optional = true }
 url = { version = "2.2.2", features = ["serde"], optional = true }
 uuid = { version = "0.8.2", features = ["serde"], optional = true }
 mime = { version = "0.3.16", optional = true }

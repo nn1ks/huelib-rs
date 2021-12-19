@@ -6,10 +6,10 @@ use derive_setters::Setters;
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 
 /// A light.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Light {
     /// Identifier of the light.
-    #[serde(skip)]
+    #[serde(skip_deserializing)]
     pub id: String,
     /// Name of the light.
     pub name: String,
@@ -57,7 +57,7 @@ impl Light {
 impl resource::Resource for Light {}
 
 /// State of a light.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct State {
     /// Whether the light is on.
     pub on: Option<bool>,
@@ -93,7 +93,7 @@ pub struct State {
 }
 
 /// Information about software updates of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct SoftwareUpdate {
     /// State of software updates.
     pub state: SoftwareUpdateState,
@@ -108,7 +108,7 @@ pub struct SoftwareUpdate {
 ///
 /// [this issue]: https://github.com/yuqio/huelib-rs/issues/1
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
     /// No updates are available.
@@ -123,7 +123,7 @@ pub enum SoftwareUpdateState {
 }
 
 /// Configuration of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct Config {
     /// Arche type of the light.
     #[serde(rename = "archetype")]
@@ -137,7 +137,7 @@ pub struct Config {
 }
 
 /// Startup configuration of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct StartupConfig {
     /// Mode of the startup.
     pub mode: String,
@@ -146,7 +146,7 @@ pub struct StartupConfig {
 }
 
 /// Capabilities of a light.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Capabilities {
     /// Whether the light is certified.
     pub certified: bool,
@@ -157,7 +157,7 @@ pub struct Capabilities {
 }
 
 /// Control capabilities of a light.
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ControlCapabilities {
     /// Minimal dimlevel of the light.
     #[serde(rename = "mindimlevel")]
@@ -177,7 +177,7 @@ pub struct ControlCapabilities {
 }
 
 /// Color temperature capabilities of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ColorTemperatureCapabilities {
     /// Minimal color temperature.
     pub min: usize,
@@ -186,7 +186,7 @@ pub struct ColorTemperatureCapabilities {
 }
 
 /// Streaming capabilities of a light.
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct StreamingCapabilities {
     /// Whether a renderer is enabled.
     pub renderer: bool,

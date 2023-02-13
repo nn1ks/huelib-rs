@@ -107,58 +107,7 @@ pub enum ImmutableKind {
 }
 
 /// Class of a group.
-#[allow(missing_docs)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub enum Class {
-    Attic,
-    Balcony,
-    Barbecue,
-    Bathroom,
-    Bedroom,
-    Carport,
-    Closet,
-    Computer,
-    Dining,
-    Downstairs,
-    Driveway,
-    #[serde(rename = "Front door")]
-    FrontDoor,
-    Garage,
-    Garden,
-    #[serde(rename = "Guest room")]
-    GuestRoom,
-    Gym,
-    Hallway,
-    Home,
-    #[serde(rename = "Kids bedroom")]
-    KidsBedroom,
-    Kitchen,
-    #[serde(rename = "Laundry room")]
-    LaundryRoom,
-    #[serde(rename = "Living room")]
-    LivingRoom,
-    Lounge,
-    #[serde(rename = "Man cave")]
-    ManCave,
-    Music,
-    Nursery,
-    Office,
-    Other,
-    Pool,
-    Porch,
-    Reading,
-    Recreation,
-    Staircase,
-    Storage,
-    Studio,
-    #[serde(rename = "TV")]
-    Tv,
-    Terrace,
-    Toilet,
-    #[serde(rename = "Top floor")]
-    TopFloor,
-    Upstairs,
-}
+pub type Class = String;
 
 /// State of a group.
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize)]
@@ -348,7 +297,7 @@ mod tests {
             lights: vec!["1".into(), "2".into()],
             sensors: Some(vec!["3".into()]),
             kind: Some(CreatableKind::Room),
-            class: Some(Class::Office),
+            class: Some("Office".to_string()),
             recycle: Some(true),
         };
         let creator_json = serde_json::to_value(creator).unwrap();
@@ -374,7 +323,7 @@ mod tests {
             name: Some("test".into()),
             lights: Some(vec!["1".into(), "2".into()]),
             sensors: Some(vec!["3".into()]),
-            class: Some(Class::Office),
+            class: Some("Office".to_string()),
         };
         let modifier_json = serde_json::to_value(modifier).unwrap();
         let expected_json = json!({

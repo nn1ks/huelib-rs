@@ -111,6 +111,10 @@ pub struct SoftwareUpdate {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SoftwareUpdateState {
+    /// Error
+    Error,
+    /// Installing
+    Installing,
     /// No updates are available.
     NoUpdates,
     /// Device cannot be updated.

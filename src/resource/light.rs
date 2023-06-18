@@ -312,6 +312,22 @@ pub struct StateModifier {
     pub transition_time: Option<u16>,
 }
 
+impl From<StaticStateModifier> for StateModifier {
+    fn from(value: StaticStateModifier) -> Self {
+        Self {
+            on: value.on,
+            brightness: value.brightness.map(Adjust::Override),
+            hue: value.hue.map(Adjust::Override),
+            saturation: value.saturation.map(Adjust::Override),
+            color_space_coordinates: value.color_space_coordinates.map(Adjust::Override),
+            color_temperature: value.color_temperature.map(Adjust::Override),
+            alert: Some(Alert::None),
+            effect: value.effect,
+            transition_time: value.transition_time
+        }
+    }
+}
+
 impl StateModifier {
     /// Creates a new [`StateModifier`].
     pub fn new() -> Self {

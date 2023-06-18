@@ -226,7 +226,7 @@ impl resource::Modifier for AttributeModifier {
 ///
 /// [`scene::Modifier`]: super::scene::Modifier
 /// [`scene::Creator`]: super::scene::Creator
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters, Deserialize)]
 #[setters(strip_option, prefix = "with_")]
 pub struct StaticStateModifier {
     /// Turns the light on or off.
@@ -310,6 +310,22 @@ pub struct StateModifier {
     ///
     /// This is given as a multiple of 100ms.
     pub transition_time: Option<u16>,
+}
+
+impl From<StaticStateModifier> for StateModifier {
+    fn from(value: StaticStateModifier) -> Self {
+        Self {
+            on: value.on,
+            brightness: value.brightness.map(Adjust::Override),
+            hue: value.hue.map(Adjust::Override),
+            saturation: value.saturation.map(Adjust::Override),
+            color_space_coordinates: value.color_space_coordinates.map(Adjust::Override),
+            color_temperature: value.color_temperature.map(Adjust::Override),
+            alert: Some(Alert::None),
+            effect: value.effect,
+            transition_time: value.transition_time
+        }
+    }
 }
 
 impl StateModifier {

@@ -226,7 +226,7 @@ impl resource::Modifier for AttributeModifier {
 ///
 /// [`scene::Modifier`]: super::scene::Modifier
 /// [`scene::Creator`]: super::scene::Creator
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Setters, Deserialize)]
 #[setters(strip_option, prefix = "with_")]
 pub struct StaticStateModifier {
     /// Turns the light on or off.
